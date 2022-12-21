@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Warehouse extends Model
+class Warehouse extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -17,6 +18,9 @@ class Warehouse extends Model
         'warehouseNo',
         'location',
         'username',
+    ];
+    
+    protected $hidden = [
         'password',
     ];
 }

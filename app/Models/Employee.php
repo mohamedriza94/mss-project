@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Employee extends Model
+class Employee extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -21,8 +22,11 @@ class Employee extends Model
         'address',
         'contact',
         'email',
-        'password',
         'role',
         'photo',
+    ];
+
+    protected $hidden = [
+        'password',
     ];
 }

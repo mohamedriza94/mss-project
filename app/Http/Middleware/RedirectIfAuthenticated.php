@@ -10,23 +10,41 @@ use Illuminate\Support\Facades\Auth;
 class RedirectIfAuthenticated
 {
     /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @param  string|null  ...$guards
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
-     */
+    * Handle an incoming request.
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+    * @param  string|null  ...$guards
+    * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+    */
     public function handle(Request $request, Closure $next, ...$guards)
     {
         $guards = empty($guards) ? [null] : $guards;
-
+        
         foreach ($guards as $guard) {
-            if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+            // if (Auth::guard($guard)->check()) {
+                //     return redirect(RouteServiceProvider::HOME);
+                // }
+                
+                switch ($guard) {
+                        case 'employee':
+                        if (Auth::guard($guard)->check()) {
+                            return redirect('/employee/dashboard');
+                        }
+                        break;
+                        case 'warehouse':
+                            if (Auth::guard($guard)->check()) {
+                                return redirect('/warehouse/dashboard');
+                            }
+                            break;
+                            default:
+                            if (Auth::guard($guard)->check()) {
+                                return redirect('/dashboard');
+                            }
+                            break;
+                        }
+                    }
+                    
+                    return $next($request);
+                }
             }
-        }
-
-        return $next($request);
-    }
-}
