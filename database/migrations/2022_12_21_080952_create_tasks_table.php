@@ -17,7 +17,11 @@ return new class extends Migration
             $table->id();
             $table->string('taskNo')->unique();
             $table->string('name');
+            $table->string('cardNo');
             $table->string('description')->nullable();
+            $table->string('startDate');
+            $table->string('endDate');
+            $table->string('duration')->nullable();
             $table->string('date');
             $table->string('time');
             $table->string('status');

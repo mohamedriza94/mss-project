@@ -13,11 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('slots', function (Blueprint $table) {
+        Schema::create('raw_materials', function (Blueprint $table) {
             $table->id();
-            $table->string('slotNo')->unique();
-            $table->string('workshopNo');
+            $table->string('no');
+            $table->string('inventoryNo');
             $table->string('status');
+            $table->string('checkingStatus');
+            $table->unsignedInteger('quantity');
             $table->timestamps();
         });
     }
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('slots');
+        Schema::dropIfExists('raw_materials');
     }
 };

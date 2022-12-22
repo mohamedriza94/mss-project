@@ -18,6 +18,6 @@ class Inventory extends Model
         'name',
         'price',
         'status',
-        'availableQuantity',
+        'quantity',
     ];
 }

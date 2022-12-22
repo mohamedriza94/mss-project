@@ -15,6 +15,7 @@ class Slot extends Model
 
     protected $fillable = [
         'slotNo',
+        'workshopNo',
         'status',
     ];
 }

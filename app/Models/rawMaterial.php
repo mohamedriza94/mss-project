@@ -7,22 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Task extends Model
+class rawMaterial extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = 'tasks';
+    protected $table = 'raw_materials';
 
     protected $fillable = [
-        'taskNo',
-        'cardNo',
-        'name',
-        'description',
-        'startDate',
-        'endDate',
-        'duration',
-        'date',
-        'time',
+        'no',
+        'inventoryNo',
         'status',
+        'quantity',
+        'checkingStatus',
     ];
 }

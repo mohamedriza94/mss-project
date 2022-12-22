@@ -8,9 +8,11 @@ use App\Models\Employee;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 
 class EmployeeController extends Controller
 {
+    //CRUD for Supervisor
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -22,7 +24,6 @@ class EmployeeController extends Controller
             'address' => ['required'],
             'contact' => ['required'],
             'email' => ['required'],
-            'role' => ['required'],
             'photo' => ['required','image'],
             'password' => ['min:6','required'],
             
@@ -45,7 +46,7 @@ class EmployeeController extends Controller
             $employees->address = $request->input('address');
             $employees->contact = $request->input('contact');
             $employees->email = $request->input('email');
-            $employees->role = $request->input('role');
+            $employees->role = 'supervisor';
             $employees->photo = $request->input('photo');
             $employees->password = Hash::make($request->input('password'));
             $employees->save();
@@ -82,7 +83,6 @@ class EmployeeController extends Controller
             'address' => ['required'],
             'contact' => ['required'],
             'email' => ['required'],
-            'role' => ['required'],
             
         ]); //validate all the data
         
@@ -103,7 +103,6 @@ class EmployeeController extends Controller
             $employees->address = $request->input('address');
             $employees->contact = $request->input('contact');
             $employees->email = $request->input('email');
-            $employees->role = $request->input('role');
 
             If(request('photo')!="")
             {
@@ -123,5 +122,50 @@ class EmployeeController extends Controller
     {
         $employees = Employee::find($id);
         $employees->delete();
+    }
+
+    //create worker account
+    public function createWorker(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            
+            'no' => ['required'],
+            'departmentNo' => ['required'],
+            'name' => ['required'],
+            'dob' => ['required'],
+            'address' => ['required'],
+            'contact' => ['required'],
+            'email' => ['required'],
+            'photo' => ['required','image'],
+            'password' => ['min:6','required'],
+            
+        ]); //validate all the data
+        
+        if($validator->fails())
+        {
+            return response()->json([
+                'status'=>400,
+                'errors'=>$validator->messages()
+            ]);
+        }
+        else
+        {
+            $worker = new Employee;
+            $worker->no = $request->input('no');
+            $worker->departmentNo = $request->input('departmentNo');
+            $worker->name = $request->input('name');
+            $worker->dob = $request->input('dob');
+            $worker->address = $request->input('address');
+            $worker->contact = $request->input('contact');
+            $worker->email = $request->input('email');
+            $worker->role = 'worker';
+            $worker->photo = $request->input('photo');
+            $worker->password = Hash::make($request->input('password'));
+            $worker->save();
+            
+            return response()->json([
+                'status'=>200
+            ]);
+        }
     }
 }
