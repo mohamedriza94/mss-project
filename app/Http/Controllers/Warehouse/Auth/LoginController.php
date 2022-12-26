@@ -14,7 +14,7 @@ class LoginController extends Controller
 {
     use AuthenticatesUsers;
 
-    protected $redirectTo = RouteServiceProvider::WAREHOUSE{};
+    protected $redirectTo = RouteServiceProvider::WAREHOUSE;
     
     public function __construct()
     {
@@ -34,13 +34,13 @@ class LoginController extends Controller
     public function validateLogin(Request $request)
     {
         // Attempt to log the user in
-        if ($this->guard()->attempt(['email' => $request->email, 'password' => $request->password])) {
+        if ($this->guard()->attempt(['username' => $request->username, 'password' => $request->password])) {
             return redirect()->intended(route('warehouse.dashboard'));
         } 
 
         // if unsuccessful, then redirect back to the login with the form data
-        return redirect()->back()->withInput($request->only('email'))->withErrors([
-            'password' => 'Invalid Email or Password!'
+        return redirect()->back()->withInput($request->only('username'))->withErrors([
+            'password' => 'Invalid Username or Password!'
         ]);
     }
 

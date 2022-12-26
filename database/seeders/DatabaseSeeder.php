@@ -20,5 +20,11 @@ class DatabaseSeeder extends Seeder
             'name' => 'Lock Hood',
             'email' => 'lh@gmail.com',
         ]);
+
+        \App\Models\Warehouse::factory()->create([
+            'warehouseNo' => '0001',
+            'location' => '-',
+            'username' => 'warehouse_one',
+        ]);
     }
 }

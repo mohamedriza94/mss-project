@@ -11,6 +11,13 @@ Route::group([
         Route::post('/logout', 'Auth\LoginController@logout')->name('warehouse.logout');
         Route::group(['prefix' => 'dashboard'], function () {
             Route::get('/', 'HomeController@index')->name('warehouse.dashboard');
+            Route::get('/inventory', 'HomeController@inventory')->name('warehouse.inventory');
+            Route::any('/addInventory', 'HomeController@create')->name('warehouse.addInventory');
+            Route::get('/read/{limit}', 'HomeController@read');
+            Route::get('/readOne/{id}', 'HomeController@readOne');
+            Route::delete('/delete/{id}', 'HomeController@delete');
+            Route::put('/update', 'HomeController@update');
+            Route::put('/addQuantity', 'HomeController@addQuantity');
         });
     });
 });

@@ -1,0 +1,203 @@
+.home-container {
+  width: 100%;
+  display: flex;
+  overflow: auto;
+  min-height: 100vh;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.home-navbar-interactive {
+  gap: 0;
+  width: 100%;
+  display: flex;
+  position: relative;
+  align-self: flex-end;
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-start;
+  background-color: var(--dl-color-primary-500);
+}
+.home-desktop-menu {
+  display: flex;
+}
+.home-nav {
+  flex: 0 0 auto;
+  display: flex;
+  position: relative;
+  align-self: center;
+  align-items: center;
+  flex-direction: row;
+}
+.home-text {
+  color: var(--dl-color-gray-white);
+  padding-left: var(--dl-space-space-fourunits);
+}
+.home-text01 {
+  color: var(--dl-color-gray-white);
+  align-self: center;
+  margin-left: var(--dl-space-space-twounits);
+}
+.home-text02 {
+  color: var(--dl-color-gray-white);
+  text-align: center;
+  padding-left: 55%;
+  padding-right: 4.75%;
+}
+.home-container1 {
+  width: 139px;
+  height: 82px;
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--dl-color-primary-300);
+}
+.home-text03 {
+  color: var(--dl-color-gray-white);
+}
+.home-ul {
+  width: 1184px;
+  padding: var(--dl-space-space-unit);
+  align-self: center;
+  margin-left: var(--dl-space-space-halfunit);
+  margin-right: var(--dl-space-space-halfunit);
+  background-color: #ed5c3a;
+}
+.home-li {
+  color: #ffffff;
+  text-align: center;
+}
+.home-text04 {
+  color: var(--dl-color-gray-white);
+}
+.home-li1 {
+  color: #ffffff;
+  text-align: center;
+}
+.home-text05 {
+  color: var(--dl-color-gray-white);
+}
+.home-li2 {
+  color: #ffffff;
+  text-align: center;
+}
+.home-text06 {
+  color: var(--dl-color-gray-white);
+}
+.home-container2 {
+  width: 1150px;
+  height: 600px;
+  display: flex;
+  padding: var(--dl-space-space-twounits);
+  position: relative;
+  align-items: flex-start;
+  /* border-color: var(--dl-color-gray-black);
+  border-width: 1px; */
+  justify-content: flex-start;
+}
+.home-container3 {
+  top: 76px;
+  flex: 0 0 auto;
+  left: 32px;
+  width: 1083px;
+  height: 426px;
+  display: flex;
+  padding: var(--dl-space-space-oneandhalfunits);
+  position: absolute;
+  align-items: flex-start;
+  /* border-color: var(--dl-color-gray-black);
+  border-width: 1px; */
+  border-radius: 0px;
+  justify-content: flex-start;
+}
+.home-text08 {
+  color: var(--dl-color-primary-300);
+  font-size: 20px;
+  font-style: normal;
+  font-family: Georgia;
+  font-weight: 800;
+  margin-bottom: var(--dl-space-space-twounits);
+}
+.home-button {
+  color: var(--dl-color-gray-white);
+  right: 0px;
+  bottom: 0px;
+  position: absolute;
+  align-self: flex-end;
+  border-width: 0px;
+  margin-right: var(--dl-space-space-twounits);
+  border-radius: 0px;
+  margin-bottom: var(--dl-space-space-twounits);
+  background-color: var(--dl-color-primary-500);
+}
+.home-button1 {
+  color: var(--dl-color-gray-white);
+  right: 120px;
+  bottom: 0px;
+  position: absolute;
+  align-self: flex-end;
+  border-width: 0px;
+  border-radius: 0px;
+  margin-bottom: var(--dl-space-space-twounits);
+  background-color: var(--dl-color-primary-500);
+}
+.home-container4 {
+  width: 100%;
+  height: 66px;
+  display: flex;
+  padding: var(--dl-space-space-oneandhalfunits);
+  align-self: stretch;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: var(--dl-color-primary-500);
+}
+.home-text09 {
+  color: var(--dl-color-gray-900);
+  font-size: 12px;
+}
+@media(max-width: 767px) {
+  .home-navbar-interactive {
+    padding-left: var(--dl-space-space-twounits);
+    padding-right: var(--dl-space-space-twounits);
+  }
+  .home-desktop-menu {
+    display: none;
+  }
+  .home-text01 {
+    margin-left: var(--dl-space-space-unit);
+  }
+}
+@media(max-width: 479px) {
+  .home-navbar-interactive {
+    padding: var(--dl-space-space-unit);
+  }
+}
+
+table {
+  background: #293241;
+  border-collapse: collapse;
+  margin: 1em;
+}
+th {
+  border-bottom: 1px solid #364043;
+  color: #E2B842;
+  font-size: 0.85em;
+  font-weight: 600;
+  padding: 0.5em 1em;
+  text-align: left;
+}
+td {
+  color: #fff;
+  font-weight: 400;
+  padding: 0.65em 1em;
+}
+.disabled td {
+  color: #4F5F64;
+}
+tbody tr {
+  transition: background 0.25s ease;
+}
+tbody tr:hover {
+  background: #014055;
+}

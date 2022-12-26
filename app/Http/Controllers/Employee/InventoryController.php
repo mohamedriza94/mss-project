@@ -18,6 +18,7 @@ class InventoryController extends Controller
             'inventoryNo' => ['required'],
             'name' => ['required'],
             'price' => ['required'],
+            'quantity' => ['required'],
             
         ]); //validate all the data
         
@@ -35,7 +36,7 @@ class InventoryController extends Controller
             $inventories->name = $request->input('name');
             $inventories->price = $request->input('price');
             $inventories->status = 'NA';
-            $inventories->quantity = '0';
+            $inventories->quantity = $request->input('quantity');
             $inventories->save();
             
             return response()->json([
