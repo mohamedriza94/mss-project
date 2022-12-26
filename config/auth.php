@@ -50,6 +50,11 @@ return [
             'driver' => 'session',
             'provider' => 'warehouses',
         ],
+
+        'administrator' => [
+            'driver' => 'session',
+            'provider' => 'administrators',
+        ],
     ],
 
     /*
@@ -83,6 +88,11 @@ return [
         'warehouses' => [
             'driver' => 'eloquent',
             'model' => App\Models\Warehouse::class,
+        ],
+
+        'administrators' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Administrator::class,
         ],
     ],
 
@@ -118,6 +128,13 @@ return [
         
         'warehouses' => [
             'provider' => 'warehouses',
+            'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        
+        'administrators' => [
+            'provider' => 'administrators',
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,

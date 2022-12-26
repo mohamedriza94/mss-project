@@ -27,24 +27,29 @@ class RedirectIfAuthenticated
                 // }
                 
                 switch ($guard) {
-                        case 'employee':
+                        case 'administrator':
                         if (Auth::guard($guard)->check()) {
-                            return redirect('/employee/dashboard');
+                            return redirect('/administrator/dashboard');
                         }
                         break;
-                        case 'warehouse':
+                        case 'employee':
                             if (Auth::guard($guard)->check()) {
-                                return redirect('/warehouse/dashboard');
+                                return redirect('/employee/dashboard');
                             }
                             break;
-                            default:
-                            if (Auth::guard($guard)->check()) {
-                                return redirect('/dashboard');
+                            case 'warehouse':
+                                if (Auth::guard($guard)->check()) {
+                                    return redirect('/warehouse/dashboard');
+                                }
+                                break;
+                                default:
+                                if (Auth::guard($guard)->check()) {
+                                    return redirect('/dashboard');
+                                }
+                                break;
                             }
-                            break;
                         }
+                        
+                        return $next($request);
                     }
-                    
-                    return $next($request);
                 }
-            }

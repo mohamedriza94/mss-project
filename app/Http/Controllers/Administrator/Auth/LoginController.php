@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Warehouse\Auth;
+namespace App\Http\Controllers\Administrator\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -14,28 +14,28 @@ class LoginController extends Controller
 {
     use AuthenticatesUsers;
 
-    protected $redirectTo = RouteServiceProvider::WAREHOUSE;
+    protected $redirectTo = RouteServiceProvider::ADMINISTRATOR;
     
     public function __construct()
     {
-        $this->middleware('guest:warehouse')->except('logout');
+        $this->middleware('guest:administrator')->except('logout');
     }
     
     protected function guard()
     {
-        return Auth::guard('warehouse');
+        return Auth::guard('administrator');
     }
     public function showLoginForm()
     {
-        $view_data['title'] = 'Warehouse Login';
-        return view('warehouse.auth.login', $view_data);
+        $view_data['title'] = 'Administrator Login';
+        return view('administrator.auth.login', $view_data);
     }
 
     public function validateLogin(Request $request)
     {
         // Attempt to log the user in
         if ($this->guard()->attempt(['username' => $request->username, 'password' => $request->password])) {
-            return redirect()->intended(route('warehouse.dashboard'));
+            return redirect()->intended(route('administrator.dashboard'));
         } 
 
         // if unsuccessful, then redirect back to the login with the form data
@@ -49,7 +49,7 @@ class LoginController extends Controller
         if (method_exists($this, 'redirectTo')) {
             return $this->redirectTo();
         }
-        return property_exists($this, 'redirectTo') ? $this->redirectTo : '/warehouse/dashboard';
+        return property_exists($this, 'redirectTo') ? $this->redirectTo : '/administrator/dashboard';
     }
 
     public function logout(Request $request)
@@ -57,6 +57,6 @@ class LoginController extends Controller
         $this->guard()->logout();
         Session::flush();
         $request->session()->regenerate(true);
-        return redirect()->route('warehouse.login');
+        return redirect()->route('administrator.login');
     }
 }

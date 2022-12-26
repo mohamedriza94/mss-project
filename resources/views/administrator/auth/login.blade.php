@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>LoginPage - Lock Hood</title>
+    <title>Administrator - Lock Hood</title>
     <meta property="og:title" content="LoginPage - Lock Hood" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
@@ -46,7 +46,7 @@
           <h1 class="login-page-text">Lock Hood</h1>
         </div>
         <div class="login-page-container2">
-          <form class="login-page-form" action="{{ route('warehouse.login.submit') }}" method="POST">
+          <form class="login-page-form" action="{{ route('administrator.login.submit') }}" method="POST">
             @csrf
             <input
               type="text"
@@ -72,7 +72,7 @@
                   {{ $message }}
               @enderror
             </label>
-            <span class="login-page-text3">Warehouse Login</span>
+            <span class="login-page-text3">Administrator Login</span>
             <button
               id="loginbtn"
               name="loginbtn"

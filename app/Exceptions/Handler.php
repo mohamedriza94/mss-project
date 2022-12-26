@@ -59,15 +59,23 @@ class Handler extends ExceptionHandler
         }
         $guard = \Arr::get($exception->guards(), 0);
         switch ($guard) {
+
+            case 'administrator':
+            $login = 'administrator.login';
+                break;
+
             case 'employee':
             $login = 'employee.login';
                 break;
+
                 case 'warehouse':
                 $login = 'warehouse.login';
                     break;
+
             default:
                 $login = 'login';
                 break;
+
         }
         return redirect()->guest(route($login));
     }

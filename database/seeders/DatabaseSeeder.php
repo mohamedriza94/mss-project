@@ -26,5 +26,9 @@ class DatabaseSeeder extends Seeder
             'location' => '-',
             'username' => 'warehouse_one',
         ]);
+
+        \App\Models\Administrator::factory()->create([
+            'username' => 'LockHood',
+        ]);
     }
 }

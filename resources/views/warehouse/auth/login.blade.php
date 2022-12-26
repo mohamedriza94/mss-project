@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>LoginPage - Lock Hood</title>
+    <title>Warehouse - Lock Hood</title>
     <meta property="og:title" content="LoginPage - Lock Hood" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
