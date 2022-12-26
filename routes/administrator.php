@@ -11,6 +11,23 @@ Route::group([
         Route::post('/logout', 'Auth\LoginController@logout')->name('administrator.logout');
         Route::group(['prefix' => 'dashboard'], function () {
             Route::get('/', 'HomeController@index')->name('administrator.dashboard');
+            Route::get('/factory', 'HomeController@factory')->name('administrator.factory');
+            Route::get('/department', 'HomeController@department')->name('administrator.department');
+            Route::get('/supervisor', 'HomeController@supervisor')->name('administrator.supervisor');
+            
+            //factory CRUD routes
+            Route::post('factory/create', 'FactoryController@create');
+            Route::get('factory/read/{limit}', 'FactoryController@read');
+            Route::get('factory/readOne/{id}', 'FactoryController@readOne');
+            Route::delete('factory/delete/{id}', 'FactoryController@delete');
+            Route::put('factory/update', 'FactoryController@update');
+
+            //department CRUD routes
+            Route::any('department/create', 'DepartmentController@create');
+            Route::get('department/read/{limit}', 'DepartmentController@read');
+            Route::get('department/readOne/{id}', 'DepartmentController@readOne');
+            Route::delete('department/delete/{id}', 'DepartmentController@delete');
+            Route::put('department/update', 'DepartmentController@update');
         });
     });
 });

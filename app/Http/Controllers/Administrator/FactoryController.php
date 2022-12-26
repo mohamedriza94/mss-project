@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Employee;
+namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -43,9 +43,9 @@ class FactoryController extends Controller
         }
     }
     
-    public function read()
+    public function read($limit)
     {
-        $factories = Factory::orderBy('id', 'DESC')->get();
+        $factories = Factory::orderBy('id', 'DESC')->limit(5)->offSet($limit)->get();
         return response()->json([
             'factories'=>$factories,
         ]);
@@ -59,12 +59,13 @@ class FactoryController extends Controller
         ]);
     }
     
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
             
+            'id' => ['required'],
             'name' => ['required','string','max:50'],
-            'contact' => ['required','numeric','digits_between:9,10','unique:factories'],
+            'contact' => ['required','numeric','digits_between:9,10'],
             'address' => ['required'],
             
         ]); //validate all the data
@@ -78,8 +79,7 @@ class FactoryController extends Controller
         }
         else
         {
-            $factories = Factory::find($id);
-            $factories->no = $request->input('no');
+            $factories = Factory::find($request->input('id'));
             $factories->name = $request->input('name');
             $factories->contact = $request->input('contact');
             $factories->address = $request->input('address');

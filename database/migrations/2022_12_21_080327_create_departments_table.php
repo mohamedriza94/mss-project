@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->string('no')->unique();
-            $table->string('factoryNo')->unique();
+            $table->string('factoryNo');
             $table->string('name');
             $table->string('location')->nullable();
             $table->string('contact');

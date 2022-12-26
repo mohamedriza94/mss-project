@@ -12,6 +12,8 @@ Route::group([
         Route::group(['prefix' => 'dashboard'], function () {
             Route::get('/', 'HomeController@index')->name('warehouse.dashboard');
             Route::get('/inventory', 'HomeController@inventory')->name('warehouse.inventory');
+
+            //inventory CRUD routes
             Route::any('/addInventory', 'HomeController@create')->name('warehouse.addInventory');
             Route::get('/read/{limit}', 'HomeController@read');
             Route::get('/readOne/{id}', 'HomeController@readOne');

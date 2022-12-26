@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Employee;
+namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -14,10 +14,10 @@ class DepartmentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             
-            'no' => ['required'],
+            'no' => ['required','unique:departments'],
             'factoryNo' => ['required'],
             'name' => ['required'],
-            'location' => ['required'],
+            'address' => ['required'],
             'contact' => ['required'],
             
         ]); //validate all the data
@@ -35,7 +35,7 @@ class DepartmentController extends Controller
             $departments->no = $request->input('no');
             $departments->factoryNo = $request->input('factoryNo');
             $departments->name = $request->input('name');
-            $departments->location = $request->input('location');
+            $departments->location = $request->input('address');
             $departments->contact = $request->input('contact');
             $departments->save();
             
@@ -45,9 +45,9 @@ class DepartmentController extends Controller
         }
     }
     
-    public function read()
+    public function read($limit)
     {
-        $departments = Department::orderBy('id', 'DESC')->get();
+        $departments = Department::orderBy('id', 'DESC')->limit(5)->offSet($limit)->get();
         return response()->json([
             'departments'=>$departments,
         ]);
@@ -61,12 +61,13 @@ class DepartmentController extends Controller
         ]);
     }
     
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
             
+            'id' => ['required'],
             'name' => ['required'],
-            'location' => ['required'],
+            'address' => ['required'],
             'contact' => ['required'],
             
         ]); //validate all the data
@@ -80,9 +81,9 @@ class DepartmentController extends Controller
         }
         else
         {
-            $departments = Department::find($id);
+            $departments = Department::find($request->input('id'));
             $departments->name = $request->input('name');
-            $departments->location = $request->input('location');
+            $departments->location = $request->input('address');
             $departments->contact = $request->input('contact');
             $departments->save();
             
