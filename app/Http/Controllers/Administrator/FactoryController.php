@@ -59,6 +59,14 @@ class FactoryController extends Controller
         ]);
     }
     
+    public function readRelation($id)
+    {
+        $factories = Factory::where('id','=',$id)->orWhere('no','=',$id)->get();
+        return response()->json([
+            'factories'=>$factories,
+        ]);
+    }
+    
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [

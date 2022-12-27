@@ -190,8 +190,24 @@
           
           $.each(response.departments,function(key,item){
             
-            $('#department').append('<option value="'+item.no+' '+item.factoryNo+'">'+item.name+'</option>\
-            ');
+            var urlGetFactory = '{{ url("administrator/dashboard/factory/readRelation/:id") }}';
+            urlGetFactory = urlGetFactory.replace(':id', item.factoryNo);
+            
+            $.ajax({
+              type: "GET",
+              url:urlGetFactory,
+              dataType:"json",
+              success:function(response){
+                $.each(response.factories,function(key,itemFactory){
+
+                  $('#department').append('<option value="'+item.no+' '+item.factoryNo+'">'+item.name+' - '+itemFactory.name+'</option>\
+                  ');
+
+                })
+              }
+            });
+            
+            
           });
         }
       });
@@ -322,7 +338,7 @@
         }
       });
     } 
-
+    
     $(document).on('click', '#btnUpdate', function(e) {
       
       e.preventDefault();

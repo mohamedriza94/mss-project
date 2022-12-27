@@ -19,6 +19,7 @@ Route::group([
             Route::post('factory/create', 'FactoryController@create');
             Route::get('factory/read/{limit}', 'FactoryController@read');
             Route::get('factory/readOne/{id}', 'FactoryController@readOne');
+            Route::get('factory/readRelation/{id}', 'FactoryController@readRelation');
             Route::delete('factory/delete/{id}', 'FactoryController@delete');
             Route::put('factory/update', 'FactoryController@update');
 

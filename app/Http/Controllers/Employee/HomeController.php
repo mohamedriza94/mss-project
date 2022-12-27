@@ -9,7 +9,13 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $view_data['title'] = 'Dashboard';
-        return view('employee.dashboard.index')->with($view_data);
+        if(auth()->guard('employee')->user()->role == "supervisor")
+        {
+            return view('employee.dashboard.supervisor.home');
+        }
+        else if(auth()->guard('employee')->user()->role == "worker")
+        {
+            return view('employee.dashboard.worker.home');
+        }
     }
 }
