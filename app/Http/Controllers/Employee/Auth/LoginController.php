@@ -14,7 +14,7 @@ class LoginController extends Controller
 {
     use AuthenticatesUsers;
 
-    protected $redirectTo = RouteServiceProvider::EMPLOYEE{};
+    protected $redirectTo = RouteServiceProvider::EMPLOYEE;
     
     public function __construct()
     {
