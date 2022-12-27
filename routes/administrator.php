@@ -28,6 +28,13 @@ Route::group([
             Route::get('department/readOne/{id}', 'DepartmentController@readOne');
             Route::delete('department/delete/{id}', 'DepartmentController@delete');
             Route::put('department/update', 'DepartmentController@update');
+
+            //supervisor CRUD routes
+            Route::post('supervisor/create', 'SupervisorController@create');
+            Route::get('supervisor/read/{limit}', 'SupervisorController@read');
+            Route::get('supervisor/readOne/{id}', 'SupervisorController@readOne');
+            Route::delete('supervisor/delete/{id}', 'SupervisorController@delete');
+            Route::post('supervisor/update', 'SupervisorController@update');
         });
     });
 });
