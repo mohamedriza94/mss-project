@@ -26,6 +26,15 @@ Route::group([
             Route::delete('workshop/deleteSlot/{id}', 'WorkshopController@deleteSlot');
             Route::put('workshop/updateStatus/{id}/{status}', 'WorkshopController@updateStatus');
             Route::put('workshop/update', 'WorkshopController@update');
+
+            //worker CRUD routes
+            Route::post('worker/create', 'EmployeeController@create');
+            Route::get('worker/read/{limit}', 'EmployeeController@read');
+            Route::get('worker/readOne/{id}', 'EmployeeController@readOne');
+            Route::delete('worker/delete/{id}', 'EmployeeController@delete');
+            Route::post('worker/update', 'EmployeeController@update');
+            Route::get('department/readRelation/{departmentNo}', 'EmployeeController@readRelation');
+            Route::get('workshop/readToSelect', 'WorkshopController@readToSelect');
         });
     });
 });

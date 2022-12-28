@@ -106,8 +106,8 @@
   position: relative;
   margin-top: var(--dl-space-space-oneandhalfunits);
   align-items: flex-start;
-  border-color: var(--dl-color-gray-black);
-  border-width: 1px;
+  /* border-color: var(--dl-color-gray-black);
+  border-width: 1px; */
   margin-bottom: var(--dl-space-space-halfunit);
   justify-content: flex-start;
 }
@@ -120,8 +120,8 @@
   display: flex;
   position: absolute;
   align-items: flex-start;
-  border-color: var(--dl-color-gray-black);
-  border-width: 1px;
+  /* border-color: var(--dl-color-gray-black);
+  border-width: 1px; */
   border-radius: 0px;
   justify-content: flex-start;
   overflow: auto;
@@ -164,8 +164,8 @@
   padding: var(--dl-space-space-twounits);
   position: relative;
   align-items: flex-start;
-  border-color: var(--dl-color-gray-black);
-  border-width: 1px;
+  /* border-color: var(--dl-color-gray-black);
+  border-width: 1px; */
   margin-bottom: var(--dl-space-space-halfunit);
   justify-content: flex-start;
 }
@@ -178,8 +178,8 @@
   display: flex;
   position: absolute;
   align-items: flex-start;
-  border-color: var(--dl-color-gray-black);
-  border-width: 1px;
+  /* border-color: var(--dl-color-gray-black);
+  border-width: 1px; */
   border-radius: 0px;
   justify-content: flex-start;
   overflow: auto;
@@ -232,8 +232,8 @@
   display: flex;
   position: relative;
   align-items: flex-start;
-  border-color: var(--dl-color-gray-black);
-  border-width: 1px;
+  /* border-color: var(--dl-color-gray-black);
+  border-width: 1px; */
 }
 .workshop-page-ul {
   width: 1132px;
@@ -274,8 +274,8 @@
   position: absolute;
   align-self: center;
   align-items: flex-start;
-  border-color: var(--dl-color-gray-black);
-  border-width: 1px;
+  /* border-color: var(--dl-color-gray-black);
+  border-width: 1px; */
   border-radius: 0px;
   justify-content: flex-start;
 }

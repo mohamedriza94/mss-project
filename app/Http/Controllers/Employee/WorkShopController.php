@@ -135,6 +135,14 @@ class WorkShopController extends Controller
         ]);
     }
     
+    public function readToSelect()
+    {
+        $workshops = Workshop::orderBy('id', 'DESC')->get();
+        return response()->json([
+            'workshops'=>$workshops,
+        ]);
+    }
+    
     public function readSlot($workshopNo, $limit_arrow)
     {
         $slots = Slot::where('workshopNo','=',$workshopNo)->orderBy('id', 'DESC')->limit(5)->offSet($limit_arrow)->get();

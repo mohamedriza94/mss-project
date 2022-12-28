@@ -65,7 +65,7 @@ class SupervisorController extends Controller
     
     public function read($limit)
     {
-        $employees = Employee::orderBy('id', 'DESC')->limit(4)->offSet($limit)->get();
+        $employees = Employee::where('role','=','supervisor')->orderBy('id', 'DESC')->limit(4)->offSet($limit)->get();
         return response()->json([
             'employees'=>$employees,
         ]);
