@@ -18,6 +18,8 @@ class rawMaterial extends Model
         'inventoryNo',
         'status',
         'quantity',
+        'minimumQuantity',
+        'cost',
         'checkingStatus',
     ];
 }

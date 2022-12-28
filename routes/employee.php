@@ -35,6 +35,14 @@ Route::group([
             Route::post('worker/update', 'EmployeeController@update');
             Route::get('department/readRelation/{departmentNo}', 'EmployeeController@readRelation');
             Route::get('workshop/readToSelect', 'WorkshopController@readToSelect');
+
+            //raw material CRUD
+            Route::post('rm/create', 'RawMaterialController@create');
+            Route::get('rm/read/{limit}', 'RawMaterialController@read');
+            Route::get('rm/readOne/{id}', 'RawMaterialController@readOne');
+            Route::delete('rm/delete/{id}', 'RawMaterialController@delete');
+            Route::post('rm/update', 'RawMaterialController@update');
+            Route::get('rm/readWarehouseInventory', 'RawMaterialController@readWarehouseInventory');
         });
     });
 });
