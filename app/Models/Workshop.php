@@ -16,6 +16,7 @@ class Workshop extends Model
     protected $fillable = [
         'no',
         'departmentNo',
+        'name',
         'status',
     ];
 }

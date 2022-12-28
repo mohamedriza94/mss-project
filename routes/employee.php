@@ -17,6 +17,15 @@ Route::group([
             Route::get('/worker', 'HomeController@worker')->name('employee.worker');
             Route::get('/inventory', 'HomeController@inventory')->name('employee.inventory');
 
+            //workshop CRUD routes
+            Route::any('workshop/create', 'WorkshopController@create');
+            Route::get('workshop/read/{limit}', 'WorkshopController@read');
+            Route::get('workshop/readSlot/{workshopNo}/{limit_arrow}', 'WorkshopController@readSlot');
+            Route::get('workshop/readOne/{workshopNo}', 'WorkshopController@readOne');
+            Route::delete('workshop/delete/{no}', 'WorkshopController@delete');
+            Route::delete('workshop/deleteSlot/{id}', 'WorkshopController@deleteSlot');
+            Route::put('workshop/updateStatus/{id}/{status}', 'WorkshopController@updateStatus');
+            Route::put('workshop/update', 'WorkshopController@update');
         });
     });
 });
