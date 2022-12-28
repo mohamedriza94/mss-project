@@ -173,358 +173,386 @@
         
         //limit and offset for pagination of MAIN table
         //
-          var limit = 0;
-          $(document).on('click', '#btnNext', function(e) {
-            
-            limit = limit + 5;
-            fetchRawMaterials();
-            fetchInventories();
-          });
+        var limit = 0;
+        $(document).on('click', '#btnNext', function(e) {
           
-          $(document).on('click', '#btnPrev', function(e) {
-            
-            limit = limit - 5;
-            
-            if(limit < 0)
-            {
-              limit = 0;
-            }
-            
-            fetchRawMaterials();
-            
-          });
+          limit = limit + 5;
+          fetchRawMaterials();
+          fetchInventories();
+        });
+        
+        $(document).on('click', '#btnPrev', function(e) {
           
-          //limit and offset for pagination of SLOT table
-          //
-            var limit_arrow = 0;
-            $(document).on('click', '#btnNext_Arrow', function(e) {
+          limit = limit - 5;
+          
+          if(limit < 0)
+          {
+            limit = 0;
+          }
+          
+          fetchRawMaterials();
+          
+        });
+        
+        //limit and offset for pagination of SLOT table
+        //
+        var limit_arrow = 0;
+        $(document).on('click', '#btnNext_Arrow', function(e) {
+          
+          limit_arrow = limit_arrow + 5;
+          fetchInventoryRequests();
+          
+        });
+        
+        $(document).on('click', '#btnPrev_Arrow', function(e) {
+          
+          limit_arrow = limit_arrow - 5;
+          
+          if(limit_arrow < 0)
+          {
+            limit_arrow = 0;
+          }
+          
+          fetchInventoryRequests();
+          
+        });
+        //
+        
+        //read raw materials
+        function fetchRawMaterials()
+        {
+          var url = '{{ url("employee/dashboard/rm/read/:limit") }}';
+          url = url.replace(':limit',limit);
+          
+          $.ajax({
+            type: "GET",
+            url:url,
+            dataType:"json",
+            success:function(response){
               
-              limit_arrow = limit_arrow + 5;
-              fetchInventoryRequests();
+              $('#rawMaterialTable').html('');
               
-            });
-            
-            $(document).on('click', '#btnPrev_Arrow', function(e) {
-              
-              limit_arrow = limit_arrow - 5;
-              
-              if(limit_arrow < 0)
-              {
-                limit_arrow = 0;
-              }
-              
-              fetchInventoryRequests();
-              
-            });
-            //
-            
-            //read raw materials
-            function fetchRawMaterials()
-            {
-              var url = '{{ url("employee/dashboard/rm/read/:limit") }}';
-              url = url.replace(':limit',limit);
-              
-              $.ajax({
-                type: "GET",
-                url:url,
-                dataType:"json",
-                success:function(response){
-                  
-                  $('#rawMaterialTable').html('');
-                  
-                  $.each(response.rawMaterials,function(key,item){
-                    
-                    var name = item.name;
-                    var name = name.slice(0,15)+'...';
-                    
-                    var status = "";
-                    
-                    if(item.status=='available')
-                    {
-                      status = "<div style='text-align:center; width:50%; padding:2px; border-radius:6px; background:#25b305; color:white'>In Stock</div>";
-                    }
-                    else
-                    {
-                      status = "<div style='text-align:center; border-radius:6px; width:60%; padding:2px; background:#cc1302; color:white'>Out of Stock</div>";
-                    }
-                    
-                    $('#rawMaterialTable').append('<tr><td>'+item.no+'</td>\
-                      <td>'+name+'</td>\
-                      <td>'+item.quantity+'</td>\
-                      <td>'+status+'</td>\
-                      <td>\
-                        <button value="'+item.no+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit Min Qty</button>\
-                        <button value="'+item.no+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
-                      </td>\
-                    </tr>\
-                    ');
-                  });
-                }
-              });
-            }
-            
-            //read warehouse inventory options
-            function fetchInventories()
-            {
-              var url = '{{ url("employee/dashboard/rm/readWarehouseInventory") }}';
-              
-              $.ajax({
-                type: "GET",
-                url:url,
-                dataType:"json",
-                success:function(response){
-                  
-                  $('#inventory').html('');
-                  
-                  $.each(response.inventories,function(key,item){
-                    
-                    $('#inventory').append('<option value="'+item.no+'">'+item.name+'</option>');
-                    
-                  });
-                }
-              });
-            }
-            
-            //Add raw materials
-            $(document).on('click','#btnAdd', function(e){
-              e.preventDefault();
-              
-              var inventoryNo = $('#inventoryNo').val();
-              var inventory = $('#inventory').val();
-              var quantity = $('#quantity').val();
-              var minimumQuantity = $('#minimumQuantity').val();
-              var cost = $('#cost').val();
-              
-              var data = {
-                'no' : inventoryNo,
-                'inventoryNo' : inventory,
-                'quantity' : quantity,
-                'minimumQuantity' : minimumQuantity,
-                'cost' : cost
-              };
-              
-              var url = '{{ url("employee/dashboard/rm/create") }}';
-              
-              $.ajax({
-                type:"POST", url:url, data:data, dataType:"json",
-                success: function(response)
+              $.each(response.rawMaterials,function(key,item){
+                
+                var name = item.name;
+                var name = name.slice(0,15)+'...';
+                
+                var status = "";
+                
+                if(item.status=='available')
                 {
-                  if(response.status == 400)
+                  status = "<div style='text-align:center; width:50%; padding:2px; border-radius:6px; background:#25b305; color:white'>In Stock</div>";
+                }
+                else
+                {
+                  status = "<div style='text-align:center; border-radius:6px; width:60%; padding:2px; background:#cc1302; color:white'>Out of Stock</div>";
+                }
+                
+                $('#rawMaterialTable').append('<tr><td>'+item.no+'</td>\
+                  <td>'+name+'</td>\
+                  <td>'+item.quantity+'</td>\
+                  <td>'+status+'</td>\
+                  <td>\
+                    <button value="'+item.id+'" id="btnAddQuantity" style="padding:8px; border-radius:3px; background:#dbfc03; color:#615f5f;">Add</button>\
+                    <button value="'+item.no+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit Min Qty</button>\
+                    <button value="'+item.no+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
+                  </td>\
+                </tr>\
+                ');
+              });
+            }
+          });
+        }
+        
+        //read warehouse inventory options
+        function fetchInventories()
+        {
+          var url = '{{ url("employee/dashboard/rm/readWarehouseInventory") }}';
+          
+          $.ajax({
+            type: "GET",
+            url:url,
+            dataType:"json",
+            success:function(response){
+              
+              $('#inventory').html('');
+              
+              $.each(response.inventories,function(key,item){
+                
+                $('#inventory').append('<option value="'+item.no+'">'+item.name+'</option>');
+                
+              });
+            }
+          });
+        }
+        
+        //Add raw materials
+        $(document).on('click','#btnAdd', function(e){
+          e.preventDefault();
+          
+          var inventoryNo = $('#inventoryNo').val();
+          var inventory = $('#inventory').val();
+          var quantity = $('#quantity').val();
+          var minimumQuantity = $('#minimumQuantity').val();
+          var repurchaseQuantity = $('#repurchaseQuantity').val();
+          
+          var data = {
+            'no' : inventoryNo,
+            'inventoryNo' : inventory,
+            'quantity' : quantity,
+            'minimumQuantity' : minimumQuantity,
+            'repurchaseQuantity' : repurchaseQuantity
+          };
+          
+          var url = '{{ url("employee/dashboard/rm/create") }}';
+          
+          $.ajax({
+            type:"POST", url:url, data:data, dataType:"json",
+            success: function(response)
+            {
+              if(response.status == 400)
+              {
+                $('#errorlist').html('');
+                $.each(response.errors,function(key,err_value){
+                  $('#errorlist').append('<li class="inventories-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
+                });
+              }
+              else
+              {
+                $('#errorlist').html('');
+                alert('Added!')
+                
+                $('#buttonContainer').html('\
+                <button id="btnAdd" class="inventories-page-button6 button">Add</button>');
+                
+                $('#inventoryNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+                $('#inventory').val('');
+                $('#quantity').val('');
+                $('#minimumQuantity').val('');
+                $('#repurchaseQuantity').val('');
+                
+                fetchRawMaterials();
+                fetchInventories();
+              }
+            }
+          });
+        });
+        
+        //Edit
+        $(document).on('click', '#btnEdit', function(e) {
+          
+          limit_arrow = 0; //set Slot table offset to 0
+          
+          inventoryNo = $(this).val();
+          
+          var url = '{{ url("employee/dashboard/rm/readOne/:inventoryNo") }}';
+          url = url.replace(':inventoryNo', inventoryNo);
+          
+          $.ajax({
+            type:"GET",
+            url:url,
+            dataType:"json",
+            success: function(response)
+            {
+              $('#inventoryNo').val(response.rawMaterials.no);
+              $('#inventory').val(response.rawMaterials.inventoryNo);
+              $('#quantity').val(response.rawMaterials.quantity);
+              $('#minimumQuantity').val(response.rawMaterials.minimumQuantity);
+              $('#repurchaseQuantity').val(response.rawMaterials.repurchaseQuantity);
+              $('#id').val(response.rawMaterials.id);
+              
+              $('#formHeader').text('Edit Inventory');
+              
+              $('#buttonContainer').html('\
+              <button id="btnUpdate" class="inventories-page-button6 button">Update</button>');
+              
+              $('#inventory').html('<option value="'+response.rawMaterials.no+'">'+response.rawMaterials.name+'</option>');
+              
+              fetchInventoryRequests();
+            }
+          });
+        });
+        
+        //fetch inventory requests into table{
+          var inventoryNo = "";
+          function fetchInventoryRequests()
+          {
+            var url = '{{ url("employee/dashboard/rm/readInventoryRequest/:inventoryNo/:limit_arrow") }}';
+            url = url.replace(':inventoryNo', inventoryNo);
+            url = url.replace(':limit_arrow', limit_arrow);
+            
+            $.ajax({
+              type: "GET",
+              url:url,
+              dataType:"json",
+              success:function(response){
+                
+                $('#inventoryRequestTable').html('');
+                
+                $.each(response.inventoryRequests,function(key,item){
+                  
+                  var status = "";
+                  
+                  if(item.status=='pending')
                   {
-                    $('#errorlist').html('');
-                    $.each(response.errors,function(key,err_value){
-                      $('#errorlist').append('<li class="inventories-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
-                    });
+                    status = "<div style='text-align:center; width:50%; padding:2px; border-radius:6px; background:#e69602; color:white'>Pending</div>";
+                    
                   }
                   else
                   {
-                    $('#errorlist').html('');
-                    alert('Added!')
+                    status = "<div style='text-align:center; border-radius:6px; width:60%; padding:2px; background:#0259e6; color:white'>Fulfilled</div>";
                     
-                    $('#buttonContainer').html('\
-                    <button id="btnAdd" class="inventories-page-button4 button">Add</button>');
-                    
-                    $('#inventoryNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-                    $('#inventory').val('');
-                    $('#quantity').val('');
-                    $('#minimumQuantity').val('');
-                    $('#cost').val('');
-                    
-                    fetchRawMaterials();
                   }
-                }
-              });
-            });
-            
-            //Edit
-            $(document).on('click', '#btnEdit', function(e) {
-              
-              limit_arrow = 0; //set Slot table offset to 0
-              
-              inventoryNo = $(this).val();
-              
-              var url = '{{ url("employee/dashboard/rm/readOne/:inventoryNo") }}';
-              url = url.replace(':inventoryNo', inventoryNo);
-              
-              $.ajax({
-                type:"GET",
-                url:url,
-                dataType:"json",
-                success: function(response)
-                {
-                  $('#inventoryNo').val(response.rawMaterials.no);
-                  $('#inventory').val(response.rawMaterials.inventoryNo);
-                  $('#quantity').val(response.rawMaterials.quantity);
-                  $('#minimumQuantity').val(response.rawMaterials.minimumQuantity);
-                  $('#cost').val(response.rawMaterials.cost);
-                  $('#id').val(response.rawMaterials.id);
                   
-                  $('#formHeader').text('Edit Inventory');
-                  
-                  $('#buttonContainer').html('\
-                  <button id="btnUpdate" class="inventories-page-button4 button">Update</button>');
-                  
-                  fetchInventoryRequests();
-                }
-              });
-            });
-            
-            //fetch inventory requests into table{
-              var inventoryNo = "";
-              
-              function fetchInventoryRequests()
-              {
-                var url = '{{ url("employee/dashboard/rm/readInventoryRequest/:inventoryNo/:limit_arrow") }}';
-                url = url.replace(':inventoryNo', inventoryNo);
-                url = url.replace(':limit_arrow', limit_arrow);
-                
-                $.ajax({
-                  type: "GET",
-                  url:url,
-                  dataType:"json",
-                  success:function(response){
-                    
-                    $('#inventoryRequestTable').html('');
-                    
-                    $.each(response.inventoryRequests,function(key,item){
-                      
-                      var status = "";
-                      
-                      if(item.status=='pending')
-                      {
-                        status = "<div style='text-align:center; width:50%; padding:2px; border-radius:6px; background:#e69602; color:white'>Pending</div>";
-                        
-                      }
-                      else
-                      {
-                        status = "<div style='text-align:center; border-radius:6px; width:60%; padding:2px; background:#0259e6; color:white'>Fulfilled</div>";
-                        
-                      }
-                      
-                      $('#inventoryRequestTable').append('<tr><td>'+item.requestNo+'</td>\
-                        <td>'+item.date+'</td>\
-                        <td>'+item.time+'</td>\
-                        <td>'+status+'</td>\
-                      </tr>\
-                      ');
-                    });
-                  }
+                  $('#inventoryRequestTable').append('<tr><td>'+item.requestNo+'</td>\
+                    <td>'+item.date+'</td>\
+                    <td>'+item.time+'</td>\
+                    <td>'+status+'</td>\
+                  </tr>\
+                  ');
                 });
               }
-              //}
-              
-              //Update raw materials
-              $(document).on('click','#btnUpdate', function(e){
-                e.preventDefault();
-                
-                var id = $('#id').val();
-                var minimumQuantity = $('#minimumQuantity').val();
-                
-                var data = {
-                  'id' : id,
-                  'minimumQuantity' : minimumQuantity,
-                };
-                
-                var url = '{{ url("employee/dashboard/rm/update") }}';
-                
-                $.ajax({
-                  type:"POST", url:url, data:data, dataType:"json",
-                  success: function(response)
-                  {
-                    if(response.status == 400)
-                    {
-                      $('#errorlist').html('');
-                      $.each(response.errors,function(key,err_value){
-                        $('#errorlist').append('<li class="inventories-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
-                      });
-                    }
-                    else
-                    {
-                      $('#errorlist').html('');
-                      alert('Updated Minimum Quantity!')
-                      
-                      $('#buttonContainer').html('\
-                      <button id="btnAdd" class="inventories-page-button4 button">Add</button>');
-                      
-                      $('#inventoryNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-                      $('#inventory').val('');
-                      $('#quantity').val('');
-                      $('#minimumQuantity').val('');
-                      $('#cost').val('');
-                      
-                      fetchRawMaterials();
-                    }
-                  }
-                });
-              });
-              
-              //delete
-              $(document).on('click', '#btnDelete', function(e) {
-                
-                var no = $(this).val();
-                
-                var url = '{{ url("employee/dashboard/rm/delete/:no") }}';
-                url = url.replace(':no', no); 
-                
-                $.ajax({
-                  type:"DELETE",
-                  url:url,
-                  dataType:"json",
-                });
-                
-                fetchRawMaterials();
-              });
-              
+            });
+          }
+          //}
+          
+          //Update raw materials
+          $(document).on('click','#btnUpdate', function(e){
+            e.preventDefault();
+            
+            var id = $('#id').val();
+            var minimumQuantity = $('#minimumQuantity').val();
+            var repurchaseQuantity = $('#repurchaseQuantity').val();
+            
+            var data = {
+              'id' : id,
+              'minimumQuantity' : minimumQuantity,
+              'repurchaseQuantity' : repurchaseQuantity,
+            };
+            
+            var url = '{{ url("employee/dashboard/rm/update") }}';
+            
+            $.ajax({
+              type:"POST", url:url, data:data, dataType:"json",
+              success: function(response)
+              {
+                if(response.status == 400)
+                {
+                  $('#errorlist').html('');
+                  $.each(response.errors,function(key,err_value){
+                    $('#errorlist').append('<li class="inventories-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
+                  });
+                }
+                else
+                {
+                  $('#errorlist').html('');
+                  alert('Updated Minimum Quantity!')
+                  
+                  $('#buttonContainer').html('\
+                  <button id="btnAdd" class="inventories-page-button6 button">Add</button>');
+                  
+                  $('#inventoryNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+                  $('#inventory').val('');
+                  $('#quantity').val('');
+                  $('#minimumQuantity').val('');
+                  $('#repurchaseQuantity').val('');
+                  
+                  fetchRawMaterials();
+                  fetchInventories();
+                }
+              }
+            });
+          });
+          
+          //delete
+          $(document).on('click', '#btnDelete', function(e) {
+            
+            var no = $(this).val();
+            
+            var url = '{{ url("employee/dashboard/rm/delete/:no") }}';
+            url = url.replace(':no', no); 
+            
+            $.ajax({
+              type:"DELETE",
+              url:url,
+              dataType:"json",
             });
             
-          </script>
+            fetchRawMaterials();
+          });
           
-          <div class="inventories-page-container08">
-            <ul id="errorlist" class="inventories-page-ul list"></ul>
+          //add stocks
+          $(document).on('click', '#btnAddQuantity', function(e) {
             
-            <div class="inventories-page-container09">
-              
-              <span class="inventories-page-text16" id="formHeader"> Add New Raw Material </span>
-              <form class="inventories-page-form">
-                
-                <input type="hidden" id="id"/>
-                
-                <div class="inventories-page-container10">
-                  <span class="inventories-page-text17">Inventory Number</span>
-                  <input type="number" id="inventoryNo" class="inventories-page-textinput input" />
-                </div>
-                
-                <div class="inventories-page-container11">
-                  <span class="inventories-page-text18">Inventory</span>
-                  <select id="inventory" class="inventories-page-select" ></select>
-                </div>
-                
-                <div class="inventories-page-container12">
-                  <span class="inventories-page-text19">Quantity</span>
-                  <input type="number" id="quantity" class="inventories-page-textinput1 input" />
-                </div>
-                
-                <div class="inventories-page-container13">
-                  <span class="inventories-page-text20">Minimum Quantity</span>
-                  <input type="number" id="minimumQuantity" class="inventories-page-textinput2 input" />
-                </div>
-                
-                <div class="inventories-page-container14">
-                  <span class="inventories-page-text21">Unit Cost</span>
-                  <input type="number" id="cost" class="inventories-page-textinput3 input" />
-                </div>
-                
-                <div id="buttonContainer">
-                  <button id="btnAdd" type="submit" class="inventories-page-button6 button"> Add </button>
-                </div>
-                
-              </form>
+            var id = $(this).val();
+            
+            var data = {
+              'id' : id,
+            }
+            
+            var url = '{{ url("employee/dashboard/rm/addQuantity") }}';
+            
+            $.ajax({
+              type:"PUT",
+              url: url,
+              data:data,
+              dataType:"json",
+              success: function(response){
+                fetchRawMaterials();
+              }
+            });
+          });
+          
+        });
+        
+      </script>
+      
+      <div class="inventories-page-container08">
+        <ul id="errorlist" class="inventories-page-ul list"></ul>
+        
+        <div class="inventories-page-container09">
+          
+          <span class="inventories-page-text16" id="formHeader"> Add New Raw Material </span>
+          <form class="inventories-page-form">
+            
+            <input type="hidden" id="id"/>
+            
+            <div class="inventories-page-container10">
+              <span class="inventories-page-text17">Inventory Number</span>
+              <input type="number" id="inventoryNo" class="inventories-page-textinput input" />
             </div>
-          </div>
-          <div class="inventories-page-container15">
-            <span class="inventories-page-text22">Lock Hood Pvt Ltd 2022</span>
-          </div>
+            
+            <div class="inventories-page-container11">
+              <span class="inventories-page-text18">Inventory</span>
+              <select id="inventory" class="inventories-page-select" ></select>
+            </div>
+            
+            <div class="inventories-page-container12">
+              <span class="inventories-page-text19">Quantity</span>
+              <input type="number" id="quantity" class="inventories-page-textinput1 input" />
+            </div>
+            
+            <div class="inventories-page-container13">
+              <span class="inventories-page-text20">Minimum Quantity</span>
+              <input type="number" id="minimumQuantity" class="inventories-page-textinput2 input" />
+            </div>
+            
+            <div class="inventories-page-container14">
+              <span class="inventories-page-text21">Repurchase Quantity</span>
+              <input type="number" id="repurchaseQuantity" class="inventories-page-textinput3 input" />
+            </div>
+            
+            <div id="buttonContainer">
+              <button id="btnAdd" type="submit" class="inventories-page-button6 button"> Add </button>
+            </div>
+            
+          </form>
         </div>
       </div>
-    </body>
-    </html>
+      <div class="inventories-page-container15">
+        <span class="inventories-page-text22">Lock Hood Pvt Ltd 2022</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

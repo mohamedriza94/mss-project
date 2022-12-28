@@ -18,10 +18,11 @@ class RawMaterialController extends Controller
     {
         $validator = Validator::make($request->all(), [
             
-            'no' => ['required'],
+            'no' => ['required','unique:raw_materials'],
             'inventoryNo' => ['required'],
             'quantity' => ['required'],
             'minimumQuantity' => ['required'],
+            'repurchaseQuantity' => ['required'],
             
         ]); //validate all the data
         
@@ -38,7 +39,7 @@ class RawMaterialController extends Controller
             $rawMaterials->no = $request->input('no');
             $rawMaterials->inventoryNo = $request->input('inventoryNo');
             $rawMaterials->quantity = $request->input('quantity');
-            $rawMaterials->cost = '-';
+            $rawMaterials->repurchaseQuantity = $request->input('repurchaseQuantity');
             $rawMaterials->checkingStatus = '-';
             $rawMaterials->minimumQuantity = $request->input('minimumQuantity');
             
@@ -46,7 +47,7 @@ class RawMaterialController extends Controller
             {
                 $rawMaterials->status = 'available';
             }
-            else
+            else 
             {
                 $rawMaterials->status = 'NA';
             }
@@ -62,9 +63,7 @@ class RawMaterialController extends Controller
     public function read($limit)
     {
         $rawMaterials = rawMaterial::join('inventories', 'raw_materials.inventoryNo', '=', 'inventories.inventoryNo')
-        ->orderBy('id', 'DESC')
-        ->limit(5)->offSet($limit)
-        ->get([
+        ->orderBy('raw_materials.id', 'DESC')->limit(5)->offSet($limit)->get([
             'raw_materials.status AS status',
             'raw_materials.no AS no',
             'raw_materials.quantity AS quantity',
@@ -77,7 +76,7 @@ class RawMaterialController extends Controller
         ]);
     }
     
-    public function readInventoryRequests($inventoryNo, $limit_arrow)
+    public function readInventoryRequest($inventoryNo, $limit_arrow)
     {
         $inventoryRequests = inventoryRequest::where('inventoryNo','=',$inventoryNo)->orderBy('id', 'DESC')->limit(5)->offSet($limit_arrow)->get();
         return response()->json([
@@ -94,7 +93,8 @@ class RawMaterialController extends Controller
             'raw_materials.inventoryNo AS inventoryNo',
             'raw_materials.quantity AS quantity',
             'raw_materials.minimumQuantity AS minimumQuantity',
-            'inventories.price AS cost',
+            'raw_materials.repurchaseQuantity AS repurchaseQuantity',
+            'inventories.name AS name',
             'raw_materials.id AS id',
             ]
         );
@@ -125,6 +125,7 @@ class RawMaterialController extends Controller
             
             'id' => ['required'],
             'minimumQuantity' => ['required'],
+            'repurchaseQuantity' => ['required'],
             
         ]); //validate all the data
         
@@ -137,9 +138,10 @@ class RawMaterialController extends Controller
         }
         else
         {
-            $rawMaterials = rawMaterial::where('no','=',$request->input('id'));
+            $rawMaterials = rawMaterial::find($request->input('id'));
             $rawMaterials->minimumQuantity = $request->input('minimumQuantity');
-            $rawMaterials->update();
+            $rawMaterials->repurchaseQuantity = $request->input('repurchaseQuantity');
+            $rawMaterials->save();
             
             return response()->json([
                 'status'=>200
@@ -154,6 +156,39 @@ class RawMaterialController extends Controller
         
         $inventoryRequests = inventoryRequest::where('inventoryNo','=',$no);
         $inventoryRequests->delete();
+    }
+
+    public function addQuantity(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            
+            'id' => ['required'],
+            
+        ]); //validate all the data
+        
+        if($validator->fails())
+        {
+            return response()->json([
+                'status'=>400,
+                'errors'=>$validator->messages()
+            ]);
+        }
+        else
+        {
+            $rawMaterials = rawMaterial::find($request->input('id'));
+            
+            $quantity = $rawMaterials['quantity'];
+
+            $newQuantity = $quantity + 1;
+
+            $rawMaterials->status = 'available';
+            $rawMaterials->quantity = $newQuantity;
+            $rawMaterials->save();
+            
+            return response()->json([
+                'status'=>200
+            ]);
+        }
     }
     
     // public function inventoryRequest()

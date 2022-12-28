@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('inventoryNo');
             $table->string('status');
             $table->string('minimumQuantity');
-            $table->string('cost');
+            $table->string('repurchaseQuantity');
             $table->string('checkingStatus');
             $table->unsignedInteger('quantity'); 
             $table->timestamps();
