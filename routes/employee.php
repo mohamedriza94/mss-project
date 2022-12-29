@@ -45,6 +45,20 @@ Route::group([
             Route::post('rm/addQuantity', 'RawMaterialController@addQuantity');
             Route::get('rm/readWarehouseInventory', 'RawMaterialController@readWarehouseInventory');
             Route::get('rm/readInventoryRequest/{inventoryNo}/{limit_arrow}', 'RawMaterialController@readInventoryRequest');
+
+            //card CRUD
+            Route::post('kbc/create', 'KanbanCardController@create');
+            Route::get('kbc/read/{limit}', 'KanbanCardController@read');
+            Route::get('kbc/readOne/{no}', 'KanbanCardController@readOne');
+            Route::delete('kbc/delete/{no}', 'KanbanCardController@delete');
+            Route::post('kbc/update', 'KanbanCardController@update');
+
+            //task CRUD
+            Route::post('task/create', 'KanbanCardController@createTask');
+            Route::get('task/read/{cardNo}/{limit_arrow}', 'KanbanCardController@readTask');
+            Route::get('task/readOne/{no}', 'KanbanCardController@readOneTask');
+            Route::post('task/update', 'KanbanCardController@updateTask');
+            Route::delete('task/delete/{no}', 'KanbanCardController@deleteTask');
         });
     });
 });

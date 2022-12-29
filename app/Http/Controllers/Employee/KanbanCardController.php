@@ -4,23 +4,18 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\KanbanCard;
+use App\Models\KanBanCard;
 use App\Models\Task;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
-class KanbanCardController extends Controller
+class KanBanCardController extends Controller
 {
     //CRUD Kanban Card
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
             
-            'cardNo' => ['required'],
-            'providedBy' => ['required'],
-            'factoryNo' => ['required'],
-            'status' => ['required'],
-            'date' => ['required'],
-            'time' => ['required'],
+            'cardNo' => ['required','unique:kan_ban_cards'],
             'title' => ['required'],
             'description' => ['required'],
             
@@ -35,16 +30,22 @@ class KanbanCardController extends Controller
         }
         else
         {
-            $kanbanCards = new KanbanCard;
-            $kanbanCards->cardNo = $request->input('cardNo');
-            $kanbanCards->providedBy = $request->input('providedBy');
-            $kanbanCards->factoryNo = $request->input('factoryNo');
-            $kanbanCards->status = $request->input('status');
-            $kanbanCards->date = $request->input('date');
-            $kanbanCards->time = $request->input('time');
-            $kanbanCards->title = $request->input('title');
-            $kanbanCards->description = $request->input('description');
-            $kanbanCards->save();
+            $KanBanCards = new KanBanCard;
+            $KanBanCards->cardNo = $request->input('cardNo');
+            $KanBanCards->providedBy = auth()->guard('employee')->user()->id;
+            
+            //exploding a string to get factory number from the supervisor
+            $factory_string  = auth()->guard('employee')->user()->departmentNo;
+            $split_factory_string = explode(" ", $factory_string);
+            $factoryNo = $split_factory_string[1]; //get 1st position of array
+            
+            $KanBanCards->factoryNo = $factoryNo;
+            $KanBanCards->status = 'pending';
+            $KanBanCards->date = NOW();
+            $KanBanCards->time = NOW();
+            $KanBanCards->title = $request->input('title');
+            $KanBanCards->description = $request->input('description');
+            $KanBanCards->save();
             
             return response()->json([
                 'status'=>200
@@ -52,29 +53,28 @@ class KanbanCardController extends Controller
         }
     }
     
-    public function read()
+    public function read($limit)
     {
-        $kanbanCards = KanbanCard::orderBy('id', 'DESC')->get();
+        $cards = KanBanCard::orderBy('id', 'DESC')->limit(5)->offSet($limit)->get();
         return response()->json([
-            'kanbanCards'=>$kanbanCards,
+            'cards'=>$cards,
         ]);
     }
     
-    public function readOne($id)
+    public function readOne($no)
     {
-        $kanbanCards = KanbanCard::find($id);
+        $cards = KanBanCard::where('cardNo','=',$no)->first();
         return response()->json([
-            'kanbanCards'=>$kanbanCards,
+            'cards'=>$cards,
         ]);
     }
-
-    public function update(Request $request, $id)
+    
+    public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            
+            'id' => ['required'],
             'title' => ['required'],
             'description' => ['required'],
-            
         ]); //validate all the data
         
         if($validator->fails())
@@ -86,10 +86,10 @@ class KanbanCardController extends Controller
         }
         else
         {
-            $kanbanCards = KanbanCard::find($id);
-            $kanbanCards->title = $request->input('title');
-            $kanbanCards->description = $request->input('description');
-            $kanbanCards->save();
+            $KanBanCards = KanBanCard::find($request->input('id'));
+            $KanBanCards->title = $request->input('title');
+            $KanBanCards->description = $request->input('description');
+            $KanBanCards->save();
             
             return response()->json([
                 'status'=>200
@@ -97,24 +97,32 @@ class KanbanCardController extends Controller
         }
     }
     
-    public function delete(Request $request, $id)
+    public function delete($no)
     {
-        $kanbanCards = KanBanCard::find($id);
-        $kanbanCards->delete();
+        $KanBanCards = KanBanCard::where('cardNo','=',$no);
+        $KanBanCards->delete();
+        
+        $tasks = Task::where('cardNo','=',$no);
+        $tasks->delete();
     }
 
+    public function readTask($cardNo, $limit_arrow)
+    {
+        $tasks = Task::where('cardNo','=',$cardNo)->orderBy('id', 'DESC')->limit(5)->offSet($limit_arrow)->get();
+        return response()->json([
+            'tasks'=>$tasks,
+        ]);
+    }
+    
     //CRUD Task
     public function createTask(Request $request)
     {
         $validator = Validator::make($request->all(), [
             
-            'taskNo' => ['required'],
+            'taskNo' => ['required','unique:tasks'],
             'cardNo' => ['required'],
             'name' => ['required'],
             'description' => ['required'],
-            'date' => ['required'],
-            'time' => ['required'],
-            'status' => ['required'],
             'startDate' => ['required'],
             'endDate' => ['required'],
             'duration' => ['required'],
@@ -135,12 +143,12 @@ class KanbanCardController extends Controller
             $tasks->cardNo = $request->input('cardNo');
             $tasks->name = $request->input('name');
             $tasks->description = $request->input('description');
-            $tasks->date = $request->input('date');
-            $tasks->time = $request->input('time');
+            $tasks->date = NOW();
+            $tasks->time = NOW();
             $tasks->startDate = $request->input('startDate');
             $tasks->endDate = $request->input('endDate');
             $tasks->duration = $request->input('duration');
-            $tasks->status = $request->input('status');
+            $tasks->status = 'pending';
             $tasks->save();
             
             return response()->json([
@@ -148,20 +156,21 @@ class KanbanCardController extends Controller
             ]);
         }
     }
-
-    public function readOneTask($cardNo)
+    
+    public function readOneTask($no)
     {
-        $tasks = Task::where('cardNo','=',$cardNo)->get();
+        $tasks = Task::where('taskNo','=',$no)->first();
         return response()->json([
             'tasks'=>$tasks,
         ]);
     }
-
-    public function updateTask(Request $request, $id)
+    
+    public function updateTask(Request $request)
     {
         $validator = Validator::make($request->all(), [
             
-            'title' => ['required'],
+            'taskId' => ['required'],
+            'name' => ['required'],
             'description' => ['required'],
             'startDate' => ['required'],
             'endDate' => ['required'],
@@ -178,7 +187,7 @@ class KanbanCardController extends Controller
         }
         else
         {
-            $tasks = Task::find($id);
+            $tasks = Task::find($request->input('taskId'));
             $tasks->name = $request->input('name');
             $tasks->description = $request->input('description');
             $tasks->startDate = $request->input('startDate');
@@ -192,9 +201,9 @@ class KanbanCardController extends Controller
         }
     }
     
-    public function delete(Request $request, $id)
+    public function deleteTask($no)
     {
-        $tasks = Task::find($id);
+        $tasks = Task::where('taskNo','=',$no);
         $tasks->delete();
     }
 }
