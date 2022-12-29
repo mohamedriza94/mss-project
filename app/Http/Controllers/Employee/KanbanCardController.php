@@ -159,6 +159,19 @@ class KanBanCardController extends Controller
             $tasks->status = 'pending';
             $tasks->save();
             
+            //occupy a slot for the task
+            $slot_check = Slot::where('factory','=',$factoryNo)->where('status','=','available')->take(1)->first();
+            
+            if($slot_check)
+            {
+                $slot_number = $slot_check['id']; //get a slot
+                
+                $slot_update = Slot::find($slot_number);
+                $slot_update->task = $request->input('taskNo');
+                $slot_update->status = 'occupied';
+                $slot_update->save();
+            }
+            
             return response()->json([
                 'status'=>200
             ]);
@@ -211,13 +224,17 @@ class KanBanCardController extends Controller
     
     public function deleteTask($no)
     {
+        $slot_update = Slot::where('task','=',$no)->first();
+        $slot_update->task = '-';
+        $slot_update->status = 'available';
+        $slot_update->update();
+        
         $tasks = Task::where('taskNo','=',$no);
         $tasks->delete();
     }
     
     public function autoSchedule()
     {
-        
         $explode_string  = auth()->guard('employee')->user()->departmentNo;
         $split_explode_string = explode(" ", $explode_string);
         $factoryNo = $split_explode_string[1]; //get 1st position of array
@@ -253,9 +270,9 @@ class KanBanCardController extends Controller
             if($raw_material_status != "0")
             {
                 //check if records exist in task table
-                $isExistTasks = Task::where('factory','=',$factoryNo)->first();
+                $getTaskCount = Task::where('factory','=',$factoryNo)->where('status','=','completed')->count();
                 
-                if($isExistTasks)
+                if($getTaskCount >= 2)
                 {
                     //check work completion duration
                     $duration_check = DB::table('tasks')->select('duration', DB::raw('COUNT(*) as count'))
@@ -269,7 +286,7 @@ class KanBanCardController extends Controller
                         $firstCalculation = $first_data - $second_data;
                         $secondCalculation = $second_data - $first_data;
                         $randNumber = 0;
-
+                        
                         if ( $firstCalculation < 0 )
                         {
                             $randNumber = $secondCalculation;
@@ -278,8 +295,8 @@ class KanBanCardController extends Controller
                         {
                             $randNumber = $firstCalculation;
                         }
-
-
+                        
+                        
                         $days = $first_data + $randNumber + rand(1,5);
                         
                         return response()->json([
@@ -290,7 +307,7 @@ class KanBanCardController extends Controller
                     else
                     {
                         return response()->json([
-                            'message'=>'Not enough Data to Auto Schedule!',
+                            'message'=>'Insufficient Data to Auto Schedule!',
                             'status'=>400
                         ]);
                     }
@@ -298,7 +315,7 @@ class KanBanCardController extends Controller
                 else
                 {
                     return response()->json([
-                        'message'=>'Not enough Data to Auto Schedule!',
+                        'message'=>'Insufficient Data to Auto Schedule!',
                         'status'=>400
                     ]);
                 }
@@ -307,7 +324,7 @@ class KanBanCardController extends Controller
             else
             {
                 return response()->json([
-                    'message'=>'Raw Materials Not Sufficient',
+                    'message'=>'Insufficient Raw Materials to Auto Schedule!',
                     'status'=>400
                 ]);
             }
