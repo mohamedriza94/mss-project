@@ -25,5 +25,6 @@ class Task extends Model
         'time',
         'status',
         'factory',
+        'workshop',
     ];
 }

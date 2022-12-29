@@ -157,7 +157,6 @@ class KanBanCardController extends Controller
             $tasks->endDate = $request->input('endDate');
             $tasks->duration = $request->input('duration');
             $tasks->status = 'pending';
-            $tasks->save();
             
             //occupy a slot for the task
             $slot_check = Slot::where('factory','=',$factoryNo)->where('status','=','available')->take(1)->first();
@@ -165,12 +164,17 @@ class KanBanCardController extends Controller
             if($slot_check)
             {
                 $slot_number = $slot_check['id']; //get a slot
+                $slot_workshopNumber = $slot_check['workshopNo']; //get workshop number
                 
                 $slot_update = Slot::find($slot_number);
                 $slot_update->task = $request->input('taskNo');
                 $slot_update->status = 'occupied';
                 $slot_update->save();
+
+                $tasks->workshop = $slot_workshopNumber;
             }
+
+            $tasks->save();
             
             return response()->json([
                 'status'=>200
