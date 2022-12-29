@@ -22,5 +22,6 @@ class rawMaterial extends Model
         'repurchaseQuantity',
         'checkingStatus',
         'factory',
+        'availablePercentage',
     ];
 }

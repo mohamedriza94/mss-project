@@ -144,6 +144,7 @@
             <th>Name</th>
             <th>Start</th>
             <th>End</th>
+            <th>Duration</th>
             <th>Status</th>
             <th>Action</th>
           </thead>
@@ -205,7 +206,7 @@
         $(document).on('click', '#btnNext_Arrow', function(e) {
           
           limit_arrow = limit_arrow + 5;
-          fetchInventoryRequests();
+          fetchTasks();
           
         });
         
@@ -218,7 +219,7 @@
             limit_arrow = 0;
           }
           
-          fetchInventoryRequests();
+          fetchTasks();
           
         });
         //
@@ -453,6 +454,7 @@
                   <td>'+name+'</td>\
                   <td>'+item.startDate+'</td>\
                   <td>'+item.endDate+'</td>\
+                  <td>'+item.duration+'</td>\
                   <td>'+status+'</td>\
                   <td>\
                     <button value="'+item.taskNo+'" id="btnEditTask" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit/See</button>\
@@ -535,7 +537,7 @@
                 
                 $('#getCardNo').val('');
                 $('#taskTitle').val('');
-                $('#description').val('');
+                $('#taskDescription').val('');
                 $('#start').val('');
                 $('#end').val('');
                 $('#duration').val('');
@@ -589,7 +591,7 @@
                 
                 $('#getCardNo').val('');
                 $('#taskTitle').val('');
-                $('#description').val('');
+                $('#taskDescription').val('');
                 $('#start').val('');
                 $('#end').val('');
                 $('#duration').val('');
@@ -640,6 +642,50 @@
           });
         });
         
+        //Auto Schedule Task
+        $(document).on('click', '#btnAutoSchedule', function(e) {
+          e.preventDefault();
+
+          var url = '{{ url("employee/dashboard/task/autoSchedule") }}';
+          
+          $('#btnAutoSchedule').text('Scheduling...');
+          
+          $.ajax({
+            type:"GET",
+            url:url,
+            dataType:"json",
+            success: function(response)
+            {
+              if(response.status == 400)
+              {
+                $('#btnAutoSchedule').text('Auto Schedule');
+
+                alert(response.message);
+              }
+              else
+              {
+                setTimeout(() => {
+                  $('#btnAutoSchedule').text('Auto Schedule');
+                  
+                  let startDateString = new Date();
+                  let endDateString = new Date();
+                  
+                  let numDays = response.days;
+                  endDateString.setDate(endDateString.getDate() + numDays);
+                  
+                  let startDate = document.getElementById("start");
+                  let endDate = document.getElementById("end");
+                  let duration = document.getElementById("duration");
+                  
+                  startDate.value = startDateString.toISOString().split("T")[0];
+                  endDate.value = endDateString.toISOString().split("T")[0];
+                  duration.value = numDays;
+                }, 2000);
+              }
+            }
+          });
+        });
+        
         //delete task
         $(document).on('click', '#btnDeleteTask', function(e) {
           
@@ -670,10 +716,10 @@
           var endTime = end.getTime();
           
           var days = (endTime - startTime) / 86400000;
-
+          
           $('#duration').val(days);
         }
-
+        
         $('#start').change(function() {
           calculateDuration();
         });

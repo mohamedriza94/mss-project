@@ -57,6 +57,7 @@ Route::group([
             Route::post('task/create', 'KanbanCardController@createTask');
             Route::get('task/read/{cardNo}/{limit_arrow}', 'KanbanCardController@readTask');
             Route::get('task/readOne/{no}', 'KanbanCardController@readOneTask');
+            Route::get('task/autoSchedule', 'KanbanCardController@autoSchedule');
             Route::post('task/update', 'KanbanCardController@updateTask');
             Route::delete('task/delete/{no}', 'KanbanCardController@deleteTask');
         });

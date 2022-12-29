@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('repurchaseQuantity');
             $table->string('checkingStatus');
             $table->string('factory');
+            $table->unsignedInteger('availablePercentage')->nullable();
             $table->unsignedInteger('quantity'); 
             $table->timestamps();
         });

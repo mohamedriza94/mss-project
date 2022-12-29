@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\KanBanCard;
 use App\Models\Task;
+use App\Models\rawMaterial;
+use App\Models\Slot;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 class KanBanCardController extends Controller
 {
     //CRUD Kanban Card
@@ -105,7 +108,7 @@ class KanBanCardController extends Controller
         $tasks = Task::where('cardNo','=',$no);
         $tasks->delete();
     }
-
+    
     public function readTask($cardNo, $limit_arrow)
     {
         $tasks = Task::where('cardNo','=',$cardNo)->orderBy('id', 'DESC')->limit(5)->offSet($limit_arrow)->get();
@@ -138,10 +141,15 @@ class KanBanCardController extends Controller
         }
         else
         {
+            $explode_string  = auth()->guard('employee')->user()->departmentNo;
+            $split_explode_string = explode(" ", $explode_string);
+            $factoryNo = $split_explode_string[1]; //get 1st position of array
+            
             $tasks = new Task;
             $tasks->taskNo = $request->input('taskNo');
             $tasks->cardNo = $request->input('cardNo');
             $tasks->name = $request->input('name');
+            $tasks->factory = $factoryNo;
             $tasks->description = $request->input('description');
             $tasks->date = NOW();
             $tasks->time = NOW();
@@ -205,5 +213,111 @@ class KanBanCardController extends Controller
     {
         $tasks = Task::where('taskNo','=',$no);
         $tasks->delete();
+    }
+    
+    public function autoSchedule()
+    {
+        
+        $explode_string  = auth()->guard('employee')->user()->departmentNo;
+        $split_explode_string = explode(" ", $explode_string);
+        $factoryNo = $split_explode_string[1]; //get 1st position of array
+        
+        //get available work slot in factory
+        $slot_check = Slot::where('factory','=',$factoryNo)->where('status','=','available')->first();
+        
+        $slot_number = "";
+        $raw_material_status = "";
+        if($slot_check)
+        {
+            $slot_number = $slot_check['slotNo']; //get a slot
+        }
+        else
+        {
+            $slot_number = "-"; //no slots available
+        }
+        
+        //get available raw material data
+        $rawMaterial_check = rawMaterial::where('factory','=',$factoryNo)->where('availablePercentage','<','30')->first();
+        
+        if($rawMaterial_check)
+        {
+            $raw_material_status = "0"; //insufficient
+        }
+        else
+        {
+            $raw_material_status = "1"; //sufficient
+        }
+        
+        if($slot_number != "-") //if slot exists
+        {
+            if($raw_material_status != "0")
+            {
+                //check if records exist in task table
+                $isExistTasks = Task::where('factory','=',$factoryNo)->first();
+                
+                if($isExistTasks)
+                {
+                    //check work completion duration
+                    $duration_check = DB::table('tasks')->select('duration', DB::raw('COUNT(*) as count'))
+                    ->groupBy('duration')->where('factory','=',$factoryNo)->orderBy('count', 'desc')->get();
+                    
+                    if($duration_check)
+                    {
+                        $first_data = $duration_check->skip(0)->take(1)->first()->duration; //first most repeated
+                        $second_data = $duration_check->skip(1)->take(1)->first()->duration; //second most repeated
+                        
+                        $firstCalculation = $first_data - $second_data;
+                        $secondCalculation = $second_data - $first_data;
+                        $randNumber = 0;
+
+                        if ( $firstCalculation < 0 )
+                        {
+                            $randNumber = $secondCalculation;
+                        }
+                        else
+                        {
+                            $randNumber = $firstCalculation;
+                        }
+
+
+                        $days = $first_data + $randNumber + rand(1,5);
+                        
+                        return response()->json([
+                            'days'=>$days,
+                            'status'=>200
+                        ]);
+                    }
+                    else
+                    {
+                        return response()->json([
+                            'message'=>'Not enough Data to Auto Schedule!',
+                            'status'=>400
+                        ]);
+                    }
+                }
+                else
+                {
+                    return response()->json([
+                        'message'=>'Not enough Data to Auto Schedule!',
+                        'status'=>400
+                    ]);
+                }
+                
+            }
+            else
+            {
+                return response()->json([
+                    'message'=>'Raw Materials Not Sufficient',
+                    'status'=>400
+                ]);
+            }
+        }
+        else
+        {
+            return response()->json([
+                'message'=>'Slots Unavailable',
+                'status'=>400
+            ]);
+        }
     }
 }

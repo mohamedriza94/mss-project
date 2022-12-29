@@ -33,9 +33,9 @@ class WorkShopController extends Controller
         else
         {
             //explode supervisor department number column and get department number of supervisor
-            $department_string  = auth()->guard('employee')->user()->departmentNo;
-            $split_department_string = explode(" ", $department_string);
-            $departmentNo = $split_department_string[0]; //get 0th position of array
+            $explode_string  = auth()->guard('employee')->user()->departmentNo;
+            $split_explode_string = explode(" ", $explode_string);
+            $departmentNo = $split_explode_string[0]; //get 0th position of array
             
             $workshops = new Workshop;
             $workshops->no = $request->input('no');
@@ -46,15 +46,19 @@ class WorkShopController extends Controller
             
             //repeat until loop to save number of work slots
             $thresholdSlotCount = $request->input('slot');
-
+            
             if($thresholdSlotCount != 0)
             {
                 $slotCount = 1;
-
+                
                 do {
+                    
+                    $factoryNo = $split_explode_string[1]; //get 1st position of array
                     
                     $slots = new Slot;
                     $slots->slotNo = rand(1000,9999);
+                    $slots->factory = $factoryNo;
+                    $slots->task = '-';
                     $slots->workshopNo = $request->input('no');
                     $slots->status = 'available';
                     $slots->save();
@@ -98,15 +102,21 @@ class WorkShopController extends Controller
             
             //repeat until loop to save number of work slots
             $thresholdSlotCount = $request->input('slot');
-
+            
             if($thresholdSlotCount != 0)
             {
                 $slotCount = 1;
-
+                
                 do {
+                    //explode supervisor department number column and get department number of supervisor
+                    $explode_string  = auth()->guard('employee')->user()->departmentNo;
+                    $split_explode_string = explode(" ", $explode_string);
+                    $factoryNo = $split_explode_string[1]; //get 1st position of array
                     
                     $slots = new Slot;
                     $slots->slotNo = rand(1000,9999);
+                    $slots->factory = $factoryNo;
+                    $slots->task = '-';
                     $slots->workshopNo = $request->input('no');
                     $slots->status = 'available';
                     $slots->save();
@@ -128,7 +138,7 @@ class WorkShopController extends Controller
         $department_string  = auth()->guard('employee')->user()->departmentNo;
         $split_department_string = explode(" ", $department_string);
         $departmentNo = $split_department_string[0]; //get 0th position of array
-
+        
         $workshops = Workshop::where('departmentNo','=',$departmentNo)->orderBy('id', 'DESC')->limit(5)->offSet($limit)->get();
         return response()->json([
             'workshops'=>$workshops,

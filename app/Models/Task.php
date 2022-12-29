@@ -24,5 +24,6 @@ class Task extends Model
         'date',
         'time',
         'status',
+        'factory',
     ];
 }

@@ -35,12 +35,19 @@ class RawMaterialController extends Controller
         }
         else
         {
+            //calculate percentage of available quantity and round up
+            $availableQuantity = $request->input('quantity');
+            $totalQuantity = $request->input('minimumQuantity') + $request->input('repurchaseQuantity');
+            $availablePercentage = $availableQuantity / $totalQuantity * 100;
+            $availablePercentage = round($availablePercentage);
+
             $rawMaterials = new rawMaterial;
             $rawMaterials->no = $request->input('no');
             $rawMaterials->inventoryNo = $request->input('inventoryNo');
             $rawMaterials->quantity = $request->input('quantity');
             $rawMaterials->repurchaseQuantity = $request->input('repurchaseQuantity');
             $rawMaterials->checkingStatus = '-';
+            $rawMaterials->availablePercentage = $availablePercentage;
             $rawMaterials->minimumQuantity = $request->input('minimumQuantity');
             
             //exploding a string to get factory number from the supervisor
@@ -159,8 +166,15 @@ class RawMaterialController extends Controller
         }
         else
         {
+            //calculate percentage of available quantity and round up
+            $availableQuantity = $request->input('quantity');
+            $totalQuantity = $request->input('minimumQuantity') + $request->input('repurchaseQuantity');
+            $availablePercentage = $availableQuantity / $totalQuantity * 100;
+            $availablePercentage = round($availablePercentage);
+
             $rawMaterials = rawMaterial::find($request->input('id'));
             $rawMaterials->minimumQuantity = $request->input('minimumQuantity');
+            $rawMaterials->availablePercentage = $availablePercentage;
             $rawMaterials->repurchaseQuantity = $request->input('repurchaseQuantity');
             $rawMaterials->save();
             

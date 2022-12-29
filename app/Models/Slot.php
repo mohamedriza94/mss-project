@@ -17,5 +17,7 @@ class Slot extends Model
         'slotNo',
         'workshopNo',
         'status',
+        'factory',
+        'task'
     ];
 }

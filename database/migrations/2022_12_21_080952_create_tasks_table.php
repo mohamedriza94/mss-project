@@ -21,10 +21,11 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->string('startDate');
             $table->string('endDate');
-            $table->string('duration')->nullable();
+            $table->unsignedInteger('duration')->nullable();
             $table->string('date');
             $table->string('time');
             $table->string('status');
+            $table->string('factory');
             $table->timestamps();
         });
     }

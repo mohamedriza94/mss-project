@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('slotNo')->unique();
             $table->string('workshopNo');
             $table->string('status');
+            $table->string('factory');
+            $table->string('task');
             $table->timestamps();
         });
     }
