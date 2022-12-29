@@ -446,7 +446,7 @@
                 else
                 {
                   $('#errorlist').html('');
-                  alert('Updated Minimum Quantity!')
+                  alert('Updated Minimum AND Repurchase Quantity!')
                   
                   $('#buttonContainer').html('\
                   <button id="btnAdd" class="inventories-page-button6 button">Add</button>');
@@ -479,6 +479,7 @@
             });
             
             fetchRawMaterials();
+            fetchInventories();
           });
           
           //add stocks
@@ -493,7 +494,7 @@
             var url = '{{ url("employee/dashboard/rm/addQuantity") }}';
             
             $.ajax({
-              type:"PUT",
+              type:"POST",
               url: url,
               data:data,
               dataType:"json",

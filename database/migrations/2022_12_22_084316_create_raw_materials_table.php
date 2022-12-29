@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('minimumQuantity');
             $table->string('repurchaseQuantity');
             $table->string('checkingStatus');
+            $table->string('factory');
             $table->unsignedInteger('quantity'); 
             $table->timestamps();
         });

@@ -42,7 +42,7 @@ Route::group([
             Route::get('rm/readOne/{id}', 'RawMaterialController@readOne');
             Route::delete('rm/delete/{id}', 'RawMaterialController@delete');
             Route::post('rm/update', 'RawMaterialController@update');
-            Route::put('rm/addQuantity', 'RawMaterialController@addQuantity');
+            Route::post('rm/addQuantity', 'RawMaterialController@addQuantity');
             Route::get('rm/readWarehouseInventory', 'RawMaterialController@readWarehouseInventory');
             Route::get('rm/readInventoryRequest/{inventoryNo}/{limit_arrow}', 'RawMaterialController@readInventoryRequest');
         });

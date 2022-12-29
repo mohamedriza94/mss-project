@@ -43,6 +43,13 @@ class RawMaterialController extends Controller
             $rawMaterials->checkingStatus = '-';
             $rawMaterials->minimumQuantity = $request->input('minimumQuantity');
             
+            //exploding a string to get factory number from the supervisor
+            $factory_string  = auth()->guard('employee')->user()->departmentNo;
+            $split_factory_string = explode(" ", $factory_string);
+            $factoryNo = $split_factory_string[1]; //get 1st position of array
+            
+            $rawMaterials->factory = $factoryNo;
+            
             if($request->input('quantity') > 0)
             {
                 $rawMaterials->status = 'available';
@@ -62,10 +69,16 @@ class RawMaterialController extends Controller
     
     public function read($limit)
     {
+        //exploding a string to get factory number from the supervisor
+        $factory_string  = auth()->guard('employee')->user()->departmentNo;
+        $split_factory_string = explode(" ", $factory_string);
+        $factoryNo = $split_factory_string[1]; //get 1st position of array
+        
         $rawMaterials = rawMaterial::join('inventories', 'raw_materials.inventoryNo', '=', 'inventories.inventoryNo')
-        ->orderBy('raw_materials.id', 'DESC')->limit(5)->offSet($limit)->get([
+        ->where('raw_materials.factory','LIKE','%'.$factoryNo.'%')->orderBy('raw_materials.id', 'DESC')->limit(5)->offSet($limit)->get([
             'raw_materials.status AS status',
             'raw_materials.no AS no',
+            'raw_materials.id AS id',
             'raw_materials.quantity AS quantity',
             'inventories.name AS name',
             ]
@@ -106,13 +119,21 @@ class RawMaterialController extends Controller
     
     public function readWarehouseInventory()
     {
-        //get all inventories that are not already being used as raw materials
+        //exploding a string to get factory number from the supervisor
+        $factory_string  = auth()->guard('employee')->user()->departmentNo;
+        $split_factory_string = explode(" ", $factory_string);
+        $factoryNo = $split_factory_string[1]; //get 1st position of array
+        
+        //return all rows form inventories table where raw materials belonging to factory number does not exist in 
+        //raw material table already
         $inventories = DB::table('inventories')
-        ->leftJoin('raw_materials', 'inventories.inventoryNo', '=', 'raw_materials.inventoryNo')
-        ->whereNull('raw_materials.inventoryNo')->orderBy('inventories.id', 'DESC')->get(
-            ['inventories.inventoryNo AS no',
-            'inventories.name AS name',]
-        );
+        ->whereNotExists(function ($query) use ($factoryNo) {
+            $query->select(DB::raw(1))
+            ->from('raw_materials')
+            ->whereRaw('raw_materials.inventoryNo = inventories.inventoryNo')
+            ->where('raw_materials.factory', $factoryNo);
+        })->orderBy('id','DESC')
+        ->get(['inventories.inventoryNo AS no','inventories.name AS name',]);
         
         return response()->json([
             'inventories'=>$inventories,
@@ -157,7 +178,7 @@ class RawMaterialController extends Controller
         $inventoryRequests = inventoryRequest::where('inventoryNo','=',$no);
         $inventoryRequests->delete();
     }
-
+    
     public function addQuantity(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -178,11 +199,11 @@ class RawMaterialController extends Controller
             $rawMaterials = rawMaterial::find($request->input('id'));
             
             $quantity = $rawMaterials['quantity'];
-
-            $newQuantity = $quantity + 1;
-
+            
+            $quantity = $quantity + 1;
+            
             $rawMaterials->status = 'available';
-            $rawMaterials->quantity = $newQuantity;
+            $rawMaterials->quantity = $quantity;
             $rawMaterials->save();
             
             return response()->json([

@@ -21,5 +21,6 @@ class rawMaterial extends Model
         'minimumQuantity',
         'repurchaseQuantity',
         'checkingStatus',
+        'factory',
     ];
 }
