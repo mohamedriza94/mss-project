@@ -346,12 +346,12 @@ class KanBanCardController extends Controller
     
     public function getWorkerTask()
     {
-        //get workshop number of worker
+        //get workshop number of worker to get task provided to the workshop where the employee belongs to
         $workshopNo_string  = auth()->guard('employee')->user()->departmentNo;
         $split_workshopNo_string = explode(" ", $workshopNo_string);
         $workshopNo = $split_workshopNo_string[0]; //get 0th position of array
         
-        $task = Task::where('status','=','pending')->where('workshop','LIKE','%'.$workshopNo.'%')->first();
+        $task = Task::where('status','!=','completed')->where('workshop','LIKE','%'.$workshopNo.'%')->first();
         
         if($task)
         {
@@ -399,7 +399,7 @@ class KanBanCardController extends Controller
                 //get current quantity details AND check if raw materials are available
                 $updateQuantity = rawMaterial::where('no','=',$request->input('rawMaterial'))->first();
                 $quantity = $updateQuantity['quantity'];
-
+                
                 if($quantity > 0)
                 {
                     $minimumQuantity = $updateQuantity['minimumQuantity'];
@@ -413,7 +413,7 @@ class KanBanCardController extends Controller
                     $totalQuantity = $minimumQuantity + $repurchaseQuantity;
                     $availablePercentage = $newQuantity / $totalQuantity * 100;
                     $availablePercentage = round($availablePercentage);
-    
+                    
                     //check if a row with same raw and same task exist
                     $check_usedRM = UsedRawMaterial::where('task','=',$request->input('task'))->where('rawMaterial','=',$request->input('rawMaterial'))->first();
                     
@@ -508,7 +508,7 @@ class KanBanCardController extends Controller
             }
         }
     }
-
+    
     public function readUsedRawMaterial($taskNo)
     {
         $used_RM = UsedRawMaterial::join('inventories', 'used_raw_materials.inventory', '=', 'inventories.inventoryNo')
@@ -517,11 +517,92 @@ class KanBanCardController extends Controller
             'used_raw_materials.quantity AS quantity',
             ]
         );
+        
+        return response()->json([
+            'usedRM'=>$used_RM
+        ]);
+    }
 
-        if($used_RM)
+    public function startTask(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            
+            'task' => ['required'],
+            'card' => ['required'],
+            'worker' => ['required'],
+            
+        ]); //validate all the data
+        
+        if($validator->fails())
         {
             return response()->json([
-                'usedRM'=>$used_RM
+                'status'=>400,
+                'message'=>'Something is Missing!'
+            ]);
+        }
+        else
+        {
+            //update details of task and the Kanban Card
+            $task_update = Task::where('taskNo','=',$request->input('task'))->first();
+            $card_update = KanBanCard::where('cardNo','=',$request->input('card'))->first();
+
+            $task_update->status = 'started';
+            $task_update->worker = $request->input('worker');
+            $task_update->save();
+
+            $card_update->status = 'started';
+            $card_update->save();
+
+            return response()->json([
+                'status'=>200,
+            ]);
+        }
+    }
+
+    public function endTask(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            
+            'task' => ['required'],
+            'card' => ['required'],
+            'days' => ['required'],
+            'endDate' => ['required'],
+            
+        ]); //validate all the data
+        
+        if($validator->fails())
+        {
+            return response()->json([
+                'status'=>400,
+                'message'=>'Something is Missing!'
+            ]);
+        }
+        else
+        {
+            //update details of task
+            $task_update = Task::where('taskNo','=',$request->input('task'))->first();
+            $task_update->status = 'completed';
+            $task_update->endDate = $request->input('endDate');
+            $task_update->duration = $request->input('days');
+            $task_update->save();
+
+            //check if kan ban card has any incomplete tasks
+            $check_card_task = Task::where('status','!=','completed')->where('cardNo','=',$request->input('card'))->first();
+
+            if($check_card_task)
+            {
+                //do nothing, if it has incomplete tasks
+            }
+            else
+            {
+                //if all the tasks are complete
+                $card_update = KanBanCard::where('cardNo','=',$request->input('card'))->first();
+                $card_update->status = 'completed';
+                $card_update->save();
+            }
+            
+            return response()->json([
+                'status'=>200,
             ]);
         }
     }

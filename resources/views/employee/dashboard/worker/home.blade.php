@@ -134,27 +134,17 @@
                 <button id="btnUse" class="task-page-button button" > Use </button>
             </div>
         </div>
-        <div class="task-page-container12" style="display: block;">
+        <div class="task-page-container12">
             
-            <div>
-                <table width="97%">
-                    <thead>
-                        <tr>
-                            <th>RAW MATERIAL</th>
-                            <th>QUANTITY USED</th>
-                        </thead>
-                        <tbody id="usedRMTable">
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div style="display: flex; align-items:center;">
-                    {{-- <button class="task-page-button3 button">Next</button>
-                    <button class="task-page-button4 button">Previous</button> --}}
-                    <button id="btnNext" class="task-page-button button" style="width:200px; margin-right:10px; background:#038cfc;">Next</button>
-                    <button id="btnPrev" class="task-page-button button" style="width:200px; background:#038cfc;">Prev</button>
-                </div>
-                
+            <table width="100%">
+                <thead>
+                    <tr>
+                        <th>RAW MATERIAL</th>
+                        <th>QUANTITY USED</th>
+                    </thead>
+                    <tbody id="usedRMTable">
+                    </tbody>
+                </table>
             </div>
             
             {{-- get task data --}}
@@ -163,6 +153,7 @@
             <input type="hidden" id="factory_input">
             <input type="hidden" id="rawMaterial_input">
             <input type="hidden" id="workshop_input">
+            <input type="hidden" id="startDate_input">
             <input type="hidden" id="worker_input" value="{{ auth()->guard('employee')->user()->no }}">
             
             <script>
@@ -182,7 +173,16 @@
                     
                     fetchRawMaterials();
                     fetchTask();
-                    fetchUsedRawMaterial();
+                    
+                    setTimeout(() => {
+                        fetchUsedRawMaterial();
+                    }, 1000);
+                    
+                    //disable button on page load
+                    $('#btnFinish').attr('disabled','disabled');
+                    document.getElementById('btnFinish').setAttribute("style", "background:#0a5aa1;");
+                    
+                    document.getElementById('btnStart').setAttribute("style", "background:#029ef2;");
                     
                     //Use raw materials
                     $(document).on('click','#btnUse', function(e){
@@ -218,8 +218,9 @@
                                 }
                                 else
                                 {
-                                    fetchRawMaterials();
+                                    fetchRawMaterials(); //in select option
                                     alert(response.message);
+                                    
                                     fetchUsedRawMaterial();
                                 }
                             }
@@ -274,6 +275,7 @@
                                     
                                     //fill inputs
                                     $('#workshop_input').val(response.task.workshop);
+                                    $('#startDate_input').val(response.task.startDate);
                                     $('#factory_input').val(response.task.factory);
                                     $('#card_input').val(response.task.cardNo);
                                     $('#task_input').val(response.task.taskNo);
@@ -285,8 +287,10 @@
                     //read used raw materials
                     function fetchUsedRawMaterial()
                     {
+                        var taskNo = $('#task_input').val();
+                        
                         var url = '{{ url("employee/dashboard/workerDash/readUsedRawMaterial/:taskNo") }}';
-                        url = url.replace(':taskNo',$('#task_input').val());
+                        url = url.replace(':taskNo', taskNo);
                         
                         $.ajax({
                             type: "GET",
@@ -326,6 +330,97 @@
                             
                             splitString();
                             
+                        });
+                    });
+                    
+                    //start task
+                    $(document).on('click','#btnStart', function(e){
+                        e.preventDefault();
+                        
+                        var task_input = $('#task_input').val();
+                        var card_input = $('#card_input').val();
+                        var worker_input = $('#worker_input').val();
+                        
+                        var data = {
+                            'task' : task_input,
+                            'card' : card_input,
+                            'worker' : worker_input,
+                        };
+                        
+                        var url = '{{ url("employee/dashboard/workerDash/startTask") }}';
+                        
+                        $.ajax({
+                            type:"POST", url:url, data:data, dataType:"json",
+                            success: function(response)
+                            {
+                                if(response.status == 400)
+                                {
+                                    alert(response.message);
+                                }
+                                else
+                                {
+                                    $('#btnStart').text('Starting...');
+                                    
+                                    setTimeout(() => {
+                                        $('#btnStart').text('Started');
+
+                                        $('#btnStart').attr('disabled','disabled');
+                                        $('#btnFinish').removeAttr('disabled','disabled');
+
+                                        document.getElementById('btnStart').setAttribute("style", "background:#0a5aa1;");
+                                        
+                                        document.getElementById('btnFinish').setAttribute("style", "background:#029ef2;");
+                                    }, 1000);
+                                }
+                            }
+                        });
+                    });
+                    
+                    //finish task
+                    $(document).on('click','#btnFinish', function(e){
+                        e.preventDefault();
+                        
+                        //calculate days
+                        var endDate_ISO_format = new Date().toISOString().slice(0, 10);
+                        
+                        var start = new Date(document.getElementById("startDate_input").value);
+                        var end = new Date(endDate_ISO_format);
+                        
+                        var startTime = start.getTime();
+                        var endTime = end.getTime();
+                        
+                        var days = (endTime - startTime) / 86400000;
+                        
+                        var task_input = $('#task_input').val();
+                        var card_input = $('#card_input').val();
+                        
+                        var data = {
+                            'endDate' : endDate_ISO_format,
+                            'days' : days,
+                            'task' : task_input,
+                            'card' : card_input,
+                        };
+                        
+                        var url = '{{ url("employee/dashboard/workerDash/endTask") }}';
+                        
+                        $.ajax({
+                            type:"POST", url:url, data:data, dataType:"json",
+                            success: function(response)
+                            {
+                                if(response.status == 400)
+                                {
+                                    alert(response.message);
+                                }
+                                else
+                                {
+                                    $('#btnFinish').text('Finished');
+                                    document.getElementById('btnFinish').setAttribute("style", "background:#0a5aa1;");
+                                    
+                                    setTimeout(() => {
+                                        window.location.href = window.location.href;
+                                    }, 1000);
+                                }
+                            }
                         });
                     });
                 });

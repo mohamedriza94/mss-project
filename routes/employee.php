@@ -65,7 +65,9 @@ Route::group([
             Route::get('workerDash/readForTaskOptions', 'RawMaterialController@readForTaskOptions');
             Route::get('workerDash/getWorkerTask', 'KanbanCardController@getWorkerTask');
             Route::post('workerDash/useRawMaterial', 'KanbanCardController@useRawMaterial');
-            Route::get('workerDash/readUsedRawMaterial/{$taskNo}', 'KanbanCardController@readUsedRawMaterial');
+            Route::get('workerDash/readUsedRawMaterial/{taskNo}', 'KanbanCardController@readUsedRawMaterial');
+            Route::post('workerDash/startTask', 'KanbanCardController@startTask');
+            Route::post('workerDash/endTask', 'KanbanCardController@endTask');
 
         });
     });
