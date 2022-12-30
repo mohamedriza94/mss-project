@@ -254,7 +254,6 @@
                   <td>'+item.quantity+'</td>\
                   <td>'+status+'</td>\
                   <td>\
-                    <button value="'+item.id+'" id="btnAddQuantity" style="padding:8px; border-radius:3px; background:#dbfc03; color:#615f5f;">Add</button>\
                     <button value="'+item.no+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit Min Qty</button>\
                     <button value="'+item.no+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
                   </td>\
@@ -484,26 +483,26 @@
           });
           
           //add stocks
-          $(document).on('click', '#btnAddQuantity', function(e) {
+          // $(document).on('click', '#btnAddQuantity', function(e) {
             
-            var id = $(this).val();
+          //   var id = $(this).val();
             
-            var data = {
-              'id' : id,
-            }
+          //   var data = {
+          //     'id' : id,
+          //   }
             
-            var url = '{{ url("employee/dashboard/rm/addQuantity") }}';
+          //   var url = '{{ url("employee/dashboard/rm/addQuantity") }}';
             
-            $.ajax({
-              type:"POST",
-              url: url,
-              data:data,
-              dataType:"json",
-              success: function(response){
-                fetchRawMaterials();
-              }
-            });
-          });
+          //   $.ajax({
+          //     type:"POST",
+          //     url: url,
+          //     data:data,
+          //     dataType:"json",
+          //     success: function(response){
+          //       fetchRawMaterials();
+          //     }
+          //   });
+          // });
           
         });
         
