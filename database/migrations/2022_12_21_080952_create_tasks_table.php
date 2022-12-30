@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('time');
             $table->string('status');
             $table->string('workshop')->nullable();
+            $table->string('worker')->nullable();
             $table->string('factory');
             $table->timestamps();
         });

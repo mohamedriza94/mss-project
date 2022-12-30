@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 use App\Models\KanBanCard;
 use App\Models\Task;
 use App\Models\rawMaterial;
+use App\Models\UsedRawMaterial;
 use App\Models\Slot;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Request as inventoryRequest;
 use Illuminate\Support\Facades\DB;
 class KanBanCardController extends Controller
 {
@@ -170,10 +172,10 @@ class KanBanCardController extends Controller
                 $slot_update->task = $request->input('taskNo');
                 $slot_update->status = 'occupied';
                 $slot_update->save();
-
+                
                 $tasks->workshop = $slot_workshopNumber;
             }
-
+            
             $tasks->save();
             
             return response()->json([
@@ -338,6 +340,188 @@ class KanBanCardController extends Controller
             return response()->json([
                 'message'=>'Slots Unavailable',
                 'status'=>400
+            ]);
+        }
+    }
+    
+    public function getWorkerTask()
+    {
+        //get workshop number of worker
+        $workshopNo_string  = auth()->guard('employee')->user()->departmentNo;
+        $split_workshopNo_string = explode(" ", $workshopNo_string);
+        $workshopNo = $split_workshopNo_string[0]; //get 0th position of array
+        
+        $task = Task::where('status','=','pending')->where('workshop','LIKE','%'.$workshopNo.'%')->first();
+        
+        if($task)
+        {
+            return response()->json([
+                'status'=>200,
+                'task'=>$task,
+            ]);
+        }
+        else
+        {
+            return response()->json([
+                'status'=>400,
+                'message'=>'No Tasks At This Time!',
+            ]);
+        }
+        
+    }
+    
+    public function useRawMaterial(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            
+            'task' => ['required'],
+            'card' => ['required'],
+            'factory' => ['required'],
+            'rawMaterial' => ['required'],
+            'workshop' => ['required'],
+            'worker' => ['required'],
+            'quantity' => ['required'],
+            
+        ]); //validate all the data
+        
+        if($validator->fails())
+        {
+            return response()->json([
+                'status'=>400,
+                'message'=>'Something is Missing!'
+            ]);
+        }
+        else
+        {
+            //check if inputted quantity is bigger than 0
+            if($request->input('quantity') > 0)
+            {
+                //get current quantity details AND check if raw materials are available
+                $updateQuantity = rawMaterial::where('no','=',$request->input('rawMaterial'))->first();
+                $quantity = $updateQuantity['quantity'];
+
+                if($quantity > 0)
+                {
+                    $minimumQuantity = $updateQuantity['minimumQuantity'];
+                    $repurchaseQuantity = $updateQuantity['repurchaseQuantity'];
+                    $inventoryNo = $updateQuantity['inventoryNo'];
+                    
+                    //calculate new current quantity
+                    $newQuantity = $quantity - $request->input('quantity');
+                    
+                    //calculate percentage of new available quantity and round up
+                    $totalQuantity = $minimumQuantity + $repurchaseQuantity;
+                    $availablePercentage = $newQuantity / $totalQuantity * 100;
+                    $availablePercentage = round($availablePercentage);
+    
+                    //check if a row with same raw and same task exist
+                    $check_usedRM = UsedRawMaterial::where('task','=',$request->input('task'))->where('rawMaterial','=',$request->input('rawMaterial'))->first();
+                    
+                    if($check_usedRM)
+                    {
+                        $usedRM_quantity = $check_usedRM['quantity'];
+                        
+                        $new_usedRM_quantity = $request->input('quantity') + $usedRM_quantity;
+                        
+                        //update used raw materials
+                        $check_usedRM->quantity = $new_usedRM_quantity;
+                        $check_usedRM->save();
+                    }
+                    else
+                    {
+                        //store used raw materials
+                        $usedRM = New UsedRawMaterial;
+                        $usedRM->task = $request->input('task');
+                        $usedRM->card = $request->input('card');
+                        $usedRM->factory = $request->input('factory');
+                        $usedRM->rawMaterial = $request->input('rawMaterial');
+                        $usedRM->workshop = $request->input('workshop');
+                        $usedRM->quantity = $request->input('quantity');
+                        $usedRM->worker = $request->input('worker');
+                        $usedRM->inventory = $inventoryNo;
+                        $usedRM->save();
+                    }
+                    
+                    //update quantity
+                    $rawMaterials = rawMaterial::where('no','=',$request->input('rawMaterial'))->first();
+                    $rawMaterials->quantity = $newQuantity;
+                    $rawMaterials->minimumQuantity = $minimumQuantity;
+                    $rawMaterials->availablePercentage = $availablePercentage;
+                    $rawMaterials->repurchaseQuantity = $repurchaseQuantity;
+                    $rawMaterials->save();
+                    
+                    //if condition is fulfilled, send an inventory restock request
+                    if($newQuantity <= $minimumQuantity)
+                    {
+                        //check if a pending inventory request of the same raw material already exists
+                        $isExist_requests = inventoryRequest::where('rawMaterial','=',$request->input('rawMaterial'))->where('status','=','pending')->count();
+                        
+                        if($isExist_requests > 0)
+                        {
+                            return response()->json([
+                                'status'=>200,
+                                'message'=>'Done!'
+                            ]);
+                        }
+                        else if($isExist_requests == 0)
+                        {
+                            $requests = new inventoryRequest;
+                            $requests->requestNo = rand(1515,9999);
+                            $requests->date = NOW();
+                            $requests->time = NOW();
+                            $requests->status = 'pending';
+                            $requests->quantity = $repurchaseQuantity;
+                            $requests->inventoryNo = $inventoryNo;
+                            $requests->rawMaterial = $request->input('rawMaterial');
+                            $requests->factory = $request->input('factory');
+                            $requests->save();
+                            
+                            return response()->json([
+                                'status'=>200,
+                                'message'=>'Raw Material running out of stock, inventory request Sent!'
+                            ]);
+                        }
+                    }
+                    else
+                    {
+                        return response()->json([
+                            'status'=>200,
+                            'message'=>'Done!'
+                        ]);
+                    }
+                }
+                else
+                {
+                    return response()->json([
+                        'status'=>400,
+                        'message'=>'Out of Stock!'
+                    ]);
+                }
+                
+            }
+            else
+            {
+                return response()->json([
+                    'status'=>400,
+                    'message'=>'Quantity cannot be 0!'
+                ]);
+            }
+        }
+    }
+
+    public function readUsedRawMaterial($taskNo)
+    {
+        $used_RM = UsedRawMaterial::join('inventories', 'used_raw_materials.inventory', '=', 'inventories.inventoryNo')
+        ->where('used_raw_materials.task','LIKE','%'.$taskNo.'%')->orderBy('used_raw_materials.id', 'DESC')->get([
+            'inventories.name AS name',
+            'used_raw_materials.quantity AS quantity',
+            ]
+        );
+
+        if($used_RM)
+        {
+            return response()->json([
+                'usedRM'=>$used_RM
             ]);
         }
     }

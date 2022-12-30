@@ -7,20 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Request extends Model
+class UsedRawMaterial extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = 'requests';
+    protected $table = 'used_raw_materials';
 
     protected $fillable = [
-        'requestNo',
-        'date',
-        'time',
-        'status',
-        'inventoryNo',
-        'rawMaterial',
+        'task',
+        'card',
         'factory',
+        'rawMaterial',
+        'workshop',
+        'worker',
         'quantity',
+        'inventory',
     ];
 }

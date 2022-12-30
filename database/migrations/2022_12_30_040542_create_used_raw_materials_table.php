@@ -13,16 +13,16 @@ return new class extends Migration
     */
     public function up()
     {
-        Schema::create('requests', function (Blueprint $table) {
+        Schema::create('used_raw_materials', function (Blueprint $table) {
             $table->id();
-            $table->string('requestNo')->unique();
-            $table->string('date');
-            $table->string('time');
-            $table->string('status');
-            $table->string('inventoryNo');
-            $table->string('rawMaterial');
+            $table->string('task');
+            $table->string('card');
             $table->string('factory');
+            $table->string('rawMaterial');
+            $table->string('workshop');
+            $table->string('worker');
             $table->string('quantity');
+            $table->string('inventory');
             $table->timestamps();
         });
     }
@@ -34,6 +34,6 @@ return new class extends Migration
     */
     public function down()
     {
-        Schema::dropIfExists('requests');
+        Schema::dropIfExists('used_raw_materials');
     }
 };

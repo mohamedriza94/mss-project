@@ -58,7 +58,7 @@
       data-role="Nav"
       class="inventories-page-nav"
       >
-      <a href="index.html" class="inventories-page-navlink">
+      <a href="{{ route('employee.dashboard') }}" class="inventories-page-navlink">
         <label id="home" class="inventories-page-text">Home</label>
       </a>
       <a href="{{ route('employee.workshop') }}" class="inventories-page-navlink1">
@@ -85,7 +85,7 @@
   </div>
   <a href="index.html" class="inventories-page-navlink5">
     <label id="seniormanageraccount" class="inventories-page-text05">
-      Supervisor Account
+      {{ auth()->guard('employee')->user()->name }} (Supervisor)
     </label>
   </a>
   <div class="inventories-page-container01">

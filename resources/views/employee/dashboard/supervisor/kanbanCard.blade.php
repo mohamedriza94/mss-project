@@ -58,7 +58,7 @@
       data-role="Nav"
       class="kanban-cards-page-nav"
       >
-      <a href="index.html" class="kanban-cards-page-navlink">
+      <a href="{{ route('employee.dashboard') }}" class="kanban-cards-page-navlink">
         <label id="home" class="kanban-cards-page-text">Home</label>
       </a>
       <a href="{{ route('employee.workshop') }}" class="kanban-cards-page-navlink1">
@@ -85,7 +85,7 @@
   </div>
   <a href="#" class="kanban-cards-page-navlink5">
     <label id="seniormanageraccount" class="kanban-cards-page-text05">
-      Supervisor Account
+      {{ auth()->guard('employee')->user()->name }} (Supervisor)
     </label>
   </a>
   <div class="kanban-cards-page-container01">

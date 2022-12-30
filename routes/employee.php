@@ -60,6 +60,13 @@ Route::group([
             Route::get('task/autoSchedule', 'KanbanCardController@autoSchedule');
             Route::post('task/update', 'KanbanCardController@updateTask');
             Route::delete('task/delete/{no}', 'KanbanCardController@deleteTask');
+
+            //worker Task update
+            Route::get('workerDash/readForTaskOptions', 'RawMaterialController@readForTaskOptions');
+            Route::get('workerDash/getWorkerTask', 'KanbanCardController@getWorkerTask');
+            Route::post('workerDash/useRawMaterial', 'KanbanCardController@useRawMaterial');
+            Route::get('workerDash/readUsedRawMaterial/{$taskNo}', 'KanbanCardController@readUsedRawMaterial');
+
         });
     });
 });

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\rawMaterial;
 use App\Models\Inventory;
+use App\Models\Department;
 use App\Models\Request as inventoryRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +41,7 @@ class RawMaterialController extends Controller
             $totalQuantity = $request->input('minimumQuantity') + $request->input('repurchaseQuantity');
             $availablePercentage = $availableQuantity / $totalQuantity * 100;
             $availablePercentage = round($availablePercentage);
-
+            
             $rawMaterials = new rawMaterial;
             $rawMaterials->no = $request->input('no');
             $rawMaterials->inventoryNo = $request->input('inventoryNo');
@@ -94,6 +95,34 @@ class RawMaterialController extends Controller
         return response()->json([
             'rawMaterials'=>$rawMaterials,
         ]);
+    }
+    
+    public function readForTaskOptions() 
+    {
+        //exploding a string to get department number from the worker
+        $department_string  = auth()->guard('employee')->user()->departmentNo;
+        $split_department_string = explode(" ", $department_string);
+        $departmentNo = $split_department_string[1]; //get 1st position of array
+        
+        //get department using department no
+        $departments = Department::where('no','=',$departmentNo)->first();
+        
+        if($departments)
+        {
+            $factoryNo = $departments['factoryNo'];
+            
+            $rawMaterials = rawMaterial::join('inventories', 'raw_materials.inventoryNo', '=', 'inventories.inventoryNo')
+            ->where('raw_materials.factory','LIKE','%'.$factoryNo.'%')->orderBy('raw_materials.id', 'DESC')->get([
+                'raw_materials.no AS no',
+                'raw_materials.quantity AS quantity',
+                'inventories.name AS name',
+                ]
+            );
+            
+            return response()->json([
+                'rawMaterials'=>$rawMaterials,
+            ]);
+        }
     }
     
     public function readInventoryRequest($inventoryNo, $limit_arrow)
@@ -171,7 +200,7 @@ class RawMaterialController extends Controller
             $totalQuantity = $request->input('minimumQuantity') + $request->input('repurchaseQuantity');
             $availablePercentage = $availableQuantity / $totalQuantity * 100;
             $availablePercentage = round($availablePercentage);
-
+            
             $rawMaterials = rawMaterial::find($request->input('id'));
             $rawMaterials->minimumQuantity = $request->input('minimumQuantity');
             $rawMaterials->availablePercentage = $availablePercentage;

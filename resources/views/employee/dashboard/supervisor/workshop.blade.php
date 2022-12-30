@@ -55,7 +55,7 @@
         data-role="Nav"
         class="workshop-page-nav"
         >
-        <a href="index.html" class="workshop-page-navlink">
+        <a href="{{ route('employee.dashboard') }}" class="workshop-page-navlink">
           <label id="home" class="workshop-page-text">Home</label>
         </a>
         <a href="{{ route('employee.workshop') }}" class="workshop-page-navlink1">
@@ -82,7 +82,7 @@
     </div>
     <a href="#" class="workshop-page-navlink5">
       <label id="seniormanageraccount" class="workshop-page-text05">
-        Supervisor Account
+        {{ auth()->guard('employee')->user()->name }} (Supervisor)
       </label>
     </a>
     <div class="workshop-page-container01">
