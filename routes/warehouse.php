@@ -20,6 +20,10 @@ Route::group([
             Route::delete('/delete/{id}', 'HomeController@delete');
             Route::put('/update', 'HomeController@update');
             Route::put('/addQuantity', 'HomeController@addQuantity');
+
+            //inventory request routes
+            Route::get('ir/read/{limit}', 'HomeController@readInventoryRequest');
+            Route::post('/fillRequest', 'HomeController@fillRequest');
         });
     });
 });
