@@ -36,6 +36,9 @@ Route::group([
             Route::get('supervisor/readOne/{id}', 'SupervisorController@readOne');
             Route::delete('supervisor/delete/{id}', 'SupervisorController@delete');
             Route::post('supervisor/update', 'SupervisorController@update');
+
+            //statistics
+            Route::get('counts', 'HomeController@counts');
         });
     });
 });
