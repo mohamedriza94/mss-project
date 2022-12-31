@@ -69,6 +69,14 @@ Route::group([
             Route::post('workerDash/startTask', 'KanbanCardController@startTask');
             Route::post('workerDash/endTask', 'KanbanCardController@endTask');
 
+            //statistics
+            Route::get('counts', 'HomeController@counts');
+            Route::get('IR/{limit}/{type}', 'HomeController@IR');
+            Route::get('AI/{limit}/{type}', 'HomeController@AI');
+            Route::get('WI/{limit}/{type}', 'HomeController@WI');
+            Route::get('T/{limit}/{type}/{status}', 'HomeController@T');
+            Route::get('KBC/{limit}/{type}/{status}', 'HomeController@KBC');
+            Route::get('S/{limit}/{type}/{status}', 'HomeController@S');
         });
     });
 });

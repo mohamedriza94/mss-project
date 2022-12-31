@@ -152,11 +152,11 @@ class HomeController extends Controller
     {
         if($type == 'limit')
         { 
-            $data = Inventory::where('status','=','available')->limit(5)->offSet($limit)->get();
+            $data = Inventory::where('status','=','available')->orderBy('id','DESC')->limit(5)->offSet($limit)->get();
         }
         else
         {
-            $data = Inventory::where('status','=','available')->get();
+            $data = Inventory::where('status','=','available')->orderBy('id','DESC')->get();
         }
         
         return response()->json([
