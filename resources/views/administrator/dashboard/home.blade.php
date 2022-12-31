@@ -185,6 +185,13 @@
                     }
                 });
             }
+
+            //button color setting
+            $('#btnLimit_PKBC').css('background','#403e3b');
+            $('#btnLimit_PTT').css('background','#403e3b');
+            $('#btnLimit_CTT').css('background','#403e3b');
+            $('#btnLimit_AIT').css('background','#403e3b');
+            $('#btnLimit_FT').css('background','#403e3b');
             
             //limit and offset for pagination
             var limit_PKBC = 0;
@@ -200,11 +207,11 @@
             var type_FT = 'limit';
             
             //next
-            function next_PKBC(){ limit_PKBC = limit_PKBC + 5; }
-            function next_PTT(){ limit_PTT = limit_PTT + 5; }
-            function next_CTT(){ limit_CTT = limit_CTT + 5; }
-            function next_AIT(){ limit_AIT = limit_AIT + 5; }
-            function next_FT(){ limit_FT = limit_FT + 5; }
+            function next_PKBC(){ limit_PKBC = limit_PKBC + 5; PKBC();}
+            function next_PTT(){ limit_PTT = limit_PTT + 5; PTT()}
+            function next_CTT(){ limit_CTT = limit_CTT + 5; CTT()}
+            function next_AIT(){ limit_AIT = limit_AIT + 5; AIT()}
+            function next_FT(){ limit_FT = limit_FT + 5; FT()}
             
             //click limit
             $(document).on('click', '#btnNext_PKBC', function(e){ next_PKBC(); });
@@ -214,11 +221,11 @@
             $(document).on('click', '#btnNext_FT', function(e){ next_FT(); });
             
             //prev
-            function prev_PKBC(){ limit_PKBC = limit_PKBC - 5; if(limit_PKBC < 0) { limit_PKBC = 0;} }
-            function prev_PTT(){ limit_PTT = limit_PTT - 5; if(limit_PTT < 0) { limit_PTT = 0;} }
-            function prev_CTT(){ limit_CTT = limit_CTT - 5; if(limit_CTT < 0) { limit_CTT = 0;} }
-            function prev_AIT(){ limit_AIT = limit_AIT - 5; if(limit_AIT < 0) { limit_AIT = 0;} }
-            function prev_FT(){ limit_FT = limit_FT - 5; if(limit_FT < 0) { limit_FT = 0;} }
+            function prev_PKBC(){ limit_PKBC = limit_PKBC - 5; if(limit_PKBC < 0) { limit_PKBC = 0;} PKBC();}
+            function prev_PTT(){ limit_PTT = limit_PTT - 5; if(limit_PTT < 0) { limit_PTT = 0;} PTT()}
+            function prev_CTT(){ limit_CTT = limit_CTT - 5; if(limit_CTT < 0) { limit_CTT = 0;} CTT()}
+            function prev_AIT(){ limit_AIT = limit_AIT - 5; if(limit_AIT < 0) { limit_AIT = 0;} AIT()}
+            function prev_FT(){ limit_FT = limit_FT - 5; if(limit_FT < 0) { limit_FT = 0;} FT()}
             
             //click prev
             $(document).on('click', '#btnPrev_PKBC', function(e){ prev_PKBC(); });
@@ -228,18 +235,18 @@
             $(document).on('click', '#btnPrev_FT', function(e){ prev_FT(); });
             
             //click all
-            $(document).on('click', '#btnAll_PKBC', function(e){ type_PKBC = 'all'; });
-            $(document).on('click', '#btnAll_PTT', function(e){ type_PTT = 'all'; });
-            $(document).on('click', '#btnAll_CTT', function(e){ type_CTT = 'all'; });
-            $(document).on('click', '#btnAll_AIT', function(e){ type_AIT = 'all'; });
-            $(document).on('click', '#btnAll_FT', function(e){ type_FT = 'all'; });
+            $(document).on('click', '#btnAll_PKBC', function(e){ type_PKBC = 'all'; PKBC(); $(this).css('background', '#403e3b'); $('#btnLimit_PKBC').css('background','#ee6c4d');});
+            $(document).on('click', '#btnAll_PTT', function(e){ type_PTT = 'all'; PTT(); $(this).css('background', '#403e3b'); $('#btnLimit_PTT').css('background','#ee6c4d');});
+            $(document).on('click', '#btnAll_CTT', function(e){ type_CTT = 'all'; CTT(); $(this).css('background', '#403e3b'); $('#btnLimit_CTT').css('background','#ee6c4d');});
+            $(document).on('click', '#btnAll_AIT', function(e){ type_AIT = 'all';AIT(); $(this).css('background', '#403e3b'); $('#btnLimit_AIT').css('background','#ee6c4d');});
+            $(document).on('click', '#btnAll_FT', function(e){ type_FT = 'all'; FT(); $(this).css('background', '#403e3b'); $('#btnLimit_FT').css('background','#ee6c4d');});
             
             //click limit
-            $(document).on('click', '#btnLimit_PKBC', function(e){ type_PKBC = 'limit'; limit_PKBC = 0; });
-            $(document).on('click', '#btnLimit_PTT', function(e){ type_PTT = 'limit'; limit_PTT = 0; });
-            $(document).on('click', '#btnLimit_CTT', function(e){ type_CTT = 'limit'; limit_CTT = 0; });
-            $(document).on('click', '#btnLimit_AIT', function(e){ type_AIT = 'limit'; limit_AIT = 0; });
-            $(document).on('click', '#btnLimit_FT', function(e){ type_FT = 'limit'; limit_FT = 0; });
+            $(document).on('click', '#btnLimit_PKBC', function(e){ type_PKBC = 'limit'; limit_PKBC = 0; PKBC(); $(this).css('background', '#403e3b'); $('#btnAll_PKBC').css('background','#ee6c4d')});
+            $(document).on('click', '#btnLimit_PTT', function(e){ type_PTT = 'limit'; limit_PTT = 0; PTT(); $(this).css('background', '#403e3b'); $('#btnAll_PTT').css('background','#ee6c4d')});
+            $(document).on('click', '#btnLimit_CTT', function(e){ type_CTT = 'limit'; limit_CTT = 0; CTT(); $(this).css('background', '#403e3b'); $('#btnAll_CTT').css('background','#ee6c4d')});
+            $(document).on('click', '#btnLimit_AIT', function(e){ type_AIT = 'limit'; limit_AIT = 0; AIT(); $(this).css('background', '#403e3b'); $('#btnAll_AIT').css('background','#ee6c4d')});
+            $(document).on('click', '#btnLimit_FT', function(e){ type_FT = 'limit'; limit_FT = 0; FT(); $(this).css('background', '#403e3b'); $('#btnAll_FT').css('background','#ee6c4d')});
             
             //get PDF
             $(document).on('click', '#btnPDF_PKBC', function(e){ $('#content_PKBC').printThis(); });
@@ -248,6 +255,13 @@
             $(document).on('click', '#btnPDF_AIT', function(e){ $('#content_AIT').printThis(); });
             $(document).on('click', '#btnPDF_FT', function(e){ $('#content_FT').printThis(); });
             $(document).on('click', '#btnGeneratePDF', function(e){ $('#content').printThis(); });
+            
+            //call functions
+            PKBC();
+            PTT();
+            CTT();
+            AIT();
+            FT();
             
             function PKBC()
             {
@@ -261,13 +275,16 @@
                     dataType:"json",
                     success:function(response){
                         $('#PKBC_table').html('');
-                        $.each(response.pkbc,function(key,item){
-                            
+                        $.each(response.data,function(key,item){
+                            $('#PKBC_table').append('<tr><td>'+item.name+'</td>\
+                                <td>'+item.count+'</td>\
+                            </tr>\
+                            ');
                         });
-                        
                     }
                 });
             };
+            
             function PTT()
             {
                 var url = "{{ url('administrator/dashboard/PTT/:limit/:type') }}";
@@ -280,13 +297,15 @@
                     dataType:"json",
                     success:function(response){
                         $('#PTT_table').html('');
-                        $.each(response.ptt,function(key,item){
-                            
+                        $.each(response.data,function(key,item){
+                            $('#PTT_table').append('<tr><td>'+item.name+'</td>\
+                                <td>'+item.count+'</td>\
+                            </tr>\
+                            ');
                         });
-                        
                     }
                 });
-            };
+            }
             function CTT()
             {
                 var url = "{{ url('administrator/dashboard/CTT/:limit/:type') }}";
@@ -299,13 +318,16 @@
                     dataType:"json",
                     success:function(response){
                         $('#CTT_table').html('');
-                        $.each(response.ctt,function(key,item){
-                            
+                        $.each(response.data,function(key,item){
+                            $('#CTT_table').append('<tr><td>'+item.name+'</td>\
+                                <td>'+item.count+'</td>\
+                            </tr>\
+                            ');
                         });
                         
                     }
                 });
-            };
+            }
             function AIT()
             {
                 var url = "{{ url('administrator/dashboard/AIT/:limit/:type') }}";
@@ -318,13 +340,15 @@
                     dataType:"json",
                     success:function(response){
                         $('#AIT_table').html('');
-                        $.each(response.ait,function(key,item){
-                            
+                        $.each(response.data,function(key,item){
+                            $('#AIT_table').append('<tr><td>'+item.name+'</td>\
+                                <td>'+item.count+'</td>\
+                            </tr>\
+                            ');
                         });
-                        
                     }
                 });
-            };
+            }
             function FT()
             {
                 var url = "{{ url('administrator/dashboard/FT/:limit/:type') }}";
@@ -337,13 +361,20 @@
                     dataType:"json",
                     success:function(response){
                         $('#FT_table').html('');
-                        $.each(response.ft,function(key,item){
+                        $.each(response.data,function(key,item){
                             
+                            $total = item.price * item.availableQuantity;
+                            
+                            $('#FT_table').append('<tr><td>'+item.name+'</td>\
+                                <td>'+item.price+'</td>\
+                                <td>'+item.availableQuantity+'</td>\
+                                <td>'+$total+'</td>\
+                            </tr>\
+                            ');
                         });
-                        
                     }
                 });
-            };
+            }
         });
     </script>
     
@@ -363,10 +394,6 @@
                                 </tr>
                             </thead>
                             <tbody id="PKBC_table">
-                                <tr>
-                                    <td>Data</td>
-                                    <td>Data</td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -397,18 +424,6 @@
                                 </tr>
                             </thead>
                             <tbody id="PTT_table">
-                                <tr>
-                                    <td>Data</td>
-                                    <td>Data</td>
-                                </tr>
-                                <tr>
-                                    <td>Data</td>
-                                    <td>Data</td>
-                                </tr>
-                                <tr>
-                                    <td>Data</td>
-                                    <td>Data</td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -439,18 +454,6 @@
                                 </tr>
                             </thead>
                             <tbody id="CTT_table">
-                                <tr>
-                                    <td>Data</td>
-                                    <td>Data</td>
-                                </tr>
-                                <tr>
-                                    <td>Data</td>
-                                    <td>Data</td>
-                                </tr>
-                                <tr>
-                                    <td>Data</td>
-                                    <td>Data</td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -478,15 +481,9 @@
                                 <tr>
                                     <th>Factory</th>
                                     <th>Inventory Request Frequency</th>
-                                    <th>Raw Material Usage</th>
                                 </tr>
                             </thead>
                             <tbody id="AIT_table">
-                                <tr>
-                                    <td>Data</td>
-                                    <td>Data</td>
-                                    <td>Data</td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -512,17 +509,13 @@
                         <table width='100%'>
                             <thead>
                                 <tr>
-                                    <th>Factory</th>
-                                    <th>Inventory Expense</th>
-                                    <th>Date Range</th>
+                                    <th>Inventory</th>
+                                    <th>Cost</th>
+                                    <th>Quantity</th>
+                                    <th>Total Expense (AUD)</th>
                                 </tr>
                             </thead>
                             <tbody id="FT_table">
-                                <tr>
-                                    <td>Data</td>
-                                    <td>Data</td>
-                                    <td>Data</td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>

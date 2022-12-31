@@ -39,6 +39,11 @@ Route::group([
 
             //statistics
             Route::get('counts', 'HomeController@counts');
+            Route::get('PKBC/{limit}/{type}', 'HomeController@PKBC');
+            Route::get('PTT/{limit}/{type}', 'HomeController@PTT');
+            Route::get('CTT/{limit}/{type}', 'HomeController@CTT');
+            Route::get('AIT/{limit}/{type}', 'HomeController@AIT');
+            Route::get('FT/{limit}/{type}', 'HomeController@FT');
         });
     });
 });
