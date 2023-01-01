@@ -182,15 +182,45 @@ class HomeController extends Controller
         
         if($type == 'limit')
         {
-            
+            $data = DB::table('tasks')
+            ->join('employees', 'tasks.worker', '=', 'employees.no')
+            ->select('employees.name', 'employees.no', DB::raw('count(tasks.worker) as task_count'))
+            ->groupBy('employees.name', 'employees.no')->where('tasks.status','=','completed')
+            ->where('tasks.factory','LIKE','%'.$factoryNo.'%')->orderBy('tasks.id','DESC')
+            ->limit(5)->offSet($limit)->get();
         }
         else
         {
-            
+            $data = DB::table('tasks')
+            ->join('employees', 'tasks.worker', '=', 'employees.no')
+            ->select('employees.name', 'employees.no', DB::raw('count(tasks.worker) as task_count'))
+            ->groupBy('employees.name', 'employees.no')->where('tasks.status','=','completed')
+            ->where('tasks.factory','LIKE','%'.$factoryNo.'%')->orderBy('tasks.id','DESC')
+            ->get();
         }
         
         return response()->json([
             'data' => $data
+        ]);
+    }
+    
+    public function WI_CurrentTask($worker)
+    {
+        $taskData = Task::where('worker','=',$worker)->where('status','=','started')->first();
+        $taskFCT = Task::where('worker','=',$worker)->min('duration');
+        
+        if($taskData)
+        {
+            $taskData = $taskData;
+        }
+        else
+        {
+            $taskData = 'N/A';
+        }
+
+        return response()->json([
+            'taskData' => $taskData,
+            'taskFCT' => $taskFCT
         ]);
     }
     

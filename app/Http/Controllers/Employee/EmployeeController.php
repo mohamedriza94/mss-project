@@ -66,7 +66,13 @@ class EmployeeController extends Controller
     
     public function read($limit)
     {
-        $employees = Employee::where('role','=','worker')->orderBy('id', 'DESC')->limit(4)->offSet($limit)->get();
+        //exploding a string to get factory number from the supervisor
+        $explode_string  = auth()->guard('employee')->user()->departmentNo;
+        $split_explode_string = explode(" ", $explode_string);
+        $factoryNo = $split_explode_string[1]; //get 1st position of array
+        $departmentNo = $split_explode_string[0]; //get 1st position of array
+
+        $employees = Employee::where('departmentNo','LIKE','%'.$departmentNo.'%')->where('role','=','worker')->orderBy('id', 'DESC')->limit(4)->offSet($limit)->get();
         return response()->json([
             'employees'=>$employees,
         ]);

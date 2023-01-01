@@ -355,7 +355,37 @@
             }
             function WI()
             {
+                var url = "{{ url('employee/dashboard/WI/:limit/:type') }}";
+                url = url.replace(':limit',limit_WI);
+                url = url.replace(':type',type_WI);
                 
+                $.ajax({
+                    type: "GET",
+                    url:url,
+                    dataType:"json",
+                    success:function(response){
+                        $('#WI_table').html('');
+                        $.each(response.data,function(key,item){
+                            
+                            //get current task of worker
+                            var urlGetCurrentTask = "{{ url('employee/dashboard/WI_CurrentTask/:worker') }}";
+                            urlGetCurrentTask = urlGetCurrentTask.replace(':worker',item.no);
+                            $.ajax({
+                                type: "GET", url:urlGetCurrentTask, dataType:"json",
+                                success:function(response){
+                                    $('#WI_table').append('<tr><td>'+item.no+'</td>\
+                                        <td>'+item.name+'</td>\
+                                        <td>'+item.task_count+'</td>\
+                                        <td>'+response.taskData+'</td>\
+                                        <td>'+response.taskFCT+' Day(s)</td>\
+                                    </tr>\
+                                    ');
+                                }
+                            })
+                            
+                        });
+                    }
+                });
             }
             function T()
             {
@@ -409,7 +439,7 @@
                             {
                                 status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#e63002; color:white'>Complete</div>";
                             }
-
+                            
                             $('#KBC_table').append('<tr><td>'+item.cardNo+'</td>\
                                 <td>'+item.title+'</td>\
                                 <td>'+status+'</td>\
@@ -519,7 +549,7 @@
                 <table width='100%'>
                     <thead>
                         <tr>
-                            <th>Worker ID</th>
+                            <th>Worker No</th>
                             <th>Name</th>
                             <th>Total Tasks Done</th>
                             <th>Current Task</th>

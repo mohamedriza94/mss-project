@@ -74,6 +74,7 @@ Route::group([
             Route::get('IR/{limit}/{type}', 'HomeController@IR');
             Route::get('AI/{limit}/{type}', 'HomeController@AI');
             Route::get('WI/{limit}/{type}', 'HomeController@WI');
+            Route::get('WI_CurrentTask/{worker}', 'HomeController@WI_CurrentTask');
             Route::get('T/{limit}/{type}/{status}', 'HomeController@T');
             Route::get('KBC/{limit}/{type}/{status}', 'HomeController@KBC');
             Route::get('S/{limit}/{type}/{status}', 'HomeController@S');
