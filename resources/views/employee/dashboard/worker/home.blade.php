@@ -155,281 +155,7 @@
             <input type="hidden" id="workshop_input">
             <input type="hidden" id="startDate_input">
             <input type="hidden" id="worker_input" value="{{ auth()->guard('employee')->user()->no }}">
-            
-            <script>
-                $(document).ready(function(){
-                    
-                    //csrf token
-                    $.ajaxSetup({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        }
-                    });
-                    
-                    //disable keyboard input to number input elements
-                    $("[type='number']").keypress(function (evt) {
-                        evt.preventDefault();
-                    });
-                    
-                    fetchRawMaterials();
-                    fetchTask();
-                    
-                    setTimeout(() => {
-                        fetchUsedRawMaterial();
-                    }, 1000);
-                    
-                    //disable button on page load
-                    $('#btnFinish').attr('disabled','disabled');
-                    document.getElementById('btnFinish').setAttribute("style", "background:#0a5aa1;");
-                    
-                    document.getElementById('btnStart').setAttribute("style", "background:#029ef2;");
-                    
-                    //Use raw materials
-                    $(document).on('click','#btnUse', function(e){
-                        e.preventDefault();
-                        
-                        var task_input = $('#task_input').val();
-                        var card_input = $('#card_input').val();
-                        var factory_input = $('#factory_input').val();
-                        var rawMaterial_input = $('#rawMaterial_input').val();
-                        var workshop_input = $('#workshop_input').val();
-                        var worker_input = $('#worker_input').val();
-                        var quantity = $('#quantity').val();
-                        
-                        var data = {
-                            'task' : task_input,
-                            'card' : card_input,
-                            'factory' : factory_input,
-                            'rawMaterial' : rawMaterial_input,
-                            'workshop' : workshop_input,
-                            'worker' : worker_input,
-                            'quantity' : quantity
-                        };
-                        
-                        var url = '{{ url("employee/dashboard/workerDash/useRawMaterial") }}';
-                        
-                        $.ajax({
-                            type:"POST", url:url, data:data, dataType:"json",
-                            success: function(response)
-                            {
-                                if(response.status == 400)
-                                {
-                                    alert(response.message);
-                                }
-                                else
-                                {
-                                    fetchRawMaterials(); //in select option
-                                    alert(response.message);
-                                    
-                                    fetchUsedRawMaterial();
-                                }
-                            }
-                        });
-                    });
-                    
-                    //read warehouse inventory options
-                    function fetchRawMaterials()
-                    {
-                        var url = '{{ url("employee/dashboard/workerDash/readForTaskOptions") }}';
-                        
-                        $.ajax({
-                            type: "GET",
-                            url:url,
-                            dataType:"json",
-                            success:function(response){
-                                
-                                $('#rawMaterialSelect').html('');
-                                
-                                $.each(response.rawMaterials,function(key,item){
-                                    
-                                    $('#rawMaterialSelect').append('<option value="'+item.no+','+item.quantity+'">'+item.name+'</option>');
-                                    
-                                    splitString();
-                                });
-                            }
-                        });
-                    }
-                    
-                    //read warehouse inventory options
-                    function fetchTask()
-                    {
-                        var url = '{{ url("employee/dashboard/workerDash/getWorkerTask") }}';
-                        
-                        $.ajax({
-                            type: "GET",
-                            url:url,
-                            dataType:"json",
-                            success:function(response){
-                                
-                                if(response.status==400)
-                                {
-                                    alert(response.message);   
-                                }
-                                else
-                                {
-                                    
-                                    $('#taskNo').text(response.task.taskNo);
-                                    $('#name').text(response.task.name);
-                                    $('#deadline').text(response.task.endDate);
-                                    $('#description').text(response.task.description);
-                                    
-                                    //fill inputs
-                                    $('#workshop_input').val(response.task.workshop);
-                                    $('#startDate_input').val(response.task.startDate);
-                                    $('#factory_input').val(response.task.factory);
-                                    $('#card_input').val(response.task.cardNo);
-                                    $('#task_input').val(response.task.taskNo);
-                                }
-                            }
-                        });
-                    }
-                    
-                    //read used raw materials
-                    function fetchUsedRawMaterial()
-                    {
-                        var taskNo = $('#task_input').val();
-                        
-                        var url = '{{ url("employee/dashboard/workerDash/readUsedRawMaterial/:taskNo") }}';
-                        url = url.replace(':taskNo', taskNo);
-                        
-                        $.ajax({
-                            type: "GET",
-                            url:url,
-                            dataType:"json",
-                            success:function(response){
-                                
-                                $('#usedRMTable').html('');
-
-                                $.each(response.usedRM,function(key,item){
-                                    $('#usedRMTable').append('<tr><td>'+item.name+'</td>\
-                                        <td>'+item.quantity+'</td>\
-                                    </tr>\
-                                    ');
-                                })
-                            }
-                        });
-                    }
-                    
-                    //split string to get quantity
-                    function splitString()
-                    {
-                        //split array to get quantity seperately
-                        
-                        var qty = $('#rawMaterialSelect').val();
-                        var arr_qty = qty.split(","); 
-                        var qty_new = arr_qty[1]; 
-                        
-                        $("#quantity").attr("max", qty_new);
-                        $("#quantity").val(0);
-                        $("#qtyLabel").text('Quantity ( Limit - '+qty_new+')');
-                        
-                        //fill input
-                        $("#rawMaterial_input").val(arr_qty[0]);
-                    }
-                    
-                    //get quantity on change
-                    $(document).ready(function() {
-                        $('#rawMaterialSelect').on('change', function() {
-                            
-                            splitString();
-                            
-                        });
-                    });
-                    
-                    //start task
-                    $(document).on('click','#btnStart', function(e){
-                        e.preventDefault();
-                        
-                        var task_input = $('#task_input').val();
-                        var card_input = $('#card_input').val();
-                        var worker_input = $('#worker_input').val();
-                        
-                        var data = {
-                            'task' : task_input,
-                            'card' : card_input,
-                            'worker' : worker_input,
-                        };
-                        
-                        var url = '{{ url("employee/dashboard/workerDash/startTask") }}';
-                        
-                        $.ajax({
-                            type:"POST", url:url, data:data, dataType:"json",
-                            success: function(response)
-                            {
-                                if(response.status == 400)
-                                {
-                                    alert(response.message);
-                                }
-                                else
-                                {
-                                    $('#btnStart').text('Starting...');
-                                    
-                                    setTimeout(() => {
-                                        $('#btnStart').text('Started');
-
-                                        $('#btnStart').attr('disabled','disabled');
-                                        $('#btnFinish').removeAttr('disabled','disabled');
-
-                                        document.getElementById('btnStart').setAttribute("style", "background:#0a5aa1;");
-                                        
-                                        document.getElementById('btnFinish').setAttribute("style", "background:#029ef2;");
-                                    }, 1000);
-                                }
-                            }
-                        });
-                    });
-                    
-                    //finish task
-                    $(document).on('click','#btnFinish', function(e){
-                        e.preventDefault();
-                        
-                        //calculate days
-                        var endDate_ISO_format = new Date().toISOString().slice(0, 10);
-                        
-                        var start = new Date(document.getElementById("startDate_input").value);
-                        var end = new Date(endDate_ISO_format);
-                        
-                        var startTime = start.getTime();
-                        var endTime = end.getTime();
-                        
-                        var days = (endTime - startTime) / 86400000;
-                        
-                        var task_input = $('#task_input').val();
-                        var card_input = $('#card_input').val();
-                        
-                        var data = {
-                            'endDate' : endDate_ISO_format,
-                            'days' : days,
-                            'task' : task_input,
-                            'card' : card_input
-                        };
-                        
-                        var url = '{{ url("employee/dashboard/workerDash/endTask") }}';
-                        
-                        $.ajax({
-                            type:"POST", url:url, data:data, dataType:"json",
-                            success: function(response)
-                            {
-                                if(response.status == 400)
-                                {
-                                    alert(response.message);
-                                }
-                                else
-                                {
-                                    $('#btnFinish').text('Finished');
-                                    document.getElementById('btnFinish').setAttribute("style", "background:#0a5aa1;");
-                                    
-                                    setTimeout(() => {
-                                        window.location.href = window.location.href;
-                                    }, 1000);
-                                }
-                            }
-                        });
-                    });
-                });
-            </script>
-            
-            
+    
             <div class="task-page-container13">
                 <div class="task-page-container14"><span>Controls</span></div>
                 <div class="task-page-container15">
@@ -451,3 +177,278 @@ src="https://unpkg.com/@teleporthq/teleport-custom-scripts"
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 </body>
 </html>
+
+{{-- Js --}}
+<script>
+    $(document).ready(function(){
+        
+        //csrf token
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        
+        //disable keyboard input to number input elements
+        $("[type='number']").keypress(function (evt) {
+            evt.preventDefault();
+        });
+        
+        //calling functions
+        fetchRawMaterials();
+        fetchTask();
+        
+        //call function one second after page loads
+        setTimeout(() => {
+            fetchUsedRawMaterial();
+        }, 1000);
+        
+        //disable button on page load
+        $('#btnFinish').attr('disabled','disabled');
+        document.getElementById('btnFinish').setAttribute("style", "background:#0a5aa1;");
+        document.getElementById('btnStart').setAttribute("style", "background:#029ef2;");
+        
+        //Use raw materials
+        $(document).on('click','#btnUse', function(e){
+            e.preventDefault();
+            
+            var task_input = $('#task_input').val();
+            var card_input = $('#card_input').val();
+            var factory_input = $('#factory_input').val();
+            var rawMaterial_input = $('#rawMaterial_input').val();
+            var workshop_input = $('#workshop_input').val();
+            var worker_input = $('#worker_input').val();
+            var quantity = $('#quantity').val();
+            
+            var data = {
+                'task' : task_input,
+                'card' : card_input,
+                'factory' : factory_input,
+                'rawMaterial' : rawMaterial_input,
+                'workshop' : workshop_input,
+                'worker' : worker_input,
+                'quantity' : quantity
+            };
+            
+            var url = '{{ url("employee/dashboard/workerDash/useRawMaterial") }}';
+            
+            $.ajax({
+                type:"POST", url:url, data:data, dataType:"json",
+                success: function(response)
+                {
+                    if(response.status == 400)
+                    {
+                        alert(response.message);
+                    }
+                    else
+                    {
+                        fetchRawMaterials(); //in select option
+                        alert(response.message);
+                        
+                        fetchUsedRawMaterial();
+                    }
+                }
+            });
+        });
+        
+        //read warehouse inventory options
+        function fetchRawMaterials()
+        {
+            var url = '{{ url("employee/dashboard/workerDash/readForTaskOptions") }}';
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    
+                    $('#rawMaterialSelect').html('');
+                    
+                    $.each(response.rawMaterials,function(key,item){
+                        
+                        $('#rawMaterialSelect').append('<option value="'+item.no+','+item.quantity+'">'+item.name+'</option>');
+                        
+                        splitString();
+                    });
+                }
+            });
+        }
+        
+        //read warehouse inventory options
+        function fetchTask()
+        {
+            var url = '{{ url("employee/dashboard/workerDash/getWorkerTask") }}';
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    
+                    if(response.status==400)
+                    {
+                        alert(response.message);   
+                    }
+                    else
+                    {
+                        
+                        $('#taskNo').text(response.task.taskNo);
+                        $('#name').text(response.task.name);
+                        $('#deadline').text(response.task.endDate);
+                        $('#description').text(response.task.description);
+                        
+                        //fill inputs
+                        $('#workshop_input').val(response.task.workshop);
+                        $('#startDate_input').val(response.task.startDate);
+                        $('#factory_input').val(response.task.factory);
+                        $('#card_input').val(response.task.cardNo);
+                        $('#task_input').val(response.task.taskNo);
+                    }
+                }
+            });
+        }
+        
+        //read used raw materials
+        function fetchUsedRawMaterial()
+        {
+            var taskNo = $('#task_input').val();
+            
+            var url = '{{ url("employee/dashboard/workerDash/readUsedRawMaterial/:taskNo") }}';
+            url = url.replace(':taskNo', taskNo);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    
+                    $('#usedRMTable').html('');
+
+                    $.each(response.usedRM,function(key,item){
+                        $('#usedRMTable').append('<tr><td>'+item.name+'</td>\
+                            <td>'+item.quantity+'</td>\
+                        </tr>\
+                        ');
+                    })
+                }
+            });
+        }
+        
+        //split string to get quantity
+        function splitString()
+        {
+            //split array to get quantity seperately
+            
+            var qty = $('#rawMaterialSelect').val();
+            var arr_qty = qty.split(","); 
+            var qty_new = arr_qty[1]; 
+            
+            $("#quantity").attr("max", qty_new);
+            $("#quantity").val(0);
+            $("#qtyLabel").text('Quantity ( Limit - '+qty_new+')');
+            
+            //fill input
+            $("#rawMaterial_input").val(arr_qty[0]);
+        }
+        
+        //get quantity on change
+        $(document).ready(function() {
+            $('#rawMaterialSelect').on('change', function() {
+                
+                splitString();
+                
+            });
+        });
+        
+        //start task
+        $(document).on('click','#btnStart', function(e){
+            e.preventDefault();
+            
+            var task_input = $('#task_input').val();
+            var card_input = $('#card_input').val();
+            var worker_input = $('#worker_input').val();
+            
+            var data = {
+                'task' : task_input,
+                'card' : card_input,
+                'worker' : worker_input,
+            };
+            
+            var url = '{{ url("employee/dashboard/workerDash/startTask") }}';
+            
+            $.ajax({
+                type:"POST", url:url, data:data, dataType:"json",
+                success: function(response)
+                {
+                    if(response.status == 400)
+                    {
+                        alert(response.message);
+                    }
+                    else
+                    {
+                        $('#btnStart').text('Starting...');
+                        
+                        setTimeout(() => {
+                            $('#btnStart').text('Started');
+
+                            $('#btnStart').attr('disabled','disabled');
+                            $('#btnFinish').removeAttr('disabled','disabled');
+
+                            document.getElementById('btnStart').setAttribute("style", "background:#0a5aa1;");
+                            
+                            document.getElementById('btnFinish').setAttribute("style", "background:#029ef2;");
+                        }, 1000);
+                    }
+                }
+            });
+        });
+        
+        //finish task
+        $(document).on('click','#btnFinish', function(e){
+            e.preventDefault();
+            
+            //calculate days
+            var endDate_ISO_format = new Date().toISOString().slice(0, 10);
+            
+            var start = new Date(document.getElementById("startDate_input").value);
+            var end = new Date(endDate_ISO_format);
+            
+            var startTime = start.getTime();
+            var endTime = end.getTime();
+            
+            var days = (endTime - startTime) / 86400000;
+            
+            var task_input = $('#task_input').val();
+            var card_input = $('#card_input').val();
+            
+            var data = {
+                'endDate' : endDate_ISO_format,
+                'days' : days,
+                'task' : task_input,
+                'card' : card_input
+            };
+            
+            var url = '{{ url("employee/dashboard/workerDash/endTask") }}';
+            
+            $.ajax({
+                type:"POST", url:url, data:data, dataType:"json",
+                success: function(response)
+                {
+                    if(response.status == 400)
+                    {
+                        alert(response.message);
+                    }
+                    else
+                    {
+                        $('#btnFinish').text('Finished');
+                        document.getElementById('btnFinish').setAttribute("style", "background:#0a5aa1;");
+                        
+                        setTimeout(() => {
+                            window.location.href = window.location.href;
+                        }, 1000);
+                    }
+                }
+            });
+        });
+    });
+</script>

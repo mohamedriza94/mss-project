@@ -147,335 +147,6 @@
         </div>
     </div>
     
-    <script>
-        $(document).ready(function(){
-            
-            //csrf token
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            
-            //button color setting 
-            $('#btnLimit_IR').css('background','#403e3b');
-            $('#btnLimit_AI').css('background','#403e3b');
-            $('#btnLimit_WI').css('background','#403e3b');
-            $('#btnLimit_T').css('background','#403e3b');
-            $('#btnLimit_KBC').css('background','#403e3b');
-            $('#btnLimit_S').css('background','#403e3b');
-            
-            //status button color setting
-            $('#btnStatusPending_T').css('background','#403e3b');
-            $('#btnStatusPending_KBC').css('background','#403e3b');
-            $('#btnStatusOccupied_S').css('background','#403e3b');
-            
-            //limit and offset for pagination
-            var limit_IR = 0;
-            var limit_AI = 0;
-            var limit_WI = 0;
-            var limit_T = 0;
-            var limit_KBC = 0;
-            var limit_S = 0;
-            
-            var type_IR = 'limit';
-            var type_AI = 'limit';
-            var type_WI = 'limit';
-            var type_T = 'limit';
-            var type_KBC = 'limit';
-            var type_S = 'limit';
-            
-            //status for category selection
-            var status_T = 'pending';
-            var status_KBC = 'pending';
-            var status_S = 'occupied';
-            
-            //next
-            function next_IR(){ limit_IR = limit_IR + 5; IR();}
-            function next_AI(){ limit_AI = limit_AI + 5; AI()}
-            function next_WI(){ limit_WI = limit_WI + 5; WI()}
-            function next_T(){ limit_T = limit_T + 5; T()}
-            function next_KBC(){ limit_KBC = limit_KBC + 5; KBC()}
-            function next_S(){ limit_S = limit_S + 5; S()}
-            
-            //click limit
-            $(document).on('click', '#btnNext_IR', function(e){ next_IR(); });
-            $(document).on('click', '#btnNext_AI', function(e){ next_AI(); });
-            $(document).on('click', '#btnNext_WI', function(e){ next_WI(); });
-            $(document).on('click', '#btnNext_T', function(e){ next_T(); });
-            $(document).on('click', '#btnNext_KBC', function(e){ next_KBC(); });
-            $(document).on('click', '#btnNext_S', function(e){ next_S(); });
-            
-            //prev
-            function prev_IR(){ limit_IR = limit_IR - 5; if(limit_IR < 0) { limit_IR = 0;} IR();}
-            function prev_AI(){ limit_AI = limit_AI - 5; if(limit_AI < 0) { limit_AI = 0;} AI()}
-            function prev_WI(){ limit_WI = limit_WI - 5; if(limit_WI < 0) { limit_WI = 0;} WI()}
-            function prev_T(){ limit_T = limit_T - 5; if(limit_T < 0) { limit_T = 0;} T()}
-            function prev_KBC(){ limit_KBC = limit_KBC - 5; if(limit_KBC < 0) { limit_KBC = 0;} KBC()}
-            function prev_S(){ limit_S = limit_S - 5; if(limit_S < 0) { limit_S = 0;} S()}
-            
-            //click prev
-            $(document).on('click', '#btnPrev_IR', function(e){ prev_IR(); });
-            $(document).on('click', '#btnPrev_AI', function(e){ prev_AI(); });
-            $(document).on('click', '#btnPrev_WI', function(e){ prev_WI(); });
-            $(document).on('click', '#btnPrev_T', function(e){ prev_T(); });
-            $(document).on('click', '#btnPrev_KBC', function(e){ prev_KBC(); });
-            $(document).on('click', '#btnPrev_S', function(e){ prev_S(); });
-            
-            //click all
-            $(document).on('click', '#btnAll_IR', function(e){ type_IR = 'all'; IR(); $(this).css('background', '#403e3b'); $('#btnLimit_IR').css('background','#ee6c4d');});
-            $(document).on('click', '#btnAll_AI', function(e){ type_AI = 'all'; AI(); $(this).css('background', '#403e3b'); $('#btnLimit_AI').css('background','#ee6c4d');});
-            $(document).on('click', '#btnAll_WI', function(e){ type_WI = 'all'; WI(); $(this).css('background', '#403e3b'); $('#btnLimit_WI').css('background','#ee6c4d');});
-            $(document).on('click', '#btnAll_T', function(e){ type_T = 'all'; T(); $(this).css('background', '#403e3b'); $('#btnLimit_T').css('background','#ee6c4d');});
-            $(document).on('click', '#btnAll_KBC', function(e){ type_KBC = 'all'; KBC(); $(this).css('background', '#403e3b'); $('#btnLimit_KBC').css('background','#ee6c4d');});
-            $(document).on('click', '#btnAll_S', function(e){ type_S = 'all'; S(); $(this).css('background', '#403e3b'); $('#btnLimit_S').css('background','#ee6c4d');});
-            
-            //click status button//click status button
-            $(document).on('click', '#btnStatusPending_T', function(e){ status_T = 'pending'; T(); $(this).css('background', '#403e3b'); $('#btnStatusCompleted_T').css('background','#ee6c4d');});
-            $(document).on('click', '#btnStatusPending_KBC', function(e){ status_KBC = 'pending'; KBC(); $(this).css('background', '#403e3b'); $('#btnStatusCompleted_KBC').css('background','#ee6c4d');});
-            $(document).on('click', '#btnStatusOccupied_S', function(e){ status_S = 'occupied'; S(); $(this).css('background', '#403e3b'); $('#btnStatusAvailable_S').css('background','#ee6c4d');});
-            $(document).on('click', '#btnStatusCompleted_T', function(e){ status_T = 'completed'; T(); $(this).css('background', '#403e3b'); $('#btnStatusPending_T').css('background','#ee6c4d');});
-            $(document).on('click', '#btnStatusCompleted_KBC', function(e){ status_KBC = 'completed'; KBC(); $(this).css('background', '#403e3b'); $('#btnStatusPending_KBC').css('background','#ee6c4d');});
-            $(document).on('click', '#btnStatusAvailable_S', function(e){ status_S = 'available'; S(); $(this).css('background', '#403e3b'); $('#btnStatusOccupied_S').css('background','#ee6c4d');});
-            
-            //click limit
-            $(document).on('click', '#btnLimit_IR', function(e){ type_IR = 'limit'; limit_IR = 0; IR(); $(this).css('background', '#403e3b'); $('#btnAll_IR').css('background','#ee6c4d')});
-            $(document).on('click', '#btnLimit_AI', function(e){ type_AI = 'limit'; limit_AI = 0; AI(); $(this).css('background', '#403e3b'); $('#btnAll_AI').css('background','#ee6c4d')});
-            $(document).on('click', '#btnLimit_WI', function(e){ type_WI = 'limit'; limit_WI = 0; WI(); $(this).css('background', '#403e3b'); $('#btnAll_WI').css('background','#ee6c4d')});
-            $(document).on('click', '#btnLimit_T', function(e){ type_T = 'limit'; limit_T = 0; T(); $(this).css('background', '#403e3b'); $('#btnAll_T').css('background','#ee6c4d')});
-            $(document).on('click', '#btnLimit_KBC', function(e){ type_KBC = 'limit'; limit_KBC = 0; KBC(); $(this).css('background', '#403e3b'); $('#btnAll_KBC').css('background','#ee6c4d')});
-            $(document).on('click', '#btnLimit_S', function(e){ type_S = 'limit'; limit_S = 0; S(); $(this).css('background', '#403e3b'); $('#btnAll_S').css('background','#ee6c4d')});
-            
-            //get PDF
-            $(document).on('click', '#btnPDF_IR', function(e){ $('#content_IR').printThis(); });
-            $(document).on('click', '#btnPDF_AI', function(e){ $('#content_AI').printThis(); });
-            $(document).on('click', '#btnPDF_WI', function(e){ $('#content_WI').printThis(); });
-            $(document).on('click', '#btnPDF_T', function(e){ $('#content_T').printThis(); });
-            $(document).on('click', '#btnPDF_KBC', function(e){ $('#content_KBC').printThis(); });
-            $(document).on('click', '#btnPDF_S', function(e){ $('#content_S').printThis(); });
-            $(document).on('click', '#btnGeneratePDF', function(e){ $('#content').printThis(); });
-            
-            //call functions
-            IR();
-            AI();
-            WI();
-            T();
-            KBC();
-            S();
-            
-            setInterval(() => {
-                counts();
-            }, 1000);
-            
-            //statistics
-            function counts()
-            {
-                var url = '{{ url("employee/dashboard/counts") }}';
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        
-                        $('#rawMaterials').text(response.rawMaterialsCount);
-                        $('#slots').text(response.slotsCount);
-                        $('#workers').text(response.workersCount);
-                        $('#kanbanCards').text(response.kanbanCardsCount);
-                        $('#workshops').text(response.workshopsCount);
-                        $('#tasks').text(response.tasksCount);
-                        
-                    }
-                });
-            }
-            
-            function IR()
-            {
-                var url = "{{ url('employee/dashboard/IR/:limit/:type') }}";
-                url = url.replace(':limit',limit_IR);
-                url = url.replace(':type',type_IR);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        $('#IR_table').html('');
-                        $.each(response.data,function(key,item){
-                            
-                            var date = item.date;
-                            var date = date.slice(0,10);
-                            
-                            var time = item.time;
-                            var time = time.slice(10,19);
-                            
-                            var status = "";
-                            
-                            if(item.status=='pending')
-                            {
-                                status = "<div style='text-align:center; width:50%; padding:8px; border-radius:6px; background:#14c704; color:white'>Pending</div>";
-                            }
-                            else if(item.status=='completed')
-                            {
-                                status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#e63002; color:white'>Complete</div>";
-                            }
-                            
-                            $('#IR_table').append('<tr><td>'+item.name+'</td>\
-                                <td>'+date+'</td>\
-                                <td>'+time+'</td>\
-                                <td>'+item.quantity+'</td>\
-                                <td>'+status+'</td>\
-                            </tr>\
-                            ');
-                        });
-                    }
-                });
-            }
-            function AI()
-            {
-                var url = "{{ url('employee/dashboard/AI/:limit/:type') }}";
-                url = url.replace(':limit',limit_AI);
-                url = url.replace(':type',type_AI);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        $('#AI_table').html('');
-                        $.each(response.data,function(key,item){
-                            
-                            $('#AI_table').append('<tr><td>'+item.name+'</td>\
-                                <td>'+item.availablePercentage+' %</td>\
-                            </tr>\
-                            ');
-                        });
-                    }
-                });
-            }
-            function WI()
-            {
-                var url = "{{ url('employee/dashboard/WI/:limit/:type') }}";
-                url = url.replace(':limit',limit_WI);
-                url = url.replace(':type',type_WI);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        $('#WI_table').html('');
-                        $.each(response.data,function(key,item){
-                            
-                            //get current task of worker
-                            var urlGetCurrentTask = "{{ url('employee/dashboard/WI_CurrentTask/:worker') }}";
-                            urlGetCurrentTask = urlGetCurrentTask.replace(':worker',item.no);
-                            $.ajax({
-                                type: "GET", url:urlGetCurrentTask, dataType:"json",
-                                success:function(response){
-                                    $('#WI_table').append('<tr><td>'+item.no+'</td>\
-                                        <td>'+item.name+'</td>\
-                                        <td>'+item.task_count+'</td>\
-                                        <td>'+response.taskData+'</td>\
-                                        <td>'+response.taskFCT+' Day(s)</td>\
-                                    </tr>\
-                                    ');
-                                }
-                            })
-                            
-                        });
-                    }
-                });
-            }
-            function T()
-            {
-                var url = "{{ url('employee/dashboard/T/:limit/:type/:status') }}";
-                url = url.replace(':limit',limit_T);
-                url = url.replace(':type',type_T);
-                url = url.replace(':status',status_T);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        $('#T_table').html('');
-                        $.each(response.data,function(key,item){
-                            
-                            $('#T_table').append('<tr><td>'+item.taskNo+'</td>\
-                                <td>'+item.name+'</td>\
-                                <td>'+item.start+'</td>\
-                                <td>'+item.end+'</td>\
-                                <td>'+item.duration+'</td>\
-                                <td>'+item.worker+'</td>\
-                            </tr>\
-                            ');
-                        });
-                    }
-                });
-            }
-            function KBC()
-            {
-                var url = "{{ url('employee/dashboard/KBC/:limit/:type/:status') }}";
-                url = url.replace(':limit',limit_KBC);
-                url = url.replace(':type',type_KBC);
-                url = url.replace(':status',status_KBC);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        $('#KBC_table').html('');
-                        $.each(response.data,function(key,item){
-                            
-                            var status = "";
-                            
-                            if(item.status=='pending')
-                            {
-                                status = "<div style='text-align:center; width:50%; padding:8px; border-radius:6px; background:#14c704; color:white'>Pending</div>";
-                            }
-                            else if(item.status=='completed')
-                            {
-                                status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#e63002; color:white'>Complete</div>";
-                            }
-                            
-                            $('#KBC_table').append('<tr><td>'+item.cardNo+'</td>\
-                                <td>'+item.title+'</td>\
-                                <td>'+status+'</td>\
-                            </tr>\
-                            ');
-                        });
-                    }
-                });
-            }
-            function S()
-            {
-                var url = "{{ url('employee/dashboard/S/:limit/:type/:status') }}";
-                url = url.replace(':limit',limit_S);
-                url = url.replace(':type',type_S);
-                url = url.replace(':status',status_S);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        $('#S_table').html('');
-                        $.each(response.data,function(key,item){
-                            
-                            $('#S_table').append('<tr><td>'+item.slotNo+'</td>\
-                                <td>'+item.workshopNo+'</td>\
-                                <td>'+item.task+'</td>\
-                            </tr>\
-                            ');
-                        });
-                    }
-                });
-            }
-        });
-    </script>
-    
     <div class="inventory-info-page-container15" id="content_IR">
         <div class="inventory-info-page-container16">
             <h1 class="inventory-info-page-text19">INVENTORY REQUESTS</h1>
@@ -687,3 +358,346 @@
 </div>
 </body>
 </html>
+
+{{-- Js --}}
+
+<script>
+    $(document).ready(function(){
+        
+        //csrf token
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        
+        //button color setting 
+        $('#btnLimit_IR').css('background','#403e3b');
+        $('#btnLimit_AI').css('background','#403e3b');
+        $('#btnLimit_WI').css('background','#403e3b');
+        $('#btnLimit_T').css('background','#403e3b');
+        $('#btnLimit_KBC').css('background','#403e3b');
+        $('#btnLimit_S').css('background','#403e3b');
+        
+        //status button color setting
+        $('#btnStatusPending_T').css('background','#403e3b');
+        $('#btnStatusPending_KBC').css('background','#403e3b');
+        $('#btnStatusOccupied_S').css('background','#403e3b');
+        
+        //limit and offset for pagination
+        var limit_IR = 0;
+        var limit_AI = 0;
+        var limit_WI = 0;
+        var limit_T = 0;
+        var limit_KBC = 0;
+        var limit_S = 0;
+        
+        var type_IR = 'limit';
+        var type_AI = 'limit';
+        var type_WI = 'limit';
+        var type_T = 'limit';
+        var type_KBC = 'limit';
+        var type_S = 'limit';
+        
+        //status for category selection
+        var status_T = 'pending';
+        var status_KBC = 'pending';
+        var status_S = 'occupied';
+        
+        //next
+        function next_IR(){ limit_IR = limit_IR + 5; IR();}
+        function next_AI(){ limit_AI = limit_AI + 5; AI()}
+        function next_WI(){ limit_WI = limit_WI + 5; WI()}
+        function next_T(){ limit_T = limit_T + 5; T()}
+        function next_KBC(){ limit_KBC = limit_KBC + 5; KBC()}
+        function next_S(){ limit_S = limit_S + 5; S()}
+        
+        //click limit
+        $(document).on('click', '#btnNext_IR', function(e){ next_IR(); });
+        $(document).on('click', '#btnNext_AI', function(e){ next_AI(); });
+        $(document).on('click', '#btnNext_WI', function(e){ next_WI(); });
+        $(document).on('click', '#btnNext_T', function(e){ next_T(); });
+        $(document).on('click', '#btnNext_KBC', function(e){ next_KBC(); });
+        $(document).on('click', '#btnNext_S', function(e){ next_S(); });
+        
+        //prev
+        function prev_IR(){ limit_IR = limit_IR - 5; if(limit_IR < 0) { limit_IR = 0;} IR();}
+        function prev_AI(){ limit_AI = limit_AI - 5; if(limit_AI < 0) { limit_AI = 0;} AI()}
+        function prev_WI(){ limit_WI = limit_WI - 5; if(limit_WI < 0) { limit_WI = 0;} WI()}
+        function prev_T(){ limit_T = limit_T - 5; if(limit_T < 0) { limit_T = 0;} T()}
+        function prev_KBC(){ limit_KBC = limit_KBC - 5; if(limit_KBC < 0) { limit_KBC = 0;} KBC()}
+        function prev_S(){ limit_S = limit_S - 5; if(limit_S < 0) { limit_S = 0;} S()}
+        
+        //click prev
+        $(document).on('click', '#btnPrev_IR', function(e){ prev_IR(); });
+        $(document).on('click', '#btnPrev_AI', function(e){ prev_AI(); });
+        $(document).on('click', '#btnPrev_WI', function(e){ prev_WI(); });
+        $(document).on('click', '#btnPrev_T', function(e){ prev_T(); });
+        $(document).on('click', '#btnPrev_KBC', function(e){ prev_KBC(); });
+        $(document).on('click', '#btnPrev_S', function(e){ prev_S(); });
+        
+        //click all
+        $(document).on('click', '#btnAll_IR', function(e){ type_IR = 'all'; IR(); $(this).css('background', '#403e3b'); $('#btnLimit_IR').css('background','#ee6c4d');});
+        $(document).on('click', '#btnAll_AI', function(e){ type_AI = 'all'; AI(); $(this).css('background', '#403e3b'); $('#btnLimit_AI').css('background','#ee6c4d');});
+        $(document).on('click', '#btnAll_WI', function(e){ type_WI = 'all'; WI(); $(this).css('background', '#403e3b'); $('#btnLimit_WI').css('background','#ee6c4d');});
+        $(document).on('click', '#btnAll_T', function(e){ type_T = 'all'; T(); $(this).css('background', '#403e3b'); $('#btnLimit_T').css('background','#ee6c4d');});
+        $(document).on('click', '#btnAll_KBC', function(e){ type_KBC = 'all'; KBC(); $(this).css('background', '#403e3b'); $('#btnLimit_KBC').css('background','#ee6c4d');});
+        $(document).on('click', '#btnAll_S', function(e){ type_S = 'all'; S(); $(this).css('background', '#403e3b'); $('#btnLimit_S').css('background','#ee6c4d');});
+        
+        //click status button//click status button
+        $(document).on('click', '#btnStatusPending_T', function(e){ status_T = 'pending'; T(); $(this).css('background', '#403e3b'); $('#btnStatusCompleted_T').css('background','#ee6c4d');});
+        $(document).on('click', '#btnStatusPending_KBC', function(e){ status_KBC = 'pending'; KBC(); $(this).css('background', '#403e3b'); $('#btnStatusCompleted_KBC').css('background','#ee6c4d');});
+        $(document).on('click', '#btnStatusOccupied_S', function(e){ status_S = 'occupied'; S(); $(this).css('background', '#403e3b'); $('#btnStatusAvailable_S').css('background','#ee6c4d');});
+        $(document).on('click', '#btnStatusCompleted_T', function(e){ status_T = 'completed'; T(); $(this).css('background', '#403e3b'); $('#btnStatusPending_T').css('background','#ee6c4d');});
+        $(document).on('click', '#btnStatusCompleted_KBC', function(e){ status_KBC = 'completed'; KBC(); $(this).css('background', '#403e3b'); $('#btnStatusPending_KBC').css('background','#ee6c4d');});
+        $(document).on('click', '#btnStatusAvailable_S', function(e){ status_S = 'available'; S(); $(this).css('background', '#403e3b'); $('#btnStatusOccupied_S').css('background','#ee6c4d');});
+        
+        //click limit
+        $(document).on('click', '#btnLimit_IR', function(e){ type_IR = 'limit'; limit_IR = 0; IR(); $(this).css('background', '#403e3b'); $('#btnAll_IR').css('background','#ee6c4d')});
+        $(document).on('click', '#btnLimit_AI', function(e){ type_AI = 'limit'; limit_AI = 0; AI(); $(this).css('background', '#403e3b'); $('#btnAll_AI').css('background','#ee6c4d')});
+        $(document).on('click', '#btnLimit_WI', function(e){ type_WI = 'limit'; limit_WI = 0; WI(); $(this).css('background', '#403e3b'); $('#btnAll_WI').css('background','#ee6c4d')});
+        $(document).on('click', '#btnLimit_T', function(e){ type_T = 'limit'; limit_T = 0; T(); $(this).css('background', '#403e3b'); $('#btnAll_T').css('background','#ee6c4d')});
+        $(document).on('click', '#btnLimit_KBC', function(e){ type_KBC = 'limit'; limit_KBC = 0; KBC(); $(this).css('background', '#403e3b'); $('#btnAll_KBC').css('background','#ee6c4d')});
+        $(document).on('click', '#btnLimit_S', function(e){ type_S = 'limit'; limit_S = 0; S(); $(this).css('background', '#403e3b'); $('#btnAll_S').css('background','#ee6c4d')});
+        
+        //get PDF
+        $(document).on('click', '#btnPDF_IR', function(e){ $('#content_IR').printThis(); });
+        $(document).on('click', '#btnPDF_AI', function(e){ $('#content_AI').printThis(); });
+        $(document).on('click', '#btnPDF_WI', function(e){ $('#content_WI').printThis(); });
+        $(document).on('click', '#btnPDF_T', function(e){ $('#content_T').printThis(); });
+        $(document).on('click', '#btnPDF_KBC', function(e){ $('#content_KBC').printThis(); });
+        $(document).on('click', '#btnPDF_S', function(e){ $('#content_S').printThis(); });
+        $(document).on('click', '#btnGeneratePDF', function(e){ $('#content').printThis(); });
+        
+        //call functions
+        IR();
+        AI();
+        WI();
+        T();
+        KBC();
+        S();
+        
+        //call function every second
+        setInterval(() => {
+            counts();
+        }, 1000);
+        
+        //statistics
+        function counts()
+        {
+            var url = '{{ url("employee/dashboard/counts") }}';
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    
+                    $('#rawMaterials').text(response.rawMaterialsCount);
+                    $('#slots').text(response.slotsCount);
+                    $('#workers').text(response.workersCount);
+                    $('#kanbanCards').text(response.kanbanCardsCount);
+                    $('#workshops').text(response.workshopsCount);
+                    $('#tasks').text(response.tasksCount);
+                    
+                }
+            });
+        }
+        
+        //read inventory requests of the factory
+        function IR()
+        {
+            var url = "{{ url('employee/dashboard/IR/:limit/:type') }}";
+            url = url.replace(':limit',limit_IR);
+            url = url.replace(':type',type_IR);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    $('#IR_table').html('');
+                    $.each(response.data,function(key,item){
+                        
+                        var date = item.date;
+                        var date = date.slice(0,10);
+                        
+                        var time = item.time;
+                        var time = time.slice(10,19);
+                        
+                        var status = "";
+                        
+                        if(item.status=='pending')
+                        {
+                            status = "<div style='text-align:center; width:50%; padding:8px; border-radius:6px; background:#14c704; color:white'>Pending</div>";
+                        }
+                        else if(item.status=='completed')
+                        {
+                            status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#e63002; color:white'>Complete</div>";
+                        }
+                        
+                        $('#IR_table').append('<tr><td>'+item.name+'</td>\
+                            <td>'+date+'</td>\
+                            <td>'+time+'</td>\
+                            <td>'+item.quantity+'</td>\
+                            <td>'+status+'</td>\
+                        </tr>\
+                        ');
+                    });
+                }
+            });
+        }
+        
+        //read available inventories of the factory
+        function AI()
+        {
+            var url = "{{ url('employee/dashboard/AI/:limit/:type') }}";
+            url = url.replace(':limit',limit_AI);
+            url = url.replace(':type',type_AI);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    $('#AI_table').html('');
+                    $.each(response.data,function(key,item){
+                        
+                        $('#AI_table').append('<tr><td>'+item.name+'</td>\
+                            <td>'+item.availablePercentage+' %</td>\
+                        </tr>\
+                        ');
+                    });
+                }
+            });
+        }
+
+        //read worker information of the factory
+        function WI()
+        {
+            var url = "{{ url('employee/dashboard/WI/:limit/:type') }}";
+            url = url.replace(':limit',limit_WI);
+            url = url.replace(':type',type_WI);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    $('#WI_table').html('');
+                    $.each(response.data,function(key,item){
+                        
+                        //get current task of worker
+                        var urlGetCurrentTask = "{{ url('employee/dashboard/WI_CurrentTask/:worker') }}";
+                        urlGetCurrentTask = urlGetCurrentTask.replace(':worker',item.no);
+                        $.ajax({
+                            type: "GET", url:urlGetCurrentTask, dataType:"json",
+                            success:function(response){
+                                $('#WI_table').append('<tr><td>'+item.no+'</td>\
+                                    <td>'+item.name+'</td>\
+                                    <td>'+item.task_count+'</td>\
+                                    <td>'+response.taskData+'</td>\
+                                    <td>'+response.taskFCT+' Day(s)</td>\
+                                </tr>\
+                                ');
+                            }
+                        })
+                        
+                    });
+                }
+            });
+        }
+        
+        //read tasks of the factory
+        function T()
+        {
+            var url = "{{ url('employee/dashboard/T/:limit/:type/:status') }}";
+            url = url.replace(':limit',limit_T);
+            url = url.replace(':type',type_T);
+            url = url.replace(':status',status_T);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    $('#T_table').html('');
+                    $.each(response.data,function(key,item){
+                        
+                        $('#T_table').append('<tr><td>'+item.taskNo+'</td>\
+                            <td>'+item.name+'</td>\
+                            <td>'+item.start+'</td>\
+                            <td>'+item.end+'</td>\
+                            <td>'+item.duration+'</td>\
+                            <td>'+item.worker+'</td>\
+                        </tr>\
+                        ');
+                    });
+                }
+            });
+        }
+
+        //read Kanban Card of the factory
+        function KBC()
+        {
+            var url = "{{ url('employee/dashboard/KBC/:limit/:type/:status') }}";
+            url = url.replace(':limit',limit_KBC);
+            url = url.replace(':type',type_KBC);
+            url = url.replace(':status',status_KBC);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    $('#KBC_table').html('');
+                    $.each(response.data,function(key,item){
+                        
+                        var status = "";
+                        
+                        if(item.status=='pending')
+                        {
+                            status = "<div style='text-align:center; width:50%; padding:8px; border-radius:6px; background:#14c704; color:white'>Pending</div>";
+                        }
+                        else if(item.status=='completed')
+                        {
+                            status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#e63002; color:white'>Complete</div>";
+                        }
+                        
+                        $('#KBC_table').append('<tr><td>'+item.cardNo+'</td>\
+                            <td>'+item.title+'</td>\
+                            <td>'+status+'</td>\
+                        </tr>\
+                        ');
+                    });
+                }
+            });
+        }
+
+        //read slots of the factory
+        function S()
+        {
+            var url = "{{ url('employee/dashboard/S/:limit/:type/:status') }}";
+            url = url.replace(':limit',limit_S);
+            url = url.replace(':type',type_S);
+            url = url.replace(':status',status_S);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    $('#S_table').html('');
+                    $.each(response.data,function(key,item){
+                        
+                        $('#S_table').append('<tr><td>'+item.slotNo+'</td>\
+                            <td>'+item.workshopNo+'</td>\
+                            <td>'+item.task+'</td>\
+                        </tr>\
+                        ');
+                    });
+                }
+            });
+        }
+    });
+</script>

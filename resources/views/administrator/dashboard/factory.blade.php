@@ -100,227 +100,6 @@
         </table>
     </div>
     
-    <script>
-        $(document).ready(function(){
-            
-            //csrf token
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            
-            fetchFactories();
-            
-            $('#factoryNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-            
-            //limit and offset for pagination
-            var limit = 0;
-            $(document).on('click', '#btnNext', function(e) {
-                
-                limit = limit + 5;
-                fetchFactories();
-                
-            });
-            
-            $(document).on('click', '#btnPrev', function(e) {
-                
-                limit = limit - 5;
-                
-                if(limit < 0)
-                {
-                    limit = 0;
-                }
-                
-                fetchFactories();
-                
-            });
-            
-            //read
-            function fetchFactories()
-            {
-                var url = '{{ url("administrator/dashboard/factory/read/:limit") }}';
-                url = url.replace(':limit', limit);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        
-                        $('#factoryTable').html('');
-                        
-                        $.each(response.factories,function(key,item){
-                            
-                            var name = item.name;
-                            var name = name.slice(0,15)+'...';
-                            
-                            $('#factoryTable').append('<tr><td>'+item.no+'</td>\
-                                <td>'+name+'</td>\
-                                <td>'+item.contact+'</td>\
-                                <td>'+item.address+'</td>\
-                                <td>\
-                                    <button value="'+item.id+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit</button>\
-                                    <button value="'+item.id+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
-                                </td>\
-                            </tr>\
-                            ');
-                        });
-                    }
-                });
-            }
-            
-            //Add Factory
-            $(document).on('click', '#btnAdd', function(e) {
-                
-                e.preventDefault();
-                var no = $('#factoryNo').val();
-                var name = $('#name').val();
-                var contact = $('#contact').val();
-                var address = $('#address').val();
-                
-                var data = {
-                    'no' : no,
-                    'name' : name,
-                    'contact' : contact,
-                    'address' : address,
-                }
-                
-                var url = '{{ url("administrator/dashboard/factory/create") }}';
-                
-                $.ajax({
-                    type:"POST",
-                    url: url,
-                    data:data,
-                    dataType:"json",
-                    success: function(response){
-                        if(response.status==400)
-                        {
-                            $('#errorlist').html('');
-                            $.each(response.errors,function(key,err_value){
-                                $('#errorlist').append('<li class="factories-page-li list-item"><span class="factories-page-text08">'+err_value+'</span></li>');
-                            });
-                        }
-                        else
-                        {
-                            $('#errorlist').html('');
-                            alert('Added!')
-                            
-                            $('#buttonContainer').html('\
-                            <button id="btnAdd" class="factories-page-button2 button">Add</button>');
-                            
-                            $('#factoryNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-                            $('#name').val('');
-                            $('#contact').val('');
-                            $('#address').val('')
-                            
-                            fetchFactories();
-                        }
-                    }
-                });
-            });
-            
-            //Edit
-            $(document).on('click', '#btnEdit', function(e) {
-                
-                var id = $(this).val();
-                
-                var url = '{{ url("administrator/dashboard/factory/readOne/:id") }}';
-                url = url.replace(':id', id);
-                
-                $.ajax({
-                    type:"GET",
-                    url:url,
-                    dataType:"json",
-                    success: function(response)
-                    {
-                        $('#factoryNo').val(response.factories.no);
-                        $('#name').val(response.factories.name);
-                        $('#contact').val(response.factories.contact);
-                        $('#address').val(response.factories.address);
-                        $('#id').val(response.factories.id);
-                        $('#formHeader').text('Edit Factory');
-                        
-                        $('#buttonContainer').html('\
-                        <button id="btnUpdate" class="factories-page-button2 button">Update</button>');
-                        
-                    }
-                });
-                
-            });
-            
-            //Update Factory
-            $(document).on('click', '#btnUpdate', function(e) {
-                
-                e.preventDefault();
-                var id = $('#id').val();
-                var name = $('#name').val();
-                var contact = $('#contact').val();
-                var address = $('#address').val();
-                
-                var data = {
-                    'id' : id,
-                    'name' : name,
-                    'contact' : contact,
-                    'address' : address,
-                }
-                
-                var url = '{{ url("administrator/dashboard/factory/update") }}';
-                
-                $.ajax({
-                    type:"PUT",
-                    url: url,
-                    data:data,
-                    dataType:"json",
-                    success: function(response){
-                        if(response.status==400)
-                        {
-                            $('#errorlist').html('');
-                            $.each(response.errors,function(key,err_value){
-                                $('#errorlist').append('<li class="factories-page-li list-item"><span class="factories-page-text08">'+err_value+'</span></li>');
-                            });
-                        }
-                        else
-                        {
-                            $('#errorlist').html('');
-                            alert('Updated!')
-                            
-                            $('#buttonContainer').html('\
-                            <button id="btnAdd" class="factories-page-button2 button">Add</button>');
-                            
-                            $('#factoryNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-                            $('#name').val('');
-                            $('#contact').val('');
-                            $('#address').val('')
-                            $('#formHeader').text('Add Factory');
-                            
-                            fetchFactories();
-                        }
-                    }
-                });
-            });
-            
-            //delete
-            $(document).on('click', '#btnDelete', function(e) {
-                
-                var id = $(this).val();
-                
-                var url = '{{ url("administrator/dashboard/factory/delete/:id") }}';
-                url = url.replace(':id', id);
-                
-                $.ajax({
-                    type:"DELETE",
-                    url:url,
-                    dataType:"json",
-                });
-                
-                
-                fetchFactories();
-            });
-        });
-        
-    </script>
-    
     <span class="factories-page-text07">Factories</span>
     <button id="btnNext" class="factories-page-button button">
         Next
@@ -361,3 +140,227 @@
 </div>
 </div>
 </html>
+
+{{-- Js --}}
+<script>
+    $(document).ready(function(){
+        
+        //csrf token
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        
+        //call function to get factories
+        fetchFactories();
+        
+        //get random number to text field
+        $('#factoryNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+        
+        //limit and offset for pagination
+        var limit = 0;
+        $(document).on('click', '#btnNext', function(e) {
+            
+            limit = limit + 5;
+            fetchFactories();
+            
+        });
+        
+        $(document).on('click', '#btnPrev', function(e) {
+            
+            limit = limit - 5;
+            
+            if(limit < 0)
+            {
+                limit = 0;
+            }
+            
+            fetchFactories();
+            
+        });
+        
+        //read
+        function fetchFactories()
+        {
+            var url = '{{ url("administrator/dashboard/factory/read/:limit") }}';
+            url = url.replace(':limit', limit);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    
+                    $('#factoryTable').html('');
+                    
+                    $.each(response.factories,function(key,item){
+                        
+                        var name = item.name;
+                        var name = name.slice(0,15)+'...';
+                        
+                        $('#factoryTable').append('<tr><td>'+item.no+'</td>\
+                            <td>'+name+'</td>\
+                            <td>'+item.contact+'</td>\
+                            <td>'+item.address+'</td>\
+                            <td>\
+                                <button value="'+item.id+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit</button>\
+                                <button value="'+item.id+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
+                            </td>\
+                        </tr>\
+                        ');
+                    });
+                }
+            });
+        }
+        
+        //Add Factory
+        $(document).on('click', '#btnAdd', function(e) {
+            
+            e.preventDefault();
+            var no = $('#factoryNo').val();
+            var name = $('#name').val();
+            var contact = $('#contact').val();
+            var address = $('#address').val();
+            
+            var data = {
+                'no' : no,
+                'name' : name,
+                'contact' : contact,
+                'address' : address,
+            }
+            
+            var url = '{{ url("administrator/dashboard/factory/create") }}';
+            
+            $.ajax({
+                type:"POST",
+                url: url,
+                data:data,
+                dataType:"json",
+                success: function(response){
+                    if(response.status==400)
+                    {
+                        $('#errorlist').html('');
+                        $.each(response.errors,function(key,err_value){
+                            $('#errorlist').append('<li class="factories-page-li list-item"><span class="factories-page-text08">'+err_value+'</span></li>');
+                        });
+                    }
+                    else
+                    {
+                        $('#errorlist').html('');
+                        alert('Added!')
+                        
+                        $('#buttonContainer').html('\
+                        <button id="btnAdd" class="factories-page-button2 button">Add</button>');
+                        
+                        $('#factoryNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+                        $('#name').val('');
+                        $('#contact').val('');
+                        $('#address').val('')
+                        
+                        fetchFactories();
+                    }
+                }
+            });
+        });
+        
+        //Edit
+        $(document).on('click', '#btnEdit', function(e) {
+            
+            var id = $(this).val();
+            
+            var url = '{{ url("administrator/dashboard/factory/readOne/:id") }}';
+            url = url.replace(':id', id);
+            
+            $.ajax({
+                type:"GET",
+                url:url,
+                dataType:"json",
+                success: function(response)
+                {
+                    $('#factoryNo').val(response.factories.no);
+                    $('#name').val(response.factories.name);
+                    $('#contact').val(response.factories.contact);
+                    $('#address').val(response.factories.address);
+                    $('#id').val(response.factories.id);
+                    $('#formHeader').text('Edit Factory');
+                    
+                    $('#buttonContainer').html('\
+                    <button id="btnUpdate" class="factories-page-button2 button">Update</button>');
+                    
+                }
+            });
+            
+        });
+        
+        //Update Factory
+        $(document).on('click', '#btnUpdate', function(e) {
+            
+            e.preventDefault();
+            var id = $('#id').val();
+            var name = $('#name').val();
+            var contact = $('#contact').val();
+            var address = $('#address').val();
+            
+            var data = {
+                'id' : id,
+                'name' : name,
+                'contact' : contact,
+                'address' : address,
+            }
+            
+            var url = '{{ url("administrator/dashboard/factory/update") }}';
+            
+            $.ajax({
+                type:"PUT",
+                url: url,
+                data:data,
+                dataType:"json",
+                success: function(response){
+                    if(response.status==400)
+                    {
+                        $('#errorlist').html('');
+                        $.each(response.errors,function(key,err_value){
+                            $('#errorlist').append('<li class="factories-page-li list-item"><span class="factories-page-text08">'+err_value+'</span></li>');
+                        });
+                    }
+                    else
+                    {
+                        $('#errorlist').html('');
+                        alert('Updated!')
+                        
+                        $('#buttonContainer').html('\
+                        <button id="btnAdd" class="factories-page-button2 button">Add</button>');
+                        
+                        $('#factoryNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+                        $('#name').val('');
+                        $('#contact').val('');
+                        $('#address').val('')
+                        $('#formHeader').text('Add Factory');
+                        
+                        fetchFactories();
+                    }
+                }
+            });
+        });
+        
+        //delete
+        $(document).on('click', '#btnDelete', function(e) {
+            
+            var id = $(this).val();
+            
+            var url = '{{ url("administrator/dashboard/factory/delete/:id") }}';
+            url = url.replace(':id', id);
+            
+            $.ajax({
+                type:"DELETE",
+                url:url,
+                dataType:"json",
+            });
+            
+            
+            fetchFactories();
+        });
+    });
+    
+</script>

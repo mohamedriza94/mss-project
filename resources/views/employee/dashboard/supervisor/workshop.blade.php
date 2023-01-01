@@ -150,408 +150,404 @@
       </div>
     </div>
     
-    <script>
-      $(document).ready(function(){
+    <div class="workshop-page-container07">
+      <ul id="errorlist" class="workshop-page-ul list">
         
-        //csrf token
-        $.ajaxSetup({
-          headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-          }
-        });
+      </ul>
+      <div class="workshop-page-container08">
+        <span class="workshop-page-text16" id="formHeader">Add Workshop</span>
         
-        fetchWorkshops();
-        $('#workshopNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
         
-        //limit and offset for pagination of MAIN table
-        //{
-          var limit = 0;
-          $(document).on('click', '#btnNext', function(e) {
-            
-            limit = limit + 5;
-            fetchWorkshops();
-            
-          });
+        <form class="workshop-page-form">
           
-          $(document).on('click', '#btnPrev', function(e) {
-            
-            limit = limit - 5;
-            
-            if(limit < 0)
-            {
-              limit = 0;
-            }
-            
-            fetchWorkshops();
-            
-          });
-          //}
+          <input type="hidden" id="id"/>
+          <select id="status" class="workshop-page-select" >
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <input readonly type="text" id="workshopNo" class="workshop-page-textinput input" />
+          <input type="text" id="name" class="workshop-page-textinput1 input" />
+          <input type="number" id="slot" class="workshop-page-textinput2 input" />
           
-          //limit and offset for pagination of SLOT table
-          //{
-            var limit_arrow = 0;
-            $(document).on('click', '#btnNext_Arrow', function(e) {
-              
-              limit_arrow = limit_arrow + 5;
-              fetchSlots();
-              
-            });
-            
-            $(document).on('click', '#btnPrev_Arrow', function(e) {
-              
-              limit_arrow = limit_arrow - 5;
-              
-              if(limit_arrow < 0)
-              {
-                limit_arrow = 0;
-              }
-              
-              fetchSlots();
-              
-            });
-            //}
-            
-            //read
-            function fetchWorkshops()
-            {
-              var url = '{{ url("employee/dashboard/workshop/read/:limit") }}';
-              url = url.replace(':limit', limit);
-              
-              $.ajax({
-                type: "GET",
-                url:url,
-                dataType:"json",
-                success:function(response){
-                  
-                  $('#workshopTable').html('');
-                  
-                  $.each(response.workshops,function(key,item){
-                    
-                    var name = item.name;
-                    var name = name.slice(0,15)+'...';
-                    
-                    var status = "";
-                    var statusButton = "";
-                    
-                    if(item.status=='active')
-                    {
-                      status = "<div style='text-align:center; width:50%; padding:2px; border-radius:6px; background:#25b305; color:white'>Active</div>";
-                      statusButton = '<button value="'+item.id+'" id="btnDeactivate" style="padding:8px; border-radius:3px; background:#f25500; color:#f2efed;">Deactivate</button>';
-                    }
-                    else
-                    {
-                      status = "<div style='text-align:center; border-radius:6px; width:60%; padding:2px; background:#cc1302; color:white'>Inactive</div>";
-                      statusButton = '<button value="'+item.id+'" id="btnActivate" style="padding:8px; border-radius:3px; background:#319101; color:#f2efed;">Activate</button>';
-                    }
-                    
-                    $('#workshopTable').append('<tr><td>'+item.no+'</td>\
-                      <td>'+name+'</td>\
-                      <td>'+status+'</td>\
-                      <td>\
-                        '+statusButton+'\
-                        <button value="'+item.no+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">See/Edit</button>\
-                        <button value="'+item.no+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
-                      </td>\
-                    </tr>\
-                    ');
-                  });
-                }
-              });
-            }
-            
-            //Add Workshop
-            $(document).on('click','#btnAdd', function(e){
-              e.preventDefault();
-              
-              var workshopNo = $('#workshopNo').val();
-              var name = $('#name').val();
-              var status = $('#status').val();
-              var slot = $('#slot').val();
-              
-              var data = {
-                'no' : workshopNo,
-                'name' : name,
-                'status' : status,
-                'slot' : slot
-              };
-              
-              var url = '{{ url("employee/dashboard/workshop/create") }}';
-              
-              $.ajax({
-                type:"POST", url:url, data:data, dataType:"json",
-                success: function(response)
-                {
-                  if(response.status == 400)
-                  {
-                    $('#errorlist').html('');
-                    $.each(response.errors,function(key,err_value){
-                      $('#errorlist').append('<li class="workshop-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
-                    });
-                  }
-                  else
-                  {
-                    $('#errorlist').html('');
-                    alert('Added!')
-                    
-                    $('#buttonContainer').html('\
-                    <button id="btnAdd" class="workshop-page-button4 button">Add</button>');
-                    
-                    $('#workshopNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-                    $('#name').val('');
-                    $('#slot').val('');
-                    
-                    fetchWorkshops();
-                  }
-                }
-              });
-            });
-            
-            //Edit
-            $(document).on('click', '#btnEdit', function(e) {
-              
-              limit_arrow = 0; //set Slot table offset to 0
-              
-              workshopNo = $(this).val();
-              
-              var url = '{{ url("employee/dashboard/workshop/readOne/:workshopNo") }}';
-              url = url.replace(':workshopNo', workshopNo);
-              
-              $.ajax({
-                type:"GET",
-                url:url,
-                dataType:"json",
-                success: function(response)
-                {
-                  $('#status').val(response.workshops.status);
-                  $('#workshopNo').val(response.workshops.no);
-                  $('#name').val(response.workshops.name);
-                  $('#slot').val(response.slots);
-                  $('#id').val(response.workshops.id);
-                  $('#formHeader').text('Edit Workshop');
-                  $('#slotLabel').text('How many more Work slots?');
-                  
-                  $('#buttonContainer').html('\
-                  <button id="btnUpdate" class="workshop-page-button4 button">Update</button>');
-                  
-                  fetchSlots();
-                }
-              });
-            });
-            
-            //fetch work slots into table{
-              var workshopNo = "";
-              
-              function fetchSlots()
-              {
-                var url = '{{ url("employee/dashboard/workshop/readSlot/:workshopNo/:limit_arrow") }}';
-                url = url.replace(':workshopNo', workshopNo);
-                url = url.replace(':limit_arrow', limit_arrow);
-                
-                $.ajax({
-                  type: "GET",
-                  url:url,
-                  dataType:"json",
-                  success:function(response){
-                    
-                    $('#slotTable').html('');
-                    
-                    $.each(response.slots,function(key,item){
-                      
-                      var status = "";
-                      
-                      if(item.status=='available')
-                      {
-                        status = "<div style='text-align:center; width:50%; padding:2px; border-radius:6px; background:#f55549; color:white'>Available</div>";
-                        
-                      }
-                      else
-                      {
-                        status = "<div style='text-align:center; border-radius:6px; width:60%; padding:2px; background:rgb(10, 187, 10); color:white'>Occupied</div>";
-                        
-                      }
-                      
-                      $('#slotTable').append('<tr><td>'+item.slotNo+'</td>\
-                        <td>'+status+'</td>\
-                        <td>\
-                          <button value="'+item.id+'" id="btnDeleteSlot" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
-                        </td>\
-                      </tr>\
-                      ');
-                    });
-                  }
-                });
-              }
-              //}
-              
-              //delete slot
-              $(document).on('click', '#btnDeleteSlot', function(e) {
-                
-                var id = $(this).val();
-                
-                var url = '{{ url("employee/dashboard/workshop/deleteSlot/:id") }}';
-                url = url.replace(':id', id); 
-                
-                $.ajax({
-                  type:"DELETE",
-                  url:url,
-                  dataType:"json",
-                });
-                
-                fetchSlots();
-              });
-              
-              //Update Workshop
-              $(document).on('click','#btnUpdate', function(e){
-                e.preventDefault();
-                
-                var id = $('#id').val();
-                var no = $('#workshopNo').val();
-                var name = $('#name').val();
-                var status = $('#status').val();
-                var slot = $('#slot').val();
-                
-                var data = {
-                  'id' : id,
-                  'no' : no,
-                  'name' : name,
-                  'status' : status,
-                  'slot' : slot
-                };
-                
-                var url = '{{ url("employee/dashboard/workshop/update") }}';
-                
-                $.ajax({
-                  type:"PUT", url:url, data:data, dataType:"json",
-                  success: function(response)
-                  {
-                    if(response.status == 400)
-                    {
-                      $('#errorlist').html('');
-                      $.each(response.errors,function(key,err_value){
-                        $('#errorlist').append('<li class="workshop-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
-                      });
-                    }
-                    else
-                    {
-                      $('#errorlist').html('');
-                      alert('Updated!')
-                      
-                      $('#buttonContainer').html('\
-                      <button id="btnAdd" class="workshop-page-button4 button">Add</button>');
-                      
-                      $('#formHeader').text('Add Workshop');
-                      $('#slotLabel').text('How many Work Slots?');
-                      
-                      $('#workshopNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-                      $('#name').val('');
-                      $('#slot').val('');
-                      
-                      fetchWorkshops();
-                    }
-                  }
-                });
-              });
-              
-              //update Status
-              //{
-                var status_id = "";
-                var newStatus = "";
-                
-                $(document).on('click','#btnActivate',function(e){
-                  
-                  status_id = $(this).val();
-                  newStatus = "active";
-                  
-                  updateStatus();
-                  
-                });
-                
-                $(document).on('click','#btnDeactivate',function(e){
-                  
-                  status_id = $(this).val();
-                  newStatus = "inactive";
-                  
-                  updateStatus()
-                  
-                });
-                
-                function updateStatus()
-                {
-                  var id = status_id;
-                  var status = newStatus;
-                  
-                  var url = '{{ url("employee/dashboard/workshop/updateStatus/:id/:status") }}';
-                  url = url.replace(':id', id); 
-                  url = url.replace(':status', status); 
-                  
-                  $.ajax({
-                    type:"PUT",
-                    url:url,
-                    dataType:"json",
-                  });
-                  
-                  fetchWorkshops();
-                }
-                //}
-                
-                //delete
-                $(document).on('click', '#btnDelete', function(e) {
-                  
-                  var no = $(this).val();
-                  
-                  var url = '{{ url("employee/dashboard/workshop/delete/:no") }}';
-                  url = url.replace(':no', no); 
-                  
-                  $.ajax({
-                    type:"DELETE",
-                    url:url,
-                    dataType:"json",
-                  });
-                  
-                  fetchWorkshops();
-                });
-                
-                
-              });
-            </script>
-            
-            
-            
-            <div class="workshop-page-container07">
-              <ul id="errorlist" class="workshop-page-ul list">
-                
-              </ul>
-              <div class="workshop-page-container08">
-                <span class="workshop-page-text16" id="formHeader">Add Workshop</span>
-                
-                
-                <form class="workshop-page-form">
-                  
-                  <input type="hidden" id="id"/>
-                  <select id="status" class="workshop-page-select" >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                  <input readonly type="text" id="workshopNo" class="workshop-page-textinput input" />
-                  <input type="text" id="name" class="workshop-page-textinput1 input" />
-                  <input type="number" id="slot" class="workshop-page-textinput2 input" />
-                  
-                  <span class="workshop-page-text17">Workshop Number</span>
-                  <span class="workshop-page-text18">Name</span>
-                  <span class="workshop-page-text19">Status</span>
-                  <span class="workshop-page-text20" id="slotLabel">Number of Slots</span>
-                  
-                  <div id="buttonContainer">
-                    <button id="btnAdd" class="workshop-page-button4 button" > Add </button>
-                  </div>
-                  
-                </form>
-              </div>
-            </div>
-            <div class="workshop-page-container09">
-              <span class="workshop-page-text21">Lock Hood Pvt Ltd 2022</span>
-            </div>
+          <span class="workshop-page-text17">Workshop Number</span>
+          <span class="workshop-page-text18">Name</span>
+          <span class="workshop-page-text19">Status</span>
+          <span class="workshop-page-text20" id="slotLabel">Number of Slots</span>
+          
+          <div id="buttonContainer">
+            <button id="btnAdd" class="workshop-page-button4 button" > Add </button>
           </div>
-        </div>
-      </body>
-      </html>
+          
+        </form>
+      </div>
+    </div>
+    <div class="workshop-page-container09">
+      <span class="workshop-page-text21">Lock Hood Pvt Ltd 2022</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+
+{{-- Js --}}
+<script>
+  $(document).ready(function(){
+    
+    //csrf token
+    $.ajaxSetup({
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+    });
+    
+    //calling function
+    fetchWorkshops();
+    
+    //generate random number into text field
+    $('#workshopNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+    
+    //limit and offset for pagination of MAIN table
+    var limit = 0;
+    $(document).on('click', '#btnNext', function(e) {
+      
+      limit = limit + 5;
+      fetchWorkshops();
+      
+    });
+    
+    $(document).on('click', '#btnPrev', function(e) {
+      
+      limit = limit - 5;
+      
+      if(limit < 0)
+      {
+        limit = 0;
+      }
+      
+      fetchWorkshops();
+      
+    });
+    
+    //limit and offset for pagination of SLOT table
+    var limit_arrow = 0;
+    $(document).on('click', '#btnNext_Arrow', function(e) {
+      
+      limit_arrow = limit_arrow + 5;
+      fetchSlots();
+      
+    });
+    
+    $(document).on('click', '#btnPrev_Arrow', function(e) {
+      
+      limit_arrow = limit_arrow - 5;
+      
+      if(limit_arrow < 0)
+      {
+        limit_arrow = 0;
+      }
+      
+      fetchSlots();
+      
+    });
+    
+    //read
+    function fetchWorkshops()
+    {
+      var url = '{{ url("employee/dashboard/workshop/read/:limit") }}';
+      url = url.replace(':limit', limit);
+      
+      $.ajax({
+        type: "GET",
+        url:url,
+        dataType:"json",
+        success:function(response){
+          
+          $('#workshopTable').html('');
+          
+          $.each(response.workshops,function(key,item){
+            
+            var name = item.name;
+            var name = name.slice(0,15)+'...';
+            
+            var status = "";
+            var statusButton = "";
+            
+            if(item.status=='active')
+            {
+              status = "<div style='text-align:center; width:50%; padding:2px; border-radius:6px; background:#25b305; color:white'>Active</div>";
+              statusButton = '<button value="'+item.id+'" id="btnDeactivate" style="padding:8px; border-radius:3px; background:#f25500; color:#f2efed;">Deactivate</button>';
+            }
+            else
+            {
+              status = "<div style='text-align:center; border-radius:6px; width:60%; padding:2px; background:#cc1302; color:white'>Inactive</div>";
+              statusButton = '<button value="'+item.id+'" id="btnActivate" style="padding:8px; border-radius:3px; background:#319101; color:#f2efed;">Activate</button>';
+            }
+            
+            $('#workshopTable').append('<tr><td>'+item.no+'</td>\
+              <td>'+name+'</td>\
+              <td>'+status+'</td>\
+              <td>\
+                '+statusButton+'\
+                <button value="'+item.no+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">See/Edit</button>\
+                <button value="'+item.no+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
+              </td>\
+            </tr>\
+            ');
+          });
+        }
+      });
+    }
+    
+    //Add Workshop
+    $(document).on('click','#btnAdd', function(e){
+      e.preventDefault();
+      
+      var workshopNo = $('#workshopNo').val();
+      var name = $('#name').val();
+      var status = $('#status').val();
+      var slot = $('#slot').val();
+      
+      var data = {
+        'no' : workshopNo,
+        'name' : name,
+        'status' : status,
+        'slot' : slot
+      };
+      
+      var url = '{{ url("employee/dashboard/workshop/create") }}';
+      
+      $.ajax({
+        type:"POST", url:url, data:data, dataType:"json",
+        success: function(response)
+        {
+          if(response.status == 400)
+          {
+            $('#errorlist').html('');
+            $.each(response.errors,function(key,err_value){
+              $('#errorlist').append('<li class="workshop-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
+            });
+          }
+          else
+          {
+            $('#errorlist').html('');
+            alert('Added!')
+            
+            $('#buttonContainer').html('\
+            <button id="btnAdd" class="workshop-page-button4 button">Add</button>');
+            
+            $('#workshopNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+            $('#name').val('');
+            $('#slot').val('');
+            
+            fetchWorkshops();
+          }
+        }
+      });
+    });
+    
+    //Edit
+    $(document).on('click', '#btnEdit', function(e) {
+      
+      limit_arrow = 0; //set Slot table offset to 0
+      
+      workshopNo = $(this).val();
+      
+      var url = '{{ url("employee/dashboard/workshop/readOne/:workshopNo") }}';
+      url = url.replace(':workshopNo', workshopNo);
+      
+      $.ajax({
+        type:"GET",
+        url:url,
+        dataType:"json",
+        success: function(response)
+        {
+          $('#status').val(response.workshops.status);
+          $('#workshopNo').val(response.workshops.no);
+          $('#name').val(response.workshops.name);
+          $('#slot').val(response.slots);
+          $('#id').val(response.workshops.id);
+          $('#formHeader').text('Edit Workshop');
+          $('#slotLabel').text('How many more Work slots?');
+          
+          $('#buttonContainer').html('\
+          <button id="btnUpdate" class="workshop-page-button4 button">Update</button>');
+          
+          fetchSlots();
+        }
+      });
+    });
+    
+    //fetch work slots into table
+    var workshopNo = "";
+    
+    function fetchSlots()
+    {
+      var url = '{{ url("employee/dashboard/workshop/readSlot/:workshopNo/:limit_arrow") }}';
+      url = url.replace(':workshopNo', workshopNo);
+      url = url.replace(':limit_arrow', limit_arrow);
+      
+      $.ajax({
+        type: "GET",
+        url:url,
+        dataType:"json",
+        success:function(response){
+          
+          $('#slotTable').html('');
+          
+          $.each(response.slots,function(key,item){
+            
+            var status = "";
+            
+            if(item.status=='available')
+            {
+              status = "<div style='text-align:center; width:50%; padding:2px; border-radius:6px; background:#f55549; color:white'>Available</div>";
+              
+            }
+            else
+            {
+              status = "<div style='text-align:center; border-radius:6px; width:60%; padding:2px; background:rgb(10, 187, 10); color:white'>Occupied</div>";
+              
+            }
+            
+            $('#slotTable').append('<tr><td>'+item.slotNo+'</td>\
+              <td>'+status+'</td>\
+              <td>\
+                <button value="'+item.id+'" id="btnDeleteSlot" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
+              </td>\
+            </tr>\
+            ');
+          });
+        }
+      });
+    }
+    
+    //delete slot
+    $(document).on('click', '#btnDeleteSlot', function(e) {
+      
+      var id = $(this).val();
+      
+      var url = '{{ url("employee/dashboard/workshop/deleteSlot/:id") }}';
+      url = url.replace(':id', id); 
+      
+      $.ajax({
+        type:"DELETE",
+        url:url,
+        dataType:"json",
+      });
+      
+      fetchSlots();
+    });
+    
+    //Update Workshop
+    $(document).on('click','#btnUpdate', function(e){
+      e.preventDefault();
+      
+      var id = $('#id').val();
+      var no = $('#workshopNo').val();
+      var name = $('#name').val();
+      var status = $('#status').val();
+      var slot = $('#slot').val();
+      
+      var data = {
+        'id' : id,
+        'no' : no,
+        'name' : name,
+        'status' : status,
+        'slot' : slot
+      };
+      
+      var url = '{{ url("employee/dashboard/workshop/update") }}';
+      
+      $.ajax({
+        type:"PUT", url:url, data:data, dataType:"json",
+        success: function(response)
+        {
+          if(response.status == 400)
+          {
+            $('#errorlist').html('');
+            $.each(response.errors,function(key,err_value){
+              $('#errorlist').append('<li class="workshop-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
+            });
+          }
+          else
+          {
+            $('#errorlist').html('');
+            alert('Updated!')
+            
+            $('#buttonContainer').html('\
+            <button id="btnAdd" class="workshop-page-button4 button">Add</button>');
+            
+            $('#formHeader').text('Add Workshop');
+            $('#slotLabel').text('How many Work Slots?');
+            
+            $('#workshopNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+            $('#name').val('');
+            $('#slot').val('');
+            
+            fetchWorkshops();
+          }
+        }
+      });
+    });
+    
+    //update Status on click
+    var status_id = "";
+    var newStatus = "";
+    
+    $(document).on('click','#btnActivate',function(e){
+      
+      status_id = $(this).val();
+      newStatus = "active";
+      
+      updateStatus();
+      
+    });
+    
+    $(document).on('click','#btnDeactivate',function(e){
+      
+      status_id = $(this).val();
+      newStatus = "inactive";
+      
+      updateStatus()
+      
+    });
+    
+    //update workshop status as active or inactive
+    function updateStatus()
+    {
+      var id = status_id;
+      var status = newStatus;
+      
+      var url = '{{ url("employee/dashboard/workshop/updateStatus/:id/:status") }}';
+      url = url.replace(':id', id); 
+      url = url.replace(':status', status); 
+      
+      $.ajax({
+        type:"PUT",
+        url:url,
+        dataType:"json",
+      });
+      
+      fetchWorkshops();
+    }
+    
+    //delete
+    $(document).on('click', '#btnDelete', function(e) {
+      
+      var no = $(this).val();
+      
+      var url = '{{ url("employee/dashboard/workshop/delete/:no") }}';
+      url = url.replace(':no', no); 
+      
+      $.ajax({
+        type:"DELETE",
+        url:url,
+        dataType:"json",
+      });
+      
+      fetchWorkshops();
+    });
+    
+    
+  });
+</script>

@@ -101,6 +101,51 @@
   </table>
 </div>
 
+<span class="departments-page-text07">Departments</span>
+<button id="btnNext" class="departments-page-button button">
+  Next
+</button>
+<button id="btnPrev" class="departments-page-button1 button">
+  Prev
+</button>
+</div>
+<div class="departments-page-container4">
+  
+  <ul id="errorlist" class="departments-page-ul list">
+  </ul>
+  
+  <div class="departments-page-container5">
+    <span class="departments-page-text11" id="formHeader">Add Department</span>
+    <form class="departments-page-form">
+      <input type="hidden" id="id">
+      <select id="factory" class="departments-page-select" >
+        
+      </select>
+      <input type="text" readonly id="departmentNo" value="<?php echo rand(19999,99999) ?>" class="departments-page-textinput input"/>
+      <input type="number" id="contact" multiple="contacttxt" class="departments-page-textinput1 input"/>
+      <input type="text" id="name" class="departments-page-textinput2 input"/>
+      <input type="text" id="address" class="departments-page-textinput3 input"/>
+      
+      <span class="departments-page-text12">Department number</span>
+      <span class="departments-page-text13">Contact</span>
+      <span class="departments-page-text14">Name</span>
+      <span class="departments-page-text15">Factory</span>
+      <span class="departments-page-text16">Location</span>
+    </form>
+    <div id="buttonContainer">
+      <button id="btnAdd" type="submit" class="departments-page-button2 button"> Add </button>
+    </div>
+  </div>
+</div>
+<div class="departments-page-container6">
+  <span class="departments-page-text17">Lock Hood Pvt Ltd 2022</span>
+</div>
+</div>
+</div>
+</body>
+</html>
+
+{{-- Js --}}
 <script>
   $(document).ready(function(){
     
@@ -111,9 +156,11 @@
       }
     });
     
+    //calling functions
     fetchDepartments();
     fetchFactory();
     
+    //generate random number into text field
     $('#departmentNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
     
     //limit and offset for pagination
@@ -348,47 +395,3 @@
   });
   
 </script>
-
-<span class="departments-page-text07">Departments</span>
-<button id="btnNext" class="departments-page-button button">
-  Next
-</button>
-<button id="btnPrev" class="departments-page-button1 button">
-  Prev
-</button>
-</div>
-<div class="departments-page-container4">
-  
-  <ul id="errorlist" class="departments-page-ul list">
-  </ul>
-  
-  <div class="departments-page-container5">
-    <span class="departments-page-text11" id="formHeader">Add Department</span>
-    <form class="departments-page-form">
-      <input type="hidden" id="id">
-      <select id="factory" class="departments-page-select" >
-        
-      </select>
-      <input type="text" readonly id="departmentNo" value="<?php echo rand(19999,99999) ?>" class="departments-page-textinput input"/>
-      <input type="number" id="contact" multiple="contacttxt" class="departments-page-textinput1 input"/>
-      <input type="text" id="name" class="departments-page-textinput2 input"/>
-      <input type="text" id="address" class="departments-page-textinput3 input"/>
-      
-      <span class="departments-page-text12">Department number</span>
-      <span class="departments-page-text13">Contact</span>
-      <span class="departments-page-text14">Name</span>
-      <span class="departments-page-text15">Factory</span>
-      <span class="departments-page-text16">Location</span>
-    </form>
-    <div id="buttonContainer">
-      <button id="btnAdd" type="submit" class="departments-page-button2 button"> Add </button>
-    </div>
-  </div>
-</div>
-<div class="departments-page-container6">
-  <span class="departments-page-text17">Lock Hood Pvt Ltd 2022</span>
-</div>
-</div>
-</div>
-</body>
-</html>

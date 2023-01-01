@@ -163,569 +163,6 @@
       </div>
     </div>
     
-    <script>
-      $(document).ready(function(){
-        
-        //csrf token
-        $.ajaxSetup({
-          headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-          }
-          
-        });
-        
-        fetchKanBanCards();
-        $('#cardNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-        
-        //limit and offset for pagination of MAIN table
-        //
-        var limit = 0;
-        $(document).on('click', '#btnNext', function(e) {
-          
-          limit = limit + 5;
-          fetchKanBanCards();
-          fetchTasks();
-        });
-        
-        $(document).on('click', '#btnPrev', function(e) {
-          
-          limit = limit - 5;
-          
-          if(limit < 0)
-          {
-            limit = 0;
-          }
-          
-          fetchKanBanCards();
-          
-        });
-        
-        //limit and offset for pagination of SLOT table
-        //
-        var limit_arrow = 0;
-        $(document).on('click', '#btnNext_Arrow', function(e) {
-          
-          limit_arrow = limit_arrow + 5;
-          fetchTasks();
-          
-        });
-        
-        $(document).on('click', '#btnPrev_Arrow', function(e) {
-          
-          limit_arrow = limit_arrow - 5;
-          
-          if(limit_arrow < 0)
-          {
-            limit_arrow = 0;
-          }
-          
-          fetchTasks();
-          
-        });
-        //
-        
-        //Add Card
-        $(document).on('click','#btnAdd', function(e){
-          e.preventDefault();
-          
-          var cardNo = $('#cardNo').val();
-          var title = $('#title').val();
-          var description = $('#description').val();
-          
-          var data = {
-            'cardNo' : cardNo,
-            'title' : title,
-            'description' : description,
-          };
-          
-          var url = '{{ url("employee/dashboard/kbc/create") }}';
-          
-          $.ajax({
-            type:"POST", url:url, data:data, dataType:"json",
-            success: function(response)
-            {
-              if(response.status == 400)
-              {
-                $('#errorlist').html('');
-                $.each(response.errors,function(key,err_value){
-                  $('#errorlist').append('<li class="kanban-cards-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
-                });
-              }
-              else
-              {
-                $('#errorlist').html('');
-                alert('Added!')
-                
-                $('#buttonContainer').html('\
-                <button id="btnAdd" type="submit" class="kanban-cards-page-button6 button"> Create </button>');
-                
-                $('#cardNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-                $('#title').val('');
-                $('#description').val('');
-                
-                fetchKanBanCards();
-              }
-            }
-          });
-        });
-        
-        //update Card
-        $(document).on('click','#btnUpdate', function(e){
-          e.preventDefault();
-          
-          var id = $('#id').val();
-          var cardNo = $('#cardNo').val();
-          var title = $('#title').val();
-          var description = $('#description').val();
-          
-          var data = {
-            'id' : id,
-            'cardNo' : cardNo,
-            'title' : title,
-            'description' : description,
-          };
-          
-          var url = '{{ url("employee/dashboard/kbc/update") }}';
-          
-          $.ajax({
-            type:"POST", url:url, data:data, dataType:"json",
-            success: function(response)
-            {
-              if(response.status == 400)
-              {
-                $('#errorlist').html('');
-                $.each(response.errors,function(key,err_value){
-                  $('#errorlist').append('<li class="kanban-cards-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
-                });
-              }
-              else
-              {
-                $('#errorlist').html('');
-                alert('Updated!')
-                
-                $('#buttonContainer').html('\
-                <button id="btnAdd" type="submit" class="kanban-cards-page-button6 button"> Create </button>');
-                
-                $('#formHeader').text('Add Card');
-                
-                $('#cardNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-                $('#title').val('');
-                $('#description').val('');
-                $('#id').val('');
-                
-                fetchKanBanCards();
-              }
-            }
-          });
-        });
-        
-        //read Cards
-        function fetchKanBanCards()
-        {
-          var url = '{{ url("employee/dashboard/kbc/read/:limit") }}';
-          url = url.replace(':limit',limit);
-          
-          $.ajax({
-            type: "GET",
-            url:url,
-            dataType:"json",
-            success:function(response){
-              
-              $('#kanbanCardTable').html('');
-              
-              $.each(response.cards,function(key,item){
-                
-                var title = item.title;
-                var title = title.slice(0,15)+'...';
-                
-                var date = item.date;
-                var date = date.slice(0,10);
-                
-                var time = item.time;
-                var time = time.slice(11,19);
-                
-                var status = "";
-                
-                if(item.status=='started')
-                {
-                  status = "<div style='text-align:center; width:50%; padding:8px; border-radius:6px; background:#14c704; color:white'>In progress</div>";
-                }
-                else if(item.status=='pending')
-                {
-                  status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#c77904; color:white'>Pending</div>";
-                }
-                else if(item.status=='completed')
-                {
-                  status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#e63002; color:white'>Complete</div>";
-                }
-                
-                $('#kanbanCardTable').append('<tr><td>'+item.cardNo+'</td>\
-                  <td>'+title+'</td>\
-                  <td>'+date+'</td>\
-                  <td>'+time+'</td>\
-                  <td>'+status+'</td>\
-                  <td>\
-                    <button value="'+item.cardNo+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit/Add Task</button>\
-                    <button value="'+item.cardNo+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
-                  </td>\
-                </tr>\
-                ');
-              });
-            }
-          });
-        }
-        
-        //Edit Card
-        $(document).on('click', '#btnEdit', function(e) {
-          
-          limit_arrow = 0; //set Slot table offset to 0
-          
-          cardNo = $(this).val();
-          
-          var url = '{{ url("employee/dashboard/kbc/readOne/:no") }}';
-          url = url.replace(':no', cardNo);
-          
-          $.ajax({
-            type:"GET",
-            url:url,
-            dataType:"json",
-            success: function(response)
-            {
-              $('#id').val(response.cards.id);
-              $('#cardNo').val(response.cards.cardNo);
-              $('#getCardNo').val(response.cards.cardNo);
-              $('#title').val(response.cards.title);
-              $('#description').val(response.cards.description);
-              
-              $('#formHeader').text('Edit Card');
-              
-              $('#buttonContainer').html('\
-              <button id="btnUpdate" type="submit" class="kanban-cards-page-button6 button"> Update </button>');
-              
-              fetchTasks();
-              
-              $('html, body').animate({
-                scrollTop: $("#formHeader").offset().top
-              }, 1);
-            }
-          });
-        });
-        
-        //fetch tasks
-        var cardNo = "";
-        function fetchTasks()
-        {
-          var url = '{{ url("employee/dashboard/task/read/:cardNo/:limit_arrow") }}';
-          url = url.replace(':cardNo', cardNo);
-          url = url.replace(':limit_arrow', limit_arrow);
-          
-          $.ajax({
-            type: "GET",
-            url:url,
-            dataType:"json",
-            success:function(response){
-              
-              $('#taskTable').html('');
-              
-              $.each(response.tasks,function(key,item){
-                
-                var name = item.name;
-                var name = name.slice(0,15)+'...';
-                
-                var status = "";
-                
-                if(item.status=='started')
-                {
-                  status = "<div style='text-align:center; width:50%; padding:8px; border-radius:6px; background:#14c704; color:white'>In progress</div>";
-                }
-                else if(item.status=='pending')
-                {
-                  status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#c77904; color:white'>Pending</div>";
-                }
-                else if(item.status=='completed')
-                {
-                  status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#e63002; color:white'>Complete</div>";
-                }
-                
-                $('#taskTable').append('<tr><td>'+item.taskNo+'</td>\
-                  <td>'+name+'</td>\
-                  <td>'+item.startDate+'</td>\
-                  <td>'+item.endDate+'</td>\
-                  <td>'+item.duration+'</td>\
-                  <td>'+status+'</td>\
-                  <td>\
-                    <button value="'+item.taskNo+'" id="btnEditTask" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit/See</button>\
-                    <button value="'+item.taskNo+'" id="btnDeleteTask" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
-                  </td>\
-                </tr>\
-                ');
-              });
-            }
-          });
-        }
-        
-        //delete card
-        $(document).on('click', '#btnDelete', function(e) {
-          
-          var no = $(this).val();
-          
-          var url = '{{ url("employee/dashboard/kbc/delete/:no") }}';
-          url = url.replace(':no', no); 
-          
-          $.ajax({
-            type:"DELETE",
-            url:url,
-            dataType:"json",
-          });
-          
-          fetchKanBanCards();
-        });
-        
-        
-        //TASKS ===================================================================
-        
-        //Add Task
-        $(document).on('click','#btnAddTask', function(e){
-          e.preventDefault();
-          
-          var taskNo = Math.floor(Math.random() * (19999 - 99999 + 1) + 99999);
-          var getCardNo = $('#getCardNo').val();
-          var taskTitle = $('#taskTitle').val();
-          var description = $('#taskDescription').val();
-          var start = $('#start').val();
-          var end = $('#end').val();
-          var duration = $('#duration').val();
-          
-          if(getCardNo == "")
-          {
-            alert('Choose a Card First');
-          }
-          
-          var data = {
-            'taskNo' : taskNo,
-            'cardNo' : getCardNo,
-            'name' : taskTitle,
-            'description' : description,
-            'startDate' : start,
-            'endDate' : end,
-            'duration' : duration,
-          };
-          
-          var url = '{{ url("employee/dashboard/task/create") }}';
-          
-          $.ajax({
-            type:"POST", url:url, data:data, dataType:"json",
-            success: function(response)
-            {
-              if(response.status == 400)
-              {
-                $('#taskErrorlist').html('');
-                $.each(response.errors,function(key,err_value){
-                  $('#taskErrorlist').append('<li class="kanban-cards-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
-                });
-              }
-              else
-              {
-                $('#taskErrorlist').html('');
-                alert('Task Added!')
-                
-                $('#taskButtonContainer').html('\
-                <button id="btnAddTask" type="submit" class="kanban-cards-page-button8 button"> Add </button>');
-                
-                $('#taskTitle').val('');
-                $('#taskDescription').val('');
-                $('#start').val('');
-                $('#end').val('');
-                $('#duration').val('');
-                
-                fetchTasks();
-              }
-            }
-          });
-        });
-        
-        //Update Task
-        $(document).on('click','#btnUpdateTask', function(e){
-          e.preventDefault();
-          
-          var taskId = $('#taskId').val();
-          var taskTitle = $('#taskTitle').val();
-          var description = $('#taskDescription').val();
-          var start = $('#start').val();
-          var end = $('#end').val();
-          var duration = $('#duration').val();
-          
-          var data = {
-            'taskId' : taskId,
-            'name' : taskTitle,
-            'description' : description,
-            'startDate' : start,
-            'endDate' : end,
-            'duration' : duration,
-          };
-          
-          var url = '{{ url("employee/dashboard/task/update") }}';
-          
-          $.ajax({
-            type:"POST", url:url, data:data, dataType:"json",
-            success: function(response)
-            {
-              if(response.status == 400)
-              {
-                $('#taskErrorlist').html('');
-                $.each(response.errors,function(key,err_value){
-                  $('#taskErrorlist').append('<li class="kanban-cards-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
-                });
-              }
-              else
-              {
-                $('#taskErrorlist').html('');
-                alert('Task Updated!')
-                
-                $('#taskButtonContainer').html('\
-                <button id="btnAddTask" type="submit" class="kanban-cards-page-button8 button"> Add </button>');
-                
-                $('#getCardNo').val('');
-                $('#taskTitle').val('');
-                $('#taskDescription').val('');
-                $('#start').val('');
-                $('#end').val('');
-                $('#duration').val('');
-                
-                $('#taskFormHeader').text('Add Task');
-                
-                fetchTasks();
-              }
-            }
-          });
-        });
-        
-        //Edit Task
-        $(document).on('click', '#btnEditTask', function(e) {
-          
-          limit_arrow = 0; //set Slot table offset to 0
-          
-          var taskNo = $(this).val();
-          
-          var url = '{{ url("employee/dashboard/task/readOne/:no") }}';
-          url = url.replace(':no', taskNo);
-          
-          $.ajax({
-            type:"GET",
-            url:url,
-            dataType:"json",
-            success: function(response)
-            {
-              $('#getCardNo').val(response.tasks.cardNo);
-              $('#taskTitle').val(response.tasks.name);
-              $('#taskDescription').val(response.tasks.description);
-              $('#start').val(response.tasks.startDate);
-              $('#end').val(response.tasks.endDate);
-              $('#duration').val(response.tasks.duration);
-              $('#taskId').val(response.tasks.id);
-              
-              $('#taskFormHeader').text('Edit Task');
-              
-              $('#taskButtonContainer').html('\
-              <button id="btnUpdateTask" type="submit" class="kanban-cards-page-button8 button"> Update </button>');
-              
-              fetchTasks();
-              
-              $('html, body').animate({
-                scrollTop: $("#taskFormHeader").offset().top
-              }, 1);
-            }
-          });
-        });
-        
-        //Auto Schedule Task
-        $(document).on('click', '#btnAutoSchedule', function(e) {
-          e.preventDefault();
-
-          var url = '{{ url("employee/dashboard/task/autoSchedule") }}';
-          
-          $('#btnAutoSchedule').text('Scheduling...');
-          
-          $.ajax({
-            type:"GET",
-            url:url,
-            dataType:"json",
-            success: function(response)
-            {
-              if(response.status == 400)
-              {
-                $('#btnAutoSchedule').text('Auto Schedule');
-
-                alert(response.message);
-              }
-              else
-              {
-                setTimeout(() => {
-                  $('#btnAutoSchedule').text('Auto Schedule');
-                  
-                  let startDateString = new Date();
-                  let endDateString = new Date();
-                  
-                  let numDays = response.days;
-                  endDateString.setDate(endDateString.getDate() + numDays);
-                  
-                  let startDate = document.getElementById("start");
-                  let endDate = document.getElementById("end");
-                  let duration = document.getElementById("duration");
-                  
-                  startDate.value = startDateString.toISOString().split("T")[0];
-                  endDate.value = endDateString.toISOString().split("T")[0];
-                  duration.value = numDays;
-                }, 2000);
-              }
-            }
-          });
-        });
-        
-        //delete task
-        $(document).on('click', '#btnDeleteTask', function(e) {
-          
-          var no = $(this).val();
-          
-          var url = '{{ url("employee/dashboard/task/delete/:no") }}';
-          url = url.replace(':no', no); 
-          
-          $.ajax({
-            type:"DELETE",
-            url:url,
-            dataType:"json",
-          });
-          
-          fetchTasks();
-        });
-        
-        //get duration
-        function calculateDuration()
-        {
-          var startDate = document.getElementById("start").value;
-          var endDate = document.getElementById("end").value;
-          
-          var start = new Date(startDate);
-          var end = new Date(endDate);
-          
-          var startTime = start.getTime();
-          var endTime = end.getTime();
-          
-          var days = (endTime - startTime) / 86400000;
-          
-          $('#duration').val(days);
-        }
-        
-        $('#start').change(function() {
-          calculateDuration();
-        });
-        
-        $('#end').change(function() {
-          calculateDuration();
-        });
-      });
-    </script>
-    
     <div class="kanban-cards-page-container08">
       
       <ul id="errorlist" class="kanban-cards-page-ul list"></ul>
@@ -814,3 +251,571 @@
 </div>
 </body>
 </html>
+
+{{-- Js --}}
+
+<script>
+  $(document).ready(function(){
+    
+    //csrf token
+    $.ajaxSetup({
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+      
+    });
+    
+    //call functions
+    fetchKanBanCards();
+
+    //get random number to text field
+    $('#cardNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+    
+    //limit and offset for pagination of MAIN table
+    //
+    var limit = 0;
+    $(document).on('click', '#btnNext', function(e) {
+      
+      limit = limit + 5;
+      fetchKanBanCards();
+      fetchTasks();
+    });
+    
+    $(document).on('click', '#btnPrev', function(e) {
+      
+      limit = limit - 5;
+      
+      if(limit < 0)
+      {
+        limit = 0;
+      }
+      
+      fetchKanBanCards();
+      
+    });
+    
+    //limit and offset for pagination of SLOT table
+    //
+    var limit_arrow = 0;
+    $(document).on('click', '#btnNext_Arrow', function(e) {
+      
+      limit_arrow = limit_arrow + 5;
+      fetchTasks();
+      
+    });
+    
+    $(document).on('click', '#btnPrev_Arrow', function(e) {
+      
+      limit_arrow = limit_arrow - 5;
+      
+      if(limit_arrow < 0)
+      {
+        limit_arrow = 0;
+      }
+      
+      fetchTasks();
+      
+    });
+    //
+    
+    //Add Card
+    $(document).on('click','#btnAdd', function(e){
+      e.preventDefault();
+      
+      var cardNo = $('#cardNo').val();
+      var title = $('#title').val();
+      var description = $('#description').val();
+      
+      var data = {
+        'cardNo' : cardNo,
+        'title' : title,
+        'description' : description,
+      };
+      
+      var url = '{{ url("employee/dashboard/kbc/create") }}';
+      
+      $.ajax({
+        type:"POST", url:url, data:data, dataType:"json",
+        success: function(response)
+        {
+          if(response.status == 400)
+          {
+            $('#errorlist').html('');
+            $.each(response.errors,function(key,err_value){
+              $('#errorlist').append('<li class="kanban-cards-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
+            });
+          }
+          else
+          {
+            $('#errorlist').html('');
+            alert('Added!')
+            
+            $('#buttonContainer').html('\
+            <button id="btnAdd" type="submit" class="kanban-cards-page-button6 button"> Create </button>');
+            
+            $('#cardNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+            $('#title').val('');
+            $('#description').val('');
+            
+            fetchKanBanCards();
+          }
+        }
+      });
+    });
+    
+    //update Card
+    $(document).on('click','#btnUpdate', function(e){
+      e.preventDefault();
+      
+      var id = $('#id').val();
+      var cardNo = $('#cardNo').val();
+      var title = $('#title').val();
+      var description = $('#description').val();
+      
+      var data = {
+        'id' : id,
+        'cardNo' : cardNo,
+        'title' : title,
+        'description' : description,
+      };
+      
+      var url = '{{ url("employee/dashboard/kbc/update") }}';
+      
+      $.ajax({
+        type:"POST", url:url, data:data, dataType:"json",
+        success: function(response)
+        {
+          if(response.status == 400)
+          {
+            $('#errorlist').html('');
+            $.each(response.errors,function(key,err_value){
+              $('#errorlist').append('<li class="kanban-cards-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
+            });
+          }
+          else
+          {
+            $('#errorlist').html('');
+            alert('Updated!')
+            
+            $('#buttonContainer').html('\
+            <button id="btnAdd" type="submit" class="kanban-cards-page-button6 button"> Create </button>');
+            
+            $('#formHeader').text('Add Card');
+            
+            $('#cardNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+            $('#title').val('');
+            $('#description').val('');
+            $('#id').val('');
+            
+            fetchKanBanCards();
+          }
+        }
+      });
+    });
+    
+    //read Cards
+    function fetchKanBanCards()
+    {
+      var url = '{{ url("employee/dashboard/kbc/read/:limit") }}';
+      url = url.replace(':limit',limit);
+      
+      $.ajax({
+        type: "GET",
+        url:url,
+        dataType:"json",
+        success:function(response){
+          
+          $('#kanbanCardTable').html('');
+          
+          $.each(response.cards,function(key,item){
+            
+            var title = item.title;
+            var title = title.slice(0,15)+'...';
+            
+            var date = item.date;
+            var date = date.slice(0,10);
+            
+            var time = item.time;
+            var time = time.slice(11,19);
+            
+            var status = "";
+            
+            if(item.status=='started')
+            {
+              status = "<div style='text-align:center; width:50%; padding:8px; border-radius:6px; background:#14c704; color:white'>In progress</div>";
+            }
+            else if(item.status=='pending')
+            {
+              status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#c77904; color:white'>Pending</div>";
+            }
+            else if(item.status=='completed')
+            {
+              status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#e63002; color:white'>Complete</div>";
+            }
+            
+            $('#kanbanCardTable').append('<tr><td>'+item.cardNo+'</td>\
+              <td>'+title+'</td>\
+              <td>'+date+'</td>\
+              <td>'+time+'</td>\
+              <td>'+status+'</td>\
+              <td>\
+                <button value="'+item.cardNo+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit/Add Task</button>\
+                <button value="'+item.cardNo+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
+              </td>\
+            </tr>\
+            ');
+          });
+        }
+      });
+    }
+    
+    //Edit Card
+    $(document).on('click', '#btnEdit', function(e) {
+      
+      limit_arrow = 0; //set Slot table offset to 0
+      
+      cardNo = $(this).val();
+      
+      var url = '{{ url("employee/dashboard/kbc/readOne/:no") }}';
+      url = url.replace(':no', cardNo);
+      
+      $.ajax({
+        type:"GET",
+        url:url,
+        dataType:"json",
+        success: function(response)
+        {
+          $('#id').val(response.cards.id);
+          $('#cardNo').val(response.cards.cardNo);
+          $('#getCardNo').val(response.cards.cardNo);
+          $('#title').val(response.cards.title);
+          $('#description').val(response.cards.description);
+          
+          $('#formHeader').text('Edit Card');
+          
+          $('#buttonContainer').html('\
+          <button id="btnUpdate" type="submit" class="kanban-cards-page-button6 button"> Update </button>');
+          
+          fetchTasks();
+          
+          $('html, body').animate({
+            scrollTop: $("#formHeader").offset().top
+          }, 1);
+        }
+      });
+    });
+    
+    //fetch tasks
+    var cardNo = "";
+    function fetchTasks()
+    {
+      var url = '{{ url("employee/dashboard/task/read/:cardNo/:limit_arrow") }}';
+      url = url.replace(':cardNo', cardNo);
+      url = url.replace(':limit_arrow', limit_arrow);
+      
+      $.ajax({
+        type: "GET",
+        url:url,
+        dataType:"json",
+        success:function(response){
+          
+          $('#taskTable').html('');
+          
+          $.each(response.tasks,function(key,item){
+            
+            var name = item.name;
+            var name = name.slice(0,15)+'...';
+            
+            var status = "";
+            
+            if(item.status=='started')
+            {
+              status = "<div style='text-align:center; width:50%; padding:8px; border-radius:6px; background:#14c704; color:white'>In progress</div>";
+            }
+            else if(item.status=='pending')
+            {
+              status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#c77904; color:white'>Pending</div>";
+            }
+            else if(item.status=='completed')
+            {
+              status = "<div style='text-align:center; border-radius:6px; width:60%; padding:8px; background:#e63002; color:white'>Complete</div>";
+            }
+            
+            $('#taskTable').append('<tr><td>'+item.taskNo+'</td>\
+              <td>'+name+'</td>\
+              <td>'+item.startDate+'</td>\
+              <td>'+item.endDate+'</td>\
+              <td>'+item.duration+'</td>\
+              <td>'+status+'</td>\
+              <td>\
+                <button value="'+item.taskNo+'" id="btnEditTask" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit/See</button>\
+                <button value="'+item.taskNo+'" id="btnDeleteTask" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
+              </td>\
+            </tr>\
+            ');
+          });
+        }
+      });
+    }
+    
+    //delete card
+    $(document).on('click', '#btnDelete', function(e) {
+      
+      var no = $(this).val();
+      
+      var url = '{{ url("employee/dashboard/kbc/delete/:no") }}';
+      url = url.replace(':no', no); 
+      
+      $.ajax({
+        type:"DELETE",
+        url:url,
+        dataType:"json",
+      });
+      
+      fetchKanBanCards();
+    });
+    
+    
+    //TASKS ===================================================================
+    
+    //Add Task
+    $(document).on('click','#btnAddTask', function(e){
+      e.preventDefault();
+      
+      var taskNo = Math.floor(Math.random() * (19999 - 99999 + 1) + 99999);
+      var getCardNo = $('#getCardNo').val();
+      var taskTitle = $('#taskTitle').val();
+      var description = $('#taskDescription').val();
+      var start = $('#start').val();
+      var end = $('#end').val();
+      var duration = $('#duration').val();
+      
+      if(getCardNo == "")
+      {
+        alert('Choose a Card First');
+      }
+      
+      var data = {
+        'taskNo' : taskNo,
+        'cardNo' : getCardNo,
+        'name' : taskTitle,
+        'description' : description,
+        'startDate' : start,
+        'endDate' : end,
+        'duration' : duration,
+      };
+      
+      var url = '{{ url("employee/dashboard/task/create") }}';
+      
+      $.ajax({
+        type:"POST", url:url, data:data, dataType:"json",
+        success: function(response)
+        {
+          if(response.status == 400)
+          {
+            $('#taskErrorlist').html('');
+            $.each(response.errors,function(key,err_value){
+              $('#taskErrorlist').append('<li class="kanban-cards-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
+            });
+          }
+          else
+          {
+            $('#taskErrorlist').html('');
+            alert('Task Added!')
+            
+            $('#taskButtonContainer').html('\
+            <button id="btnAddTask" type="submit" class="kanban-cards-page-button8 button"> Add </button>');
+            
+            $('#taskTitle').val('');
+            $('#taskDescription').val('');
+            $('#start').val('');
+            $('#end').val('');
+            $('#duration').val('');
+            
+            fetchTasks();
+          }
+        }
+      });
+    });
+    
+    //Update Task
+    $(document).on('click','#btnUpdateTask', function(e){
+      e.preventDefault();
+      
+      var taskId = $('#taskId').val();
+      var taskTitle = $('#taskTitle').val();
+      var description = $('#taskDescription').val();
+      var start = $('#start').val();
+      var end = $('#end').val();
+      var duration = $('#duration').val();
+      
+      var data = {
+        'taskId' : taskId,
+        'name' : taskTitle,
+        'description' : description,
+        'startDate' : start,
+        'endDate' : end,
+        'duration' : duration,
+      };
+      
+      var url = '{{ url("employee/dashboard/task/update") }}';
+      
+      $.ajax({
+        type:"POST", url:url, data:data, dataType:"json",
+        success: function(response)
+        {
+          if(response.status == 400)
+          {
+            $('#taskErrorlist').html('');
+            $.each(response.errors,function(key,err_value){
+              $('#taskErrorlist').append('<li class="kanban-cards-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
+            });
+          }
+          else
+          {
+            $('#taskErrorlist').html('');
+            alert('Task Updated!')
+            
+            $('#taskButtonContainer').html('\
+            <button id="btnAddTask" type="submit" class="kanban-cards-page-button8 button"> Add </button>');
+            
+            $('#getCardNo').val('');
+            $('#taskTitle').val('');
+            $('#taskDescription').val('');
+            $('#start').val('');
+            $('#end').val('');
+            $('#duration').val('');
+            
+            $('#taskFormHeader').text('Add Task');
+            
+            fetchTasks();
+          }
+        }
+      });
+    });
+    
+    //Edit Task
+    $(document).on('click', '#btnEditTask', function(e) {
+      
+      limit_arrow = 0; //set Slot table offset to 0
+      
+      var taskNo = $(this).val();
+      
+      var url = '{{ url("employee/dashboard/task/readOne/:no") }}';
+      url = url.replace(':no', taskNo);
+      
+      $.ajax({
+        type:"GET",
+        url:url,
+        dataType:"json",
+        success: function(response)
+        {
+          $('#getCardNo').val(response.tasks.cardNo);
+          $('#taskTitle').val(response.tasks.name);
+          $('#taskDescription').val(response.tasks.description);
+          $('#start').val(response.tasks.startDate);
+          $('#end').val(response.tasks.endDate);
+          $('#duration').val(response.tasks.duration);
+          $('#taskId').val(response.tasks.id);
+          
+          $('#taskFormHeader').text('Edit Task');
+          
+          $('#taskButtonContainer').html('\
+          <button id="btnUpdateTask" type="submit" class="kanban-cards-page-button8 button"> Update </button>');
+          
+          fetchTasks();
+          
+          $('html, body').animate({
+            scrollTop: $("#taskFormHeader").offset().top
+          }, 1);
+        }
+      });
+    });
+    
+    //Auto Schedule Task
+    $(document).on('click', '#btnAutoSchedule', function(e) {
+      e.preventDefault();
+
+      var url = '{{ url("employee/dashboard/task/autoSchedule") }}';
+      
+      $('#btnAutoSchedule').text('Scheduling...');
+      
+      $.ajax({
+        type:"GET",
+        url:url,
+        dataType:"json",
+        success: function(response)
+        {
+          if(response.status == 400)
+          {
+            $('#btnAutoSchedule').text('Auto Schedule');
+
+            alert(response.message);
+          }
+          else
+          {
+            setTimeout(() => {
+              $('#btnAutoSchedule').text('Auto Schedule');
+              
+              let startDateString = new Date();
+              let endDateString = new Date();
+              
+              let numDays = response.days;
+              endDateString.setDate(endDateString.getDate() + numDays);
+              
+              let startDate = document.getElementById("start");
+              let endDate = document.getElementById("end");
+              let duration = document.getElementById("duration");
+              
+              startDate.value = startDateString.toISOString().split("T")[0];
+              endDate.value = endDateString.toISOString().split("T")[0];
+              duration.value = numDays;
+            }, 2000);
+          }
+        }
+      });
+    });
+    
+    //delete task
+    $(document).on('click', '#btnDeleteTask', function(e) {
+      
+      var no = $(this).val();
+      
+      var url = '{{ url("employee/dashboard/task/delete/:no") }}';
+      url = url.replace(':no', no); 
+      
+      $.ajax({
+        type:"DELETE",
+        url:url,
+        dataType:"json",
+      });
+      
+      fetchTasks();
+    });
+    
+    //get duration
+    function calculateDuration()
+    {
+      var startDate = document.getElementById("start").value;
+      var endDate = document.getElementById("end").value;
+      
+      var start = new Date(startDate);
+      var end = new Date(endDate);
+      
+      var startTime = start.getTime();
+      var endTime = end.getTime();
+      
+      var days = (endTime - startTime) / 86400000;
+      
+      $('#duration').val(days);
+    }
+    
+    $('#start').change(function() {
+      calculateDuration();
+    });
+    
+    $('#end').change(function() {
+      calculateDuration();
+    });
+  });
+</script>

@@ -81,120 +81,6 @@
         </table>
       </div>
       <a id="sample" href="{{ url("warehouse/dashboard/fillRequest/75238>") }}"></a>
-      <script>
-        $(document).ready(function(){
-          
-          //csrf token
-          $.ajaxSetup({
-            headers: {
-              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-          });
-          
-          fetchInventoryRequests();
-          
-          //limit and offset for pagination
-          var limit = 0;
-          $(document).on('click', '#btnNext', function(e) {
-            
-            limit = limit + 5;
-            fetchInventoryRequests();
-            
-          });
-          
-          $(document).on('click', '#btnPrev', function(e) {
-            
-            limit = limit - 5;
-            
-            if(limit < 0)
-            {
-              limit = 0;
-            }
-            
-            fetchInventoryRequests();
-            
-          });
-          
-          //read
-          function fetchInventoryRequests()
-          {
-            var url = '{{ url("warehouse/dashboard/ir/read/:limit") }}';
-            url = url.replace(':limit', limit);
-            
-            $.ajax({
-              type: "GET",
-              url:url,
-              dataType:"json",
-              success:function(response){
-                
-                $('#irTable').html('');
-                
-                $.each(response.requests,function(key,item){
-                  
-                  var name = item.name;
-                  var name = name.slice(0,10)+'...';
-                  
-                  var date = item.date;
-                  var date = date.slice(0,10);
-                  
-                  var status = "";
-                  var button = "";
-                  
-                  if(item.status=='pending')
-                  {
-                    status = "<div style='text-align:center; width:100%; padding:2px; border-radius:6px; background:#a67a02; color:white'>Pending</div>";
-                    button = '<button value="'+item.rawMaterial+'" id="btnFill" style="width:100px; padding:8px; border-radius:3px; background:#dbfc03; color:#615f5f;">Fill</button>';
-                  }
-                  else
-                  {
-                    status = "<div style='text-align:center; border-radius:6px; width:100%; padding:2px; background:#1da602; color:white'>Completed</div>";
-                    button = '-';
-                  }
-                  
-                  $('#irTable').append('<tr><td>'+item.no+'</td>\
-                    <td>'+name+'</td>\
-                    <td>'+date+'</td>\
-                    <td>'+status+'</td>\
-                    <td>'+item.quantity+'</td>\
-                    <td>'+button+'</td>\
-                  </tr>\
-                  ');
-                });
-              }
-            });
-          }
-          
-          //fill requests
-          $(document).on('click', '#btnFill', function(e) {
-            
-            var rawMaterial = $(this).val();
-            
-            var data = {
-              'rawMaterial' : rawMaterial,
-            }
-            
-            var url = '{{ url("warehouse/dashboard/fillRequest") }}';
-            
-            $.ajax({
-              type:"POST",
-              url: url,
-              data:data,
-              dataType:"json",
-              success: function(response){
-                if(response.status==400)
-                {
-                  alert(response.message);
-                }
-                else
-                {
-                  fetchInventoryRequests();
-                }
-              }
-            });
-          });
-          
-        });
-      </script>
       
       <span class="home-text08">Inventory Requests</span>
       <button class="home-button button" id="btnNext">Next</button>
@@ -207,3 +93,121 @@
 </div>
 </body>
 </html>
+
+{{-- Js --}}
+<script>
+  $(document).ready(function(){
+    
+    //csrf token
+    $.ajaxSetup({
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+    });
+    
+    //calling the function
+    fetchInventoryRequests();
+    
+    //limit and offset for pagination
+    var limit = 0;
+    $(document).on('click', '#btnNext', function(e) {
+      
+      limit = limit + 5;
+      fetchInventoryRequests();
+      
+    });
+    
+    $(document).on('click', '#btnPrev', function(e) {
+      
+      limit = limit - 5;
+      
+      if(limit < 0)
+      {
+        limit = 0;
+      }
+      
+      fetchInventoryRequests();
+      
+    });
+    
+    //read
+    function fetchInventoryRequests()
+    {
+      var url = '{{ url("warehouse/dashboard/ir/read/:limit") }}';
+      url = url.replace(':limit', limit);
+      
+      $.ajax({
+        type: "GET",
+        url:url,
+        dataType:"json",
+        success:function(response){
+          
+          $('#irTable').html('');
+          
+          $.each(response.requests,function(key,item){
+            
+            var name = item.name;
+            var name = name.slice(0,10)+'...';
+            
+            var date = item.date;
+            var date = date.slice(0,10);
+            
+            var status = "";
+            var button = "";
+            
+            if(item.status=='pending')
+            {
+              status = "<div style='text-align:center; width:100%; padding:2px; border-radius:6px; background:#a67a02; color:white'>Pending</div>";
+              button = '<button value="'+item.rawMaterial+'" id="btnFill" style="width:100px; padding:8px; border-radius:3px; background:#dbfc03; color:#615f5f;">Fill</button>';
+            }
+            else
+            {
+              status = "<div style='text-align:center; border-radius:6px; width:100%; padding:2px; background:#1da602; color:white'>Completed</div>";
+              button = '-';
+            }
+            
+            $('#irTable').append('<tr><td>'+item.no+'</td>\
+              <td>'+name+'</td>\
+              <td>'+date+'</td>\
+              <td>'+status+'</td>\
+              <td>'+item.quantity+'</td>\
+              <td>'+button+'</td>\
+            </tr>\
+            ');
+          });
+        }
+      });
+    }
+    
+    //fill requests
+    $(document).on('click', '#btnFill', function(e) {
+      
+      var rawMaterial = $(this).val();
+      
+      var data = {
+        'rawMaterial' : rawMaterial,
+      }
+      
+      var url = '{{ url("warehouse/dashboard/fillRequest") }}';
+      
+      //ajax request
+      $.ajax({
+        type:"POST",
+        url: url,
+        data:data,
+        dataType:"json",
+        success: function(response){
+          if(response.status==400)
+          {
+            alert(response.message);
+          }
+          else
+          {
+            fetchInventoryRequests();
+          }
+        }
+      });
+    });
+    
+  });
+</script>

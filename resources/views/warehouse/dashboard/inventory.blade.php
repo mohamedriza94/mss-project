@@ -79,222 +79,6 @@
                         <tbody id="inventoryTable">
                         </tbody>
                     </table>
-                    
-                    <script>
-                        $(document).ready(function(){
-                            
-                            //csrf token
-                            $.ajaxSetup({
-                                headers: {
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                }
-                            });
-                            
-                            fetchInventories();
-
-                            //limit and offset for pagination
-                            var limit = 0;
-                            $(document).on('click', '#btnNext', function(e) {
-                                
-                                limit = limit + 5;
-                                fetchInventories();
-
-                            });
-
-                            $(document).on('click', '#btnPrev', function(e) {
-                                
-                                limit = limit - 5;
-
-                                if(limit < 0)
-                                {
-                                    limit = 0;
-                                }
-
-                                fetchInventories();
-
-                            });
-                            
-                            //read
-                            function fetchInventories()
-                            {
-                                var url = '{{ url("warehouse/dashboard/read/:limit") }}';
-                                url = url.replace(':limit', limit);
-
-                                $.ajax({
-                                    type: "GET",
-                                    url:url,
-                                    dataType:"json",
-                                    success:function(response){
-                                        
-                                        $('#inventoryTable').html('');
-                                        
-                                        $.each(response.inventories,function(key,item){
-                                            
-                                            var name = item.name;
-                                            var name = name.slice(0,10)+'...';
-                                            
-                                            var status = "";
-                                            
-                                            if(item.status=='NA')
-                                            {
-                                                status = "<div style='text-align:center; width:50%; padding:2px; border-radius:6px; background:#f55549; color:white'>N/A</div>";
-                                            }
-                                            else
-                                            {
-                                                status = "<div style='text-align:center; border-radius:6px; width:60%; padding:2px; background:rgb(10, 187, 10); color:white'>Available</div>";
-                                            }
-                                            
-                                            $('#inventoryTable').append('<tr><td>'+item.inventoryNo+'</td>\
-                                                <td>'+name+'</td>\
-                                                <td>'+item.availableQuantity+'</td>\
-                                                <td>'+item.price+'</td>\
-                                                <td>'+status+'</td>\
-                                                <td>\
-                                                    <button value="'+item.id+'" id="btnAddQuantity" style="padding:8px; border-radius:3px; background:#dbfc03; color:#615f5f;">Add</button>\
-                                                    <button value="'+item.id+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit</button>\
-                                                    <button value="'+item.id+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
-                                                </td>\
-                                            </tr>\
-                                            ');
-                                        });
-                                    }
-                                });
-                            }
-                            
-                            //delete
-                            $(document).on('click', '#btnDelete', function(e) {
-                                
-                                var id = $(this).val();
-                                
-                                var url = '{{ url("warehouse/dashboard/delete/:id") }}';
-                                url = url.replace(':id', id);
-                                
-                                $.ajax({
-                                    type:"DELETE",
-                                    url:url,
-                                    dataType:"json",
-                                });
-                                
-                                
-                                fetchInventories();
-                            });
-                            
-                            //edit
-                            $(document).on('click', '#btnEdit', function(e) {
-                                
-                                var id = $(this).val();
-                                
-                                var url = '{{ url("warehouse/dashboard/readOne/:id") }}';
-                                url = url.replace(':id', id);
-                                
-                                $.ajax({
-                                    type:"GET",
-                                    url:url,
-                                    dataType:"json",
-                                    success: function(response)
-                                    {
-                                        $('#inventoryNo').val(response.inventories.inventoryNo);
-                                        $('#name').val(response.inventories.name);
-                                        $('#price').val(response.inventories.price);
-                                        $('#quantity').val(response.inventories.availableQuantity);
-                                        $('#inventoryId').val(response.inventories.id);
-                                        $('#formHeader').text('Edit Inventory');
-                                        
-                                        $('#buttonContainer').html('\
-                                        <button id="btnUpdate" class="page-button2 button">Update</button>');
-                                        
-                                    }
-                                });
-                                
-                            });
-                            
-                            //add inventory
-                            $(document).on('click', '#btnAdd', function(e) {
-                                
-                                e.preventDefault();
-                                
-                                document.getElementById('addForm').submit();
-                                
-                            });
-                            
-                            //add stocks
-                            $(document).on('click', '#btnAddQuantity', function(e) {
-                                
-                                var id = $(this).val();
-                                
-                                var data = {
-                                    'id' : id,
-                                }
-                                
-                                var url = '{{ url("warehouse/dashboard/addQuantity") }}';
-                                
-                                $.ajax({
-                                    type:"PUT",
-                                    url: url,
-                                    data:data,
-                                    dataType:"json",
-                                    success: function(response){
-                                        fetchInventories();
-                                    }
-                                });
-                            });
-                            
-                            //update inventory
-                            $(document).on('click', '#btnUpdate', function(e) {
-                                
-                                e.preventDefault();
-                                var id = $('#inventoryId').val();
-                                var name = $('#name').val();
-                                var price = $('#price').val();
-                                var quantity = $('#quantity').val();
-                                
-                                var data = {
-                                    'id' : id,
-                                    'name' : name,
-                                    'price' : price,
-                                    'quantity' : quantity,
-                                }
-                                
-                                var url = '{{ url("warehouse/dashboard/update") }}';
-                                
-                                $.ajax({
-                                    type:"PUT",
-                                    url: url,
-                                    data:data,
-                                    dataType:"json",
-                                    success: function(response){
-                                        if(response.status==400)
-                                        {
-                                            $('#updateErrors').show();
-                                            $.each(response.errors,function(key,err_value){
-                                                $('#errorlist').append('<li class="page-li list-item"><span class="page-text06">'+err_value+'</span></li>');
-                                            });
-                                        }
-                                        else
-                                        {
-                                            $('#updateErrors').hide();
-                                            alert('Updated!')
-                                            
-                                            $('#buttonContainer').html('\
-                                            <button id="btnAdd" class="page-button2 button">Add</button>');
-                                            
-                                            $('#inventoryId').val('');
-                                            $('#name').val('');
-                                            $('#price').val('');
-                                            $('#quantity').val('')
-                                                $('#formHeader').text('Add Inventory');
-                                            
-                                            fetchInventories();
-                                        }
-                                    }
-                                });
-                            });
-                        });
-                    </script>
-                    
-                    
-                    
-                    
                 </div>
                 <span class="page-text05">Inventories</span>
                 <button class="page-button button" id="btnNext">Next</button>
@@ -374,6 +158,220 @@
             </div>
         </div>
     </div>
-    
 </body>
 </html>
+
+{{-- js --}}
+
+<script>
+    $(document).ready(function(){
+        
+        //csrf token
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        
+        //calling function
+        fetchInventories();
+
+        //limit and offset for pagination
+        var limit = 0;
+        $(document).on('click', '#btnNext', function(e) {
+            
+            limit = limit + 5;
+            fetchInventories();
+
+        });
+
+        $(document).on('click', '#btnPrev', function(e) {
+            
+            limit = limit - 5;
+
+            if(limit < 0)
+            {
+                limit = 0;
+            }
+
+            fetchInventories();
+
+        });
+        
+        //read
+        function fetchInventories()
+        {
+            var url = '{{ url("warehouse/dashboard/read/:limit") }}';
+            url = url.replace(':limit', limit);
+
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    
+                    $('#inventoryTable').html('');
+                    
+                    $.each(response.inventories,function(key,item){
+                        
+                        var name = item.name;
+                        var name = name.slice(0,10)+'...';
+                        
+                        var status = "";
+                        
+                        if(item.status=='NA')
+                        {
+                            status = "<div style='text-align:center; width:50%; padding:2px; border-radius:6px; background:#f55549; color:white'>N/A</div>";
+                        }
+                        else
+                        {
+                            status = "<div style='text-align:center; border-radius:6px; width:60%; padding:2px; background:rgb(10, 187, 10); color:white'>Available</div>";
+                        }
+                        
+                        $('#inventoryTable').append('<tr><td>'+item.inventoryNo+'</td>\
+                            <td>'+name+'</td>\
+                            <td>'+item.availableQuantity+'</td>\
+                            <td>'+item.price+'</td>\
+                            <td>'+status+'</td>\
+                            <td>\
+                                <button value="'+item.id+'" id="btnAddQuantity" style="padding:8px; border-radius:3px; background:#dbfc03; color:#615f5f;">Add</button>\
+                                <button value="'+item.id+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit</button>\
+                                <button value="'+item.id+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
+                            </td>\
+                        </tr>\
+                        ');
+                    });
+                }
+            });
+        }
+        
+        //delete
+        $(document).on('click', '#btnDelete', function(e) {
+            
+            var id = $(this).val();
+            
+            var url = '{{ url("warehouse/dashboard/delete/:id") }}';
+            url = url.replace(':id', id);
+            
+            $.ajax({
+                type:"DELETE",
+                url:url,
+                dataType:"json",
+            });
+            
+            
+            fetchInventories();
+        });
+        
+        //edit
+        $(document).on('click', '#btnEdit', function(e) {
+            
+            var id = $(this).val();
+            
+            var url = '{{ url("warehouse/dashboard/readOne/:id") }}';
+            url = url.replace(':id', id);
+            
+            $.ajax({
+                type:"GET",
+                url:url,
+                dataType:"json",
+                success: function(response)
+                {
+                    $('#inventoryNo').val(response.inventories.inventoryNo);
+                    $('#name').val(response.inventories.name);
+                    $('#price').val(response.inventories.price);
+                    $('#quantity').val(response.inventories.availableQuantity);
+                    $('#inventoryId').val(response.inventories.id);
+                    $('#formHeader').text('Edit Inventory');
+                    
+                    $('#buttonContainer').html('\
+                    <button id="btnUpdate" class="page-button2 button">Update</button>');
+                    
+                }
+            });
+            
+        });
+        
+        //add inventory
+        $(document).on('click', '#btnAdd', function(e) {
+            
+            e.preventDefault();
+            
+            document.getElementById('addForm').submit();
+            
+        });
+        
+        //add stocks
+        $(document).on('click', '#btnAddQuantity', function(e) {
+            
+            var id = $(this).val();
+            
+            var data = {
+                'id' : id,
+            }
+            
+            var url = '{{ url("warehouse/dashboard/addQuantity") }}';
+            
+            $.ajax({
+                type:"PUT",
+                url: url,
+                data:data,
+                dataType:"json",
+                success: function(response){
+                    fetchInventories();
+                }
+            });
+        });
+        
+        //update inventory
+        $(document).on('click', '#btnUpdate', function(e) {
+            
+            e.preventDefault();
+            var id = $('#inventoryId').val();
+            var name = $('#name').val();
+            var price = $('#price').val();
+            var quantity = $('#quantity').val();
+            
+            var data = {
+                'id' : id,
+                'name' : name,
+                'price' : price,
+                'quantity' : quantity,
+            }
+            
+            var url = '{{ url("warehouse/dashboard/update") }}';
+            
+            $.ajax({
+                type:"PUT",
+                url: url,
+                data:data,
+                dataType:"json",
+                success: function(response){
+                    if(response.status==400)
+                    {
+                        $('#updateErrors').show();
+                        $.each(response.errors,function(key,err_value){
+                            $('#errorlist').append('<li class="page-li list-item"><span class="page-text06">'+err_value+'</span></li>');
+                        });
+                    }
+                    else
+                    {
+                        $('#updateErrors').hide();
+                        alert('Updated!')
+                        
+                        $('#buttonContainer').html('\
+                        <button id="btnAdd" class="page-button2 button">Add</button>');
+                        
+                        $('#inventoryId').val('');
+                        $('#name').val('');
+                        $('#price').val('');
+                        $('#quantity').val('')
+                            $('#formHeader').text('Add Inventory');
+                        
+                        fetchInventories();
+                    }
+                }
+            });
+        });
+    });
+</script>

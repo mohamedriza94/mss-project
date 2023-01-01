@@ -102,288 +102,6 @@
   </table>
 </div>
 
-<script>
-  $(document).ready(function(){
-    
-    //csrf token
-    $.ajaxSetup({
-      headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-      }
-    });
-    
-    fetchSupervisors();
-    fetchDepartment();
-    
-    $('#supervisorNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-    
-    //limit and offset for pagination
-    var limit = 0;
-    $(document).on('click', '#btnNext', function(e) {
-      
-      limit = limit + 4;
-      fetchSupervisors();
-      
-    });
-    
-    $(document).on('click', '#btnPrev', function(e) {
-      
-      limit = limit - 4;
-      
-      if(limit < 0)
-      {
-        limit = 0;
-      }
-      
-      fetchSupervisors();
-      
-    });
-    
-    //read
-    function fetchSupervisors()
-    {
-      var url = '{{ url("administrator/dashboard/supervisor/read/:limit") }}';
-      url = url.replace(':limit', limit);
-      
-      $.ajax({
-        type: "GET",
-        url:url,
-        dataType:"json",
-        success:function(response){
-          
-          $('#supervisorTable').html('');
-          
-          $.each(response.employees,function(key,item){
-            
-            var name = item.name;
-            var name = name.slice(0,15)+'...';
-            
-            $('#supervisorTable').append('<tr><td>'+item.no+'</td>\
-              <td>'+name+'</td>\
-              <td>'+item.address+'</td>\
-              <td>'+item.contact+'</td>\
-              <td><img src="'+item.photo+'" style="width:50px;"></td>\
-              <td>\
-                <button value="'+item.id+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit</button>\
-                <button value="'+item.id+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
-              </td>\
-            </tr>\
-            ');
-          });
-        }
-      });
-    }
-    
-    //read department
-    function fetchDepartment()
-    {
-      var url = '{{ url("administrator/dashboard/department/read/:limit") }}';
-      url = url.replace(':limit', 0);
-      
-      $.ajax({
-        type: "GET",
-        url:url,
-        dataType:"json",
-        success:function(response){
-          
-          $('#department').html('');
-          
-          $.each(response.departments,function(key,item){
-            
-            var urlGetFactory = '{{ url("administrator/dashboard/factory/readRelation/:id") }}';
-            urlGetFactory = urlGetFactory.replace(':id', item.factoryNo);
-            
-            $.ajax({
-              type: "GET",
-              url:urlGetFactory,
-              dataType:"json",
-              success:function(response){
-                $.each(response.factories,function(key,itemFactory){
-
-                  $('#department').append('<option value="'+item.no+' '+item.factoryNo+'">'+item.name+' - '+itemFactory.name+'</option>\
-                  ');
-
-                })
-              }
-            });
-            
-            
-          });
-        }
-      });
-    }
-    
-    //add Supervisor
-    $(document).on('click', '#btnAdd', function(e) {
-      e.preventDefault();
-      
-      if( $('#password').val() == $('#confirmPassword').val())
-      {
-        let formData = new FormData($('#addForm')[0]);
-        $.ajax({
-          type: "POST",
-          url: "{{ url('administrator/dashboard/supervisor/create') }}",
-          data: formData,
-          contentType:false,
-          processData:false,
-          success: function(response){
-            if(response.status==400)
-            {
-              $('#errorlist').html('');
-              $.each(response.errors,function(key,err_value){
-                $('#errorlist').append('<li class="supervisor-page-li list-item"><span class="supervisor-page-text08">'+err_value+'</span></li>');
-              });
-            }
-            else
-            {
-              $('#errorlist').html('');
-              alert('Added!')
-              
-              $('#buttonContainer').html('\
-              <button id="btnAdd" class="supervisor-page-button2 button">Add</button>');
-              
-              $('#supervisorNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-              $('#address').val('');
-              $('#email').val('');
-              $('#name').val('');
-              $('#password').val('');
-              $('#dob').val('');
-              $('#confirmPassword').val('');
-              $('#contact').val('');
-              $('#photo').val('');
-              
-              fetchSupervisors();
-            }
-          }
-        });
-      }
-      else
-      {
-        alert('Passwords Do Not Match');
-      }
-      
-    });
-    
-    //Edit
-    $(document).on('click', '#btnEdit', function(e) {
-      
-      var id = $(this).val();
-      
-      var url = '{{ url("administrator/dashboard/supervisor/readOne/:id") }}';
-      url = url.replace(':id', id);
-      
-      $.ajax({
-        type:"GET",
-        url:url,
-        dataType:"json",
-        success: function(response)
-        {
-          $('#supervisorNo').val(response.employees.no);
-          $('#address').val(response.employees.address);
-          $('#department').val(response.employees.departmentNo);
-          $('#email').val(response.employees.email);
-          $('#name').val(response.employees.name);
-          $('#dob').val(response.employees.dob);
-          $('#contact').val(response.employees.contact);
-          $('#id').val(response.employees.id);
-          $('#password').val('');
-          
-          $('#formHeader').text('Edit Supervisor');
-          
-          $('#buttonContainer').html('\
-          <button id="btnUpdate" class="supervisor-page-button2 button">Update</button>');
-        }
-      });
-      
-    });
-    
-    //Update Supervisor
-    function update()
-    {
-      let formData = new FormData($('#addForm')[0]);
-      $.ajax({
-        type: "POST",
-        url: "{{ url('administrator/dashboard/supervisor/update') }}",
-        data: formData,
-        contentType:false,
-        processData:false,
-        success: function(response){
-          if(response.status==400)
-          {
-            $('#errorlist').html('');
-            $.each(response.errors,function(key,err_value){
-              $('#errorlist').append('<li class="supervisor-page-li list-item"><span class="supervisor-page-text08">'+err_value+'</span></li>');
-            });
-          }
-          else
-          {
-            $('#errorlist').html('');
-            alert('Updated!')
-            
-            $('#buttonContainer').html('\
-            <button id="btnAdd" class="supervisor-page-button2 button">Add</button>');
-            
-            $('#supervisorNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
-            $('#address').val('');
-            $('#email').val('');
-            $('#name').val('');
-            $('#password').val('');
-            $('#dob').val('');
-            $('#confirmPassword').val('');
-            $('#contact').val('');
-            $('#photo').val('');
-            
-            fetchSupervisors();
-          }
-        }
-      });
-    } 
-    
-    $(document).on('click', '#btnUpdate', function(e) {
-      
-      e.preventDefault();
-      
-      if( $('#password').val() == "")
-      {
-        if( $('#password').val() == $('#confirmPassword').val())
-        {
-          update();
-        }
-        else
-        {
-          alert('Passwords Do Not Match');
-        }
-      }
-      else
-      {
-        update();
-      }
-      
-    });
-    
-    //delete
-    $(document).on('click', '#btnDelete', function(e) {
-      
-      var id = $(this).val();
-      
-      var url = '{{ url("administrator/dashboard/supervisor/delete/:id") }}';
-      url = url.replace(':id', id);
-      
-      $.ajax({
-        type:"DELETE",
-        url:url,
-        dataType:"json",
-      });
-      
-      
-      fetchSupervisors();
-    });
-    
-  });
-  
-</script>
-
-
 <span class="supervisor-page-text07">Supervisors</span>
 <button id="btnNext" class="supervisor-page-button button">
   Next
@@ -485,3 +203,289 @@
 </div>
 </body>
 </html>
+
+{{-- Js --}}
+
+<script>
+  $(document).ready(function(){
+    
+    //csrf token
+    $.ajaxSetup({
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+    });
+    
+    //calling functions
+    fetchSupervisors();
+    fetchDepartment();
+    
+    //generate random number into text field
+    $('#supervisorNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+    
+    //limit and offset for pagination
+    var limit = 0;
+    $(document).on('click', '#btnNext', function(e) {
+      
+      limit = limit + 4;
+      fetchSupervisors();
+      
+    });
+    
+    $(document).on('click', '#btnPrev', function(e) {
+      
+      limit = limit - 4;
+      
+      if(limit < 0)
+      {
+        limit = 0;
+      }
+      
+      fetchSupervisors();
+      
+    });
+    
+    //read
+    function fetchSupervisors()
+    {
+      var url = '{{ url("administrator/dashboard/supervisor/read/:limit") }}';
+      url = url.replace(':limit', limit);
+      
+      $.ajax({
+        type: "GET",
+        url:url,
+        dataType:"json",
+        success:function(response){
+          
+          $('#supervisorTable').html('');
+          
+          $.each(response.employees,function(key,item){
+            
+            var name = item.name;
+            var name = name.slice(0,15)+'...';
+            
+            $('#supervisorTable').append('<tr><td>'+item.no+'</td>\
+              <td>'+name+'</td>\
+              <td>'+item.address+'</td>\
+              <td>'+item.contact+'</td>\
+              <td><img src="'+item.photo+'" style="width:50px;"></td>\
+              <td>\
+                <button value="'+item.id+'" id="btnEdit" style="padding:8px; border-radius:3px; background:#d3e9f5; color:#615f5f;">Edit</button>\
+                <button value="'+item.id+'" id="btnDelete" style="padding:8px; border-radius:3px; background:#fa8169; color:#615f5f;">Del</button>\
+              </td>\
+            </tr>\
+            ');
+          });
+        }
+      });
+    }
+    
+    //read department
+    function fetchDepartment()
+    {
+      var url = '{{ url("administrator/dashboard/department/read/:limit") }}';
+      url = url.replace(':limit', 0);
+      
+      $.ajax({
+        type: "GET",
+        url:url,
+        dataType:"json",
+        success:function(response){
+          
+          $('#department').html('');
+          
+          $.each(response.departments,function(key,item){
+            
+            var urlGetFactory = '{{ url("administrator/dashboard/factory/readRelation/:id") }}';
+            urlGetFactory = urlGetFactory.replace(':id', item.factoryNo);
+            
+            $.ajax({
+              type: "GET",
+              url:urlGetFactory,
+              dataType:"json",
+              success:function(response){
+                $.each(response.factories,function(key,itemFactory){
+                  
+                  $('#department').append('<option value="'+item.no+' '+item.factoryNo+'">'+item.name+' - '+itemFactory.name+'</option>\
+                  ');
+                  
+                })
+              }
+            });
+            
+            
+          });
+        }
+      });
+    }
+    
+    //add Supervisor
+    $(document).on('click', '#btnAdd', function(e) {
+      e.preventDefault();
+      
+      if( $('#password').val() == $('#confirmPassword').val())
+      {
+        let formData = new FormData($('#addForm')[0]);
+        $.ajax({
+          type: "POST",
+          url: "{{ url('administrator/dashboard/supervisor/create') }}",
+          data: formData,
+          contentType:false,
+          processData:false,
+          success: function(response){
+            if(response.status==400)
+            {
+              $('#errorlist').html('');
+              $.each(response.errors,function(key,err_value){
+                $('#errorlist').append('<li class="supervisor-page-li list-item"><span class="supervisor-page-text08">'+err_value+'</span></li>');
+              });
+            }
+            else
+            {
+              $('#errorlist').html('');
+              alert('Added!')
+              
+              $('#buttonContainer').html('\
+              <button id="btnAdd" class="supervisor-page-button2 button">Add</button>');
+              
+              $('#supervisorNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+              $('#address').val('');
+              $('#email').val('');
+              $('#name').val('');
+              $('#password').val('');
+              $('#dob').val('');
+              $('#confirmPassword').val('');
+              $('#contact').val('');
+              $('#photo').val('');
+              
+              fetchSupervisors();
+            }
+          }
+        });
+      }
+      else
+      {
+        alert('Passwords Do Not Match');
+      }
+      
+    });
+    
+    //Edit
+    $(document).on('click', '#btnEdit', function(e) {
+      
+      var id = $(this).val();
+      
+      var url = '{{ url("administrator/dashboard/supervisor/readOne/:id") }}';
+      url = url.replace(':id', id);
+      
+      $.ajax({
+        type:"GET",
+        url:url,
+        dataType:"json",
+        success: function(response)
+        {
+          $('#supervisorNo').val(response.employees.no);
+          $('#address').val(response.employees.address);
+          $('#department').val(response.employees.departmentNo);
+          $('#email').val(response.employees.email);
+          $('#name').val(response.employees.name);
+          $('#dob').val(response.employees.dob);
+          $('#contact').val(response.employees.contact);
+          $('#id').val(response.employees.id);
+          $('#password').val('');
+          
+          $('#formHeader').text('Edit Supervisor');
+          
+          $('#buttonContainer').html('\
+          <button id="btnUpdate" class="supervisor-page-button2 button">Update</button>');
+        }
+      });
+      
+    });
+    
+    //function to Update Supervisor
+    function update()
+    {
+      let formData = new FormData($('#addForm')[0]);
+      $.ajax({
+        type: "POST",
+        url: "{{ url('administrator/dashboard/supervisor/update') }}",
+        data: formData,
+        contentType:false,
+        processData:false,
+        success: function(response){
+          if(response.status==400)
+          {
+            $('#errorlist').html('');
+            $.each(response.errors,function(key,err_value){
+              $('#errorlist').append('<li class="supervisor-page-li list-item"><span class="supervisor-page-text08">'+err_value+'</span></li>');
+            });
+          }
+          else
+          {
+            $('#errorlist').html('');
+            alert('Updated!')
+            
+            $('#buttonContainer').html('\
+            <button id="btnAdd" class="supervisor-page-button2 button">Add</button>');
+            
+            $('#supervisorNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
+            $('#address').val('');
+            $('#email').val('');
+            $('#name').val('');
+            $('#password').val('');
+            $('#dob').val('');
+            $('#confirmPassword').val('');
+            $('#contact').val('');
+            $('#photo').val('');
+            
+            fetchSupervisors();
+          }
+        }
+      });
+    } 
+    
+    //update supervisor on button click
+    $(document).on('click', '#btnUpdate', function(e) {
+      
+      e.preventDefault();
+      
+      if( $('#password').val() == "")
+      {
+        if( $('#password').val() == $('#confirmPassword').val())
+        {
+          update();
+        }
+        else
+        {
+          alert('Passwords Do Not Match');
+        }
+      }
+      else
+      {
+        update();
+      }
+      
+    });
+    
+    //delete supervisor
+    $(document).on('click', '#btnDelete', function(e) {
+      
+      var id = $(this).val();
+      
+      var url = '{{ url("administrator/dashboard/supervisor/delete/:id") }}';
+      url = url.replace(':id', id);
+      
+      $.ajax({
+        type:"DELETE",
+        url:url,
+        dataType:"json",
+      });
+      
+      
+      fetchSupervisors();
+    });
+    
+  });
+  
+</script>

@@ -150,234 +150,6 @@
         }
     </style>
     
-    <script>
-        $(document).ready(function(){
-            
-            //csrf token
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            
-            setInterval(() => {
-                counts();
-            }, 1000);
-            
-            //statistics
-            function counts()
-            {
-                var url = '{{ url("administrator/dashboard/counts") }}';
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        
-                        $('#factories').text(response.factoryCount);
-                        $('#departments').text(response.departmentCount);
-                        $('#supervisors').text(response.supervisorCount);
-                        $('#workers').text(response.workerCount);
-                        $('#workshops').text(response.workshopCount);
-                        $('#inventories').text(response.inventoryCount);
-                        
-                    }
-                });
-            }
-
-            //button color setting
-            $('#btnLimit_PKBC').css('background','#403e3b');
-            $('#btnLimit_PTT').css('background','#403e3b');
-            $('#btnLimit_CTT').css('background','#403e3b');
-            $('#btnLimit_AIT').css('background','#403e3b');
-            $('#btnLimit_FT').css('background','#403e3b');
-            
-            //limit and offset for pagination
-            var limit_PKBC = 0;
-            var limit_PTT = 0;
-            var limit_CTT = 0;
-            var limit_AIT = 0;
-            var limit_FT = 0;
-            
-            var type_PKBC = 'limit';
-            var type_PTT = 'limit';
-            var type_CTT = 'limit';
-            var type_AIT = 'limit';
-            var type_FT = 'limit';
-            
-            //next
-            function next_PKBC(){ limit_PKBC = limit_PKBC + 5; PKBC();}
-            function next_PTT(){ limit_PTT = limit_PTT + 5; PTT()}
-            function next_CTT(){ limit_CTT = limit_CTT + 5; CTT()}
-            function next_AIT(){ limit_AIT = limit_AIT + 5; AIT()}
-            function next_FT(){ limit_FT = limit_FT + 5; FT()}
-            
-            //click limit
-            $(document).on('click', '#btnNext_PKBC', function(e){ next_PKBC(); });
-            $(document).on('click', '#btnNext_PTT', function(e){ next_PTT(); });
-            $(document).on('click', '#btnNext_CTT', function(e){ next_CTT(); });
-            $(document).on('click', '#btnNext_AIT', function(e){ next_AIT(); });
-            $(document).on('click', '#btnNext_FT', function(e){ next_FT(); });
-            
-            //prev
-            function prev_PKBC(){ limit_PKBC = limit_PKBC - 5; if(limit_PKBC < 0) { limit_PKBC = 0;} PKBC();}
-            function prev_PTT(){ limit_PTT = limit_PTT - 5; if(limit_PTT < 0) { limit_PTT = 0;} PTT()}
-            function prev_CTT(){ limit_CTT = limit_CTT - 5; if(limit_CTT < 0) { limit_CTT = 0;} CTT()}
-            function prev_AIT(){ limit_AIT = limit_AIT - 5; if(limit_AIT < 0) { limit_AIT = 0;} AIT()}
-            function prev_FT(){ limit_FT = limit_FT - 5; if(limit_FT < 0) { limit_FT = 0;} FT()}
-            
-            //click prev
-            $(document).on('click', '#btnPrev_PKBC', function(e){ prev_PKBC(); });
-            $(document).on('click', '#btnPrev_PTT', function(e){ prev_PTT(); });
-            $(document).on('click', '#btnPrev_CTT', function(e){ prev_CTT(); });
-            $(document).on('click', '#btnPrev_AIT', function(e){ prev_AIT(); });
-            $(document).on('click', '#btnPrev_FT', function(e){ prev_FT(); });
-            
-            //click all
-            $(document).on('click', '#btnAll_PKBC', function(e){ type_PKBC = 'all'; PKBC(); $(this).css('background', '#403e3b'); $('#btnLimit_PKBC').css('background','#ee6c4d');});
-            $(document).on('click', '#btnAll_PTT', function(e){ type_PTT = 'all'; PTT(); $(this).css('background', '#403e3b'); $('#btnLimit_PTT').css('background','#ee6c4d');});
-            $(document).on('click', '#btnAll_CTT', function(e){ type_CTT = 'all'; CTT(); $(this).css('background', '#403e3b'); $('#btnLimit_CTT').css('background','#ee6c4d');});
-            $(document).on('click', '#btnAll_AIT', function(e){ type_AIT = 'all';AIT(); $(this).css('background', '#403e3b'); $('#btnLimit_AIT').css('background','#ee6c4d');});
-            $(document).on('click', '#btnAll_FT', function(e){ type_FT = 'all'; FT(); $(this).css('background', '#403e3b'); $('#btnLimit_FT').css('background','#ee6c4d');});
-            
-            //click limit
-            $(document).on('click', '#btnLimit_PKBC', function(e){ type_PKBC = 'limit'; limit_PKBC = 0; PKBC(); $(this).css('background', '#403e3b'); $('#btnAll_PKBC').css('background','#ee6c4d')});
-            $(document).on('click', '#btnLimit_PTT', function(e){ type_PTT = 'limit'; limit_PTT = 0; PTT(); $(this).css('background', '#403e3b'); $('#btnAll_PTT').css('background','#ee6c4d')});
-            $(document).on('click', '#btnLimit_CTT', function(e){ type_CTT = 'limit'; limit_CTT = 0; CTT(); $(this).css('background', '#403e3b'); $('#btnAll_CTT').css('background','#ee6c4d')});
-            $(document).on('click', '#btnLimit_AIT', function(e){ type_AIT = 'limit'; limit_AIT = 0; AIT(); $(this).css('background', '#403e3b'); $('#btnAll_AIT').css('background','#ee6c4d')});
-            $(document).on('click', '#btnLimit_FT', function(e){ type_FT = 'limit'; limit_FT = 0; FT(); $(this).css('background', '#403e3b'); $('#btnAll_FT').css('background','#ee6c4d')});
-            
-            //get PDF
-            $(document).on('click', '#btnPDF_PKBC', function(e){ $('#content_PKBC').printThis(); });
-            $(document).on('click', '#btnPDF_PTT', function(e){ $('#content_PTT').printThis(); });
-            $(document).on('click', '#btnPDF_CTT', function(e){ $('#content_CTT').printThis(); });
-            $(document).on('click', '#btnPDF_AIT', function(e){ $('#content_AIT').printThis(); });
-            $(document).on('click', '#btnPDF_FT', function(e){ $('#content_FT').printThis(); });
-            $(document).on('click', '#btnGeneratePDF', function(e){ $('#content').printThis(); });
-            
-            //call functions
-            PKBC();
-            PTT();
-            CTT();
-            AIT();
-            FT();
-            
-            function PKBC()
-            {
-                var url = "{{ url('administrator/dashboard/PKBC/:limit/:type') }}";
-                url = url.replace(':limit',limit_PKBC);
-                url = url.replace(':type',type_PKBC);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        $('#PKBC_table').html('');
-                        $.each(response.data,function(key,item){
-                            $('#PKBC_table').append('<tr><td>'+item.name+'</td>\
-                                <td>'+item.count+'</td>\
-                            </tr>\
-                            ');
-                        });
-                    }
-                });
-            };
-            
-            function PTT()
-            {
-                var url = "{{ url('administrator/dashboard/PTT/:limit/:type') }}";
-                url = url.replace(':limit',limit_PTT);
-                url = url.replace(':type',type_PTT);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        $('#PTT_table').html('');
-                        $.each(response.data,function(key,item){
-                            $('#PTT_table').append('<tr><td>'+item.name+'</td>\
-                                <td>'+item.count+'</td>\
-                            </tr>\
-                            ');
-                        });
-                    }
-                });
-            }
-            function CTT()
-            {
-                var url = "{{ url('administrator/dashboard/CTT/:limit/:type') }}";
-                url = url.replace(':limit',limit_CTT);
-                url = url.replace(':type',type_CTT);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        $('#CTT_table').html('');
-                        $.each(response.data,function(key,item){
-                            $('#CTT_table').append('<tr><td>'+item.name+'</td>\
-                                <td>'+item.count+'</td>\
-                            </tr>\
-                            ');
-                        });
-                        
-                    }
-                });
-            }
-            function AIT()
-            {
-                var url = "{{ url('administrator/dashboard/AIT/:limit/:type') }}";
-                url = url.replace(':limit',limit_AIT);
-                url = url.replace(':type',type_AIT);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        $('#AIT_table').html('');
-                        $.each(response.data,function(key,item){
-                            $('#AIT_table').append('<tr><td>'+item.name+'</td>\
-                                <td>'+item.count+'</td>\
-                            </tr>\
-                            ');
-                        });
-                    }
-                });
-            }
-            function FT()
-            {
-                var url = "{{ url('administrator/dashboard/FT/:limit/:type') }}";
-                url = url.replace(':limit',limit_FT);
-                url = url.replace(':type',type_FT);
-                
-                $.ajax({
-                    type: "GET",
-                    url:url,
-                    dataType:"json",
-                    success:function(response){
-                        $('#FT_table').html('');
-                        $.each(response.data,function(key,item){
-                            
-                            $total = item.price * item.availableQuantity;
-                            
-                            $('#FT_table').append('<tr><td>'+item.name+'</td>\
-                                <td>'+item.price+'</td>\
-                                <td>'+item.availableQuantity+'</td>\
-                                <td>'+$total+'</td>\
-                            </tr>\
-                            ');
-                        });
-                    }
-                });
-            }
-        });
-    </script>
-    
     <div class="task-info-page-container15" id="content_PKBC">
         <div class="task-info-page-container16">
             <h1 class="task-info-page-text18 upper">Pending Kanban Cards</h1>
@@ -538,3 +310,242 @@
 </div>
 </body>
 </html>
+
+{{-- Js --}}
+
+<script>
+    $(document).ready(function(){
+        
+        //csrf token
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        
+        //call functions every second
+        setInterval(() => {
+            counts();
+        }, 1000);
+        
+        //statistics
+        function counts()
+        {
+            var url = '{{ url("administrator/dashboard/counts") }}';
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    
+                    $('#factories').text(response.factoryCount);
+                    $('#departments').text(response.departmentCount);
+                    $('#supervisors').text(response.supervisorCount);
+                    $('#workers').text(response.workerCount);
+                    $('#workshops').text(response.workshopCount);
+                    $('#inventories').text(response.inventoryCount);
+                    
+                }
+            });
+        }
+
+        //button color setting
+        $('#btnLimit_PKBC').css('background','#403e3b');
+        $('#btnLimit_PTT').css('background','#403e3b');
+        $('#btnLimit_CTT').css('background','#403e3b');
+        $('#btnLimit_AIT').css('background','#403e3b');
+        $('#btnLimit_FT').css('background','#403e3b');
+        
+        //limit and offset for pagination
+        var limit_PKBC = 0;
+        var limit_PTT = 0;
+        var limit_CTT = 0;
+        var limit_AIT = 0;
+        var limit_FT = 0;
+        
+        var type_PKBC = 'limit';
+        var type_PTT = 'limit';
+        var type_CTT = 'limit';
+        var type_AIT = 'limit';
+        var type_FT = 'limit';
+        
+        //next
+        function next_PKBC(){ limit_PKBC = limit_PKBC + 5; PKBC();}
+        function next_PTT(){ limit_PTT = limit_PTT + 5; PTT()}
+        function next_CTT(){ limit_CTT = limit_CTT + 5; CTT()}
+        function next_AIT(){ limit_AIT = limit_AIT + 5; AIT()}
+        function next_FT(){ limit_FT = limit_FT + 5; FT()}
+        
+        //click limit
+        $(document).on('click', '#btnNext_PKBC', function(e){ next_PKBC(); });
+        $(document).on('click', '#btnNext_PTT', function(e){ next_PTT(); });
+        $(document).on('click', '#btnNext_CTT', function(e){ next_CTT(); });
+        $(document).on('click', '#btnNext_AIT', function(e){ next_AIT(); });
+        $(document).on('click', '#btnNext_FT', function(e){ next_FT(); });
+        
+        //prev
+        function prev_PKBC(){ limit_PKBC = limit_PKBC - 5; if(limit_PKBC < 0) { limit_PKBC = 0;} PKBC();}
+        function prev_PTT(){ limit_PTT = limit_PTT - 5; if(limit_PTT < 0) { limit_PTT = 0;} PTT()}
+        function prev_CTT(){ limit_CTT = limit_CTT - 5; if(limit_CTT < 0) { limit_CTT = 0;} CTT()}
+        function prev_AIT(){ limit_AIT = limit_AIT - 5; if(limit_AIT < 0) { limit_AIT = 0;} AIT()}
+        function prev_FT(){ limit_FT = limit_FT - 5; if(limit_FT < 0) { limit_FT = 0;} FT()}
+        
+        //click prev
+        $(document).on('click', '#btnPrev_PKBC', function(e){ prev_PKBC(); });
+        $(document).on('click', '#btnPrev_PTT', function(e){ prev_PTT(); });
+        $(document).on('click', '#btnPrev_CTT', function(e){ prev_CTT(); });
+        $(document).on('click', '#btnPrev_AIT', function(e){ prev_AIT(); });
+        $(document).on('click', '#btnPrev_FT', function(e){ prev_FT(); });
+        
+        //click all
+        $(document).on('click', '#btnAll_PKBC', function(e){ type_PKBC = 'all'; PKBC(); $(this).css('background', '#403e3b'); $('#btnLimit_PKBC').css('background','#ee6c4d');});
+        $(document).on('click', '#btnAll_PTT', function(e){ type_PTT = 'all'; PTT(); $(this).css('background', '#403e3b'); $('#btnLimit_PTT').css('background','#ee6c4d');});
+        $(document).on('click', '#btnAll_CTT', function(e){ type_CTT = 'all'; CTT(); $(this).css('background', '#403e3b'); $('#btnLimit_CTT').css('background','#ee6c4d');});
+        $(document).on('click', '#btnAll_AIT', function(e){ type_AIT = 'all';AIT(); $(this).css('background', '#403e3b'); $('#btnLimit_AIT').css('background','#ee6c4d');});
+        $(document).on('click', '#btnAll_FT', function(e){ type_FT = 'all'; FT(); $(this).css('background', '#403e3b'); $('#btnLimit_FT').css('background','#ee6c4d');});
+        
+        //click limit
+        $(document).on('click', '#btnLimit_PKBC', function(e){ type_PKBC = 'limit'; limit_PKBC = 0; PKBC(); $(this).css('background', '#403e3b'); $('#btnAll_PKBC').css('background','#ee6c4d')});
+        $(document).on('click', '#btnLimit_PTT', function(e){ type_PTT = 'limit'; limit_PTT = 0; PTT(); $(this).css('background', '#403e3b'); $('#btnAll_PTT').css('background','#ee6c4d')});
+        $(document).on('click', '#btnLimit_CTT', function(e){ type_CTT = 'limit'; limit_CTT = 0; CTT(); $(this).css('background', '#403e3b'); $('#btnAll_CTT').css('background','#ee6c4d')});
+        $(document).on('click', '#btnLimit_AIT', function(e){ type_AIT = 'limit'; limit_AIT = 0; AIT(); $(this).css('background', '#403e3b'); $('#btnAll_AIT').css('background','#ee6c4d')});
+        $(document).on('click', '#btnLimit_FT', function(e){ type_FT = 'limit'; limit_FT = 0; FT(); $(this).css('background', '#403e3b'); $('#btnAll_FT').css('background','#ee6c4d')});
+        
+        //get PDF
+        $(document).on('click', '#btnPDF_PKBC', function(e){ $('#content_PKBC').printThis(); });
+        $(document).on('click', '#btnPDF_PTT', function(e){ $('#content_PTT').printThis(); });
+        $(document).on('click', '#btnPDF_CTT', function(e){ $('#content_CTT').printThis(); });
+        $(document).on('click', '#btnPDF_AIT', function(e){ $('#content_AIT').printThis(); });
+        $(document).on('click', '#btnPDF_FT', function(e){ $('#content_FT').printThis(); });
+        $(document).on('click', '#btnGeneratePDF', function(e){ $('#content').printThis(); });
+        
+        //call functions
+        PKBC();
+        PTT();
+        CTT();
+        AIT();
+        FT();
+        
+        //call function to get pending kanban cards
+        function PKBC()
+        {
+            var url = "{{ url('administrator/dashboard/PKBC/:limit/:type') }}";
+            url = url.replace(':limit',limit_PKBC);
+            url = url.replace(':type',type_PKBC);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    $('#PKBC_table').html('');
+                    $.each(response.data,function(key,item){
+                        $('#PKBC_table').append('<tr><td>'+item.name+'</td>\
+                            <td>'+item.count+'</td>\
+                        </tr>\
+                        ');
+                    });
+                }
+            });
+        };
+        
+        //call function to get pending tasks
+        function PTT()
+        {
+            var url = "{{ url('administrator/dashboard/PTT/:limit/:type') }}";
+            url = url.replace(':limit',limit_PTT);
+            url = url.replace(':type',type_PTT);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    $('#PTT_table').html('');
+                    $.each(response.data,function(key,item){
+                        $('#PTT_table').append('<tr><td>'+item.name+'</td>\
+                            <td>'+item.count+'</td>\
+                        </tr>\
+                        ');
+                    });
+                }
+            });
+        }
+
+        //call function to get completed tasks
+        function CTT()
+        {
+            var url = "{{ url('administrator/dashboard/CTT/:limit/:type') }}";
+            url = url.replace(':limit',limit_CTT);
+            url = url.replace(':type',type_CTT);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    $('#CTT_table').html('');
+                    $.each(response.data,function(key,item){
+                        $('#CTT_table').append('<tr><td>'+item.name+'</td>\
+                            <td>'+item.count+'</td>\
+                        </tr>\
+                        ');
+                    });
+                    
+                }
+            });
+        }
+
+        //call function to get available inventories
+        function AIT()
+        {
+            var url = "{{ url('administrator/dashboard/AIT/:limit/:type') }}";
+            url = url.replace(':limit',limit_AIT);
+            url = url.replace(':type',type_AIT);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    $('#AIT_table').html('');
+                    $.each(response.data,function(key,item){
+                        $('#AIT_table').append('<tr><td>'+item.name+'</td>\
+                            <td>'+item.count+'</td>\
+                        </tr>\
+                        ');
+                    });
+                }
+            });
+        }
+
+        //call function to get inventory expenditures
+        function FT()
+        {
+            var url = "{{ url('administrator/dashboard/FT/:limit/:type') }}";
+            url = url.replace(':limit',limit_FT);
+            url = url.replace(':type',type_FT);
+            
+            $.ajax({
+                type: "GET",
+                url:url,
+                dataType:"json",
+                success:function(response){
+                    $('#FT_table').html('');
+                    $.each(response.data,function(key,item){
+                        
+                        $total = item.price * item.availableQuantity;
+                        
+                        $('#FT_table').append('<tr><td>'+item.name+'</td>\
+                            <td>'+item.price+'</td>\
+                            <td>'+item.availableQuantity+'</td>\
+                            <td>'+$total+'</td>\
+                        </tr>\
+                        ');
+                    });
+                }
+            });
+        }
+    });
+</script>
