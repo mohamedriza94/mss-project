@@ -36,42 +36,73 @@ class RawMaterialController extends Controller
         }
         else
         {
-            //calculate percentage of available quantity and round up
-            $availableQuantity = $request->input('quantity');
-            $totalQuantity = $request->input('minimumQuantity') + $request->input('repurchaseQuantity');
-            $availablePercentage = $availableQuantity / $totalQuantity * 100;
-            $availablePercentage = round($availablePercentage);
+            //get available quantity and update warehouse inventory
+            $inventories = Inventory::where('inventoryNo','=',$request->input('inventoryNo'))->first();
+            $availableQuantity = $inventories['availableQuantity'];
+            $inventoriesStatus = $inventories['status'];
             
-            $rawMaterials = new rawMaterial;
-            $rawMaterials->no = $request->input('no');
-            $rawMaterials->inventoryNo = $request->input('inventoryNo');
-            $rawMaterials->quantity = $request->input('quantity');
-            $rawMaterials->repurchaseQuantity = $request->input('repurchaseQuantity');
-            $rawMaterials->checkingStatus = '-';
-            $rawMaterials->availablePercentage = $availablePercentage;
-            $rawMaterials->minimumQuantity = $request->input('minimumQuantity');
-            
-            //exploding a string to get factory number from the supervisor
-            $factory_string  = auth()->guard('employee')->user()->departmentNo;
-            $split_factory_string = explode(" ", $factory_string);
-            $factoryNo = $split_factory_string[1]; //get 1st position of array
-            
-            $rawMaterials->factory = $factoryNo;
-            
-            if($request->input('quantity') > 0)
+            if($inventoriesStatus == 'available')
             {
-                $rawMaterials->status = 'available';
+                $newInventoryQuantity = $availableQuantity - $request->input('quantity');
+                if($newInventoryQuantity > 0)
+                {
+                    $inventories->status = 'available';
+                    $inventories->availableQuantity = $newInventoryQuantity;
+                    $inventories->save();
+                }
+                else
+                {
+                    $inventories->status = 'NA';
+                    $inventories->availableQuantity = $newInventoryQuantity;
+                    $inventories->save();
+                }
+                
+                //calculate percentage of available quantity and round up
+                $availableQuantity = $request->input('quantity');
+                $totalQuantity = $request->input('minimumQuantity') + $request->input('repurchaseQuantity');
+                $availablePercentage = $availableQuantity / $totalQuantity * 100;
+                $availablePercentage = round($availablePercentage);
+                
+                $rawMaterials = new rawMaterial;
+                $rawMaterials->no = $request->input('no');
+                $rawMaterials->inventoryNo = $request->input('inventoryNo');
+                $rawMaterials->quantity = $request->input('quantity');
+                $rawMaterials->repurchaseQuantity = $request->input('repurchaseQuantity');
+                $rawMaterials->checkingStatus = '-';
+                $rawMaterials->availablePercentage = $availablePercentage;
+                $rawMaterials->minimumQuantity = $request->input('minimumQuantity');
+                
+                
+                
+                //exploding a string to get factory number from the supervisor
+                $factory_string  = auth()->guard('employee')->user()->departmentNo;
+                $split_factory_string = explode(" ", $factory_string);
+                $factoryNo = $split_factory_string[1]; //get 1st position of array
+                
+                $rawMaterials->factory = $factoryNo;
+                
+                if($request->input('quantity') > 0)
+                {
+                    $rawMaterials->status = 'available';
+                }
+                else 
+                {
+                    $rawMaterials->status = 'NA';
+                }
+                
+                $rawMaterials->save();
+                
+                return response()->json([
+                    'status'=>200
+                ]);
             }
-            else 
+            else
             {
-                $rawMaterials->status = 'NA';
+                return response()->json([
+                    'status'=>404,
+                    'message'=> 'Inventory is out of stock at the warehouse'
+                ]);
             }
-            
-            $rawMaterials->save();
-            
-            return response()->json([
-                'status'=>200
-            ]);
         }
     }
     
@@ -254,23 +285,4 @@ class RawMaterialController extends Controller
             ]);
         }
     }
-    
-    // public function inventoryRequest()
-    // {
-        //     $rawMaterials_Checking = rawMaterial::where('checkingStatus','=','unchecked')->orderBy('id', 'DESC')->first(); 
-        
-        //     $inventoryNo = $rawMaterials_Checking['inventoryNo'];
-        //     $quantity = $rawMaterials_Checking['quantity'];
-        
-        //     if($quantity < 300)
-        //     {
-            //         $requests = new Request;
-            //         $requests->no = rand(1515,9999);
-            //         $requests->date = NOW();
-            //         $requests->time = NOW();
-            //         $requests->status = 'pending';
-            //         $requests->inventoryNo = $inventoryNo;
-            //         $requests->save();
-            //     }
-            // }
-        }
+}

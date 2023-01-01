@@ -71,7 +71,7 @@
                                 <th id="limittest">No.</th>
                                 <th>Name</th>
                                 <th>Quantity</th>
-                                <th>Unit Price</th>
+                                <th>Unit Price (AUD)</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>

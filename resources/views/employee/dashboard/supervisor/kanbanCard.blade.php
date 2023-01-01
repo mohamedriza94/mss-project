@@ -257,8 +257,7 @@
                 alert('Added!')
                 
                 $('#buttonContainer').html('\
-                <button id="btnAdd" type="submit" class="kanban-cards-page-button6 button"> Create </button>\
-                <button id="btnClear" type="submit" class="kanban-cards-page-button9 button"> All Done </button>');
+                <button id="btnAdd" type="submit" class="kanban-cards-page-button6 button"> Create </button>');
                 
                 $('#cardNo').val(Math.floor(Math.random() * (19999 - 99999 + 1) + 99999));
                 $('#title').val('');
@@ -305,8 +304,7 @@
                 alert('Updated!')
                 
                 $('#buttonContainer').html('\
-                <button id="btnAdd" type="submit" class="kanban-cards-page-button6 button"> Create </button>\
-                <button id="btnClear" type="submit" class="kanban-cards-page-button9 button"> All Done </button>');
+                <button id="btnAdd" type="submit" class="kanban-cards-page-button6 button"> Create </button>');
                 
                 $('#formHeader').text('Add Card');
                 
@@ -402,8 +400,7 @@
               $('#formHeader').text('Edit Card');
               
               $('#buttonContainer').html('\
-              <button id="btnUpdate" type="submit" class="kanban-cards-page-button6 button"> Update </button>\
-              <button id="btnClear" type="submit" class="kanban-cards-page-button9 button"> All Done </button>');
+              <button id="btnUpdate" type="submit" class="kanban-cards-page-button6 button"> Update </button>');
               
               fetchTasks();
               
@@ -535,7 +532,6 @@
                 $('#taskButtonContainer').html('\
                 <button id="btnAddTask" type="submit" class="kanban-cards-page-button8 button"> Add </button>');
                 
-                $('#getCardNo').val('');
                 $('#taskTitle').val('');
                 $('#taskDescription').val('');
                 $('#start').val('');

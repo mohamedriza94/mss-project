@@ -297,6 +297,9 @@
                             url:url,
                             dataType:"json",
                             success:function(response){
+                                
+                                $('#usedRMTable').html('');
+
                                 $.each(response.usedRM,function(key,item){
                                     $('#usedRMTable').append('<tr><td>'+item.name+'</td>\
                                         <td>'+item.quantity+'</td>\
@@ -398,7 +401,7 @@
                             'endDate' : endDate_ISO_format,
                             'days' : days,
                             'task' : task_input,
-                            'card' : card_input,
+                            'card' : card_input
                         };
                         
                         var url = '{{ url("employee/dashboard/workerDash/endTask") }}';

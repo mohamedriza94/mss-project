@@ -185,7 +185,7 @@ class HomeController extends Controller
             $data = DB::table('tasks')
             ->join('employees', 'tasks.worker', '=', 'employees.no')
             ->select('employees.name', 'employees.no', DB::raw('count(tasks.worker) as task_count'))
-            ->groupBy('employees.name', 'employees.no')->where('tasks.status','=','completed')
+            ->groupBy('employees.name', 'employees.no')
             ->where('tasks.factory','LIKE','%'.$factoryNo.'%')->orderBy('tasks.id','DESC')
             ->limit(5)->offSet($limit)->get();
         }
@@ -194,7 +194,7 @@ class HomeController extends Controller
             $data = DB::table('tasks')
             ->join('employees', 'tasks.worker', '=', 'employees.no')
             ->select('employees.name', 'employees.no', DB::raw('count(tasks.worker) as task_count'))
-            ->groupBy('employees.name', 'employees.no')->where('tasks.status','=','completed')
+            ->groupBy('employees.name', 'employees.no')
             ->where('tasks.factory','LIKE','%'.$factoryNo.'%')->orderBy('tasks.id','DESC')
             ->get();
         }
@@ -211,7 +211,7 @@ class HomeController extends Controller
         
         if($taskData)
         {
-            $taskData = $taskData;
+            $taskData = $taskData['name'];
         }
         else
         {

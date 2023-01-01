@@ -317,6 +317,10 @@
                   $('#errorlist').append('<li class="inventories-page-li list-item"><span style="color:white;">'+err_value+'</span></li>');
                 });
               }
+              else if(response.status == 404)
+              {
+                alert(response.message);
+              }
               else
               {
                 $('#errorlist').html('');
@@ -485,75 +489,75 @@
           //add stocks
           // $(document).on('click', '#btnAddQuantity', function(e) {
             
-          //   var id = $(this).val();
+            //   var id = $(this).val();
             
-          //   var data = {
-          //     'id' : id,
-          //   }
-            
-          //   var url = '{{ url("employee/dashboard/rm/addQuantity") }}';
-            
-          //   $.ajax({
-          //     type:"POST",
-          //     url: url,
-          //     data:data,
-          //     dataType:"json",
-          //     success: function(response){
-          //       fetchRawMaterials();
-          //     }
-          //   });
-          // });
-          
-        });
-        
-      </script>
-      
-      <div class="inventories-page-container08">
-        <ul id="errorlist" class="inventories-page-ul list"></ul>
-        
-        <div class="inventories-page-container09">
-          
-          <span class="inventories-page-text16" id="formHeader"> Add New Raw Material </span>
-          <form class="inventories-page-form">
-            
-            <input type="hidden" id="id"/>
-            
-            <div class="inventories-page-container10">
-              <span class="inventories-page-text17">Inventory Number</span>
-              <input type="number" id="inventoryNo" class="inventories-page-textinput input" />
+            //   var data = {
+              //     'id' : id,
+              //   }
+              
+              //   var url = '{{ url("employee/dashboard/rm/addQuantity") }}';
+              
+              //   $.ajax({
+                //     type:"POST",
+                //     url: url,
+                //     data:data,
+                //     dataType:"json",
+                //     success: function(response){
+                  //       fetchRawMaterials();
+                  //     }
+                  //   });
+                  // });
+                  
+                });
+                
+              </script>
+              
+              <div class="inventories-page-container08">
+                <ul id="errorlist" class="inventories-page-ul list"></ul>
+                
+                <div class="inventories-page-container09">
+                  
+                  <span class="inventories-page-text16" id="formHeader"> Add New Raw Material </span>
+                  <form class="inventories-page-form">
+                    
+                    <input type="hidden" id="id"/>
+                    
+                    <div class="inventories-page-container10">
+                      <span class="inventories-page-text17">Inventory Number</span>
+                      <input type="number" id="inventoryNo" class="inventories-page-textinput input" />
+                    </div>
+                    
+                    <div class="inventories-page-container11">
+                      <span class="inventories-page-text18">Inventory</span>
+                      <select id="inventory" class="inventories-page-select" ></select>
+                    </div>
+                    
+                    <div class="inventories-page-container12">
+                      <span class="inventories-page-text19">Quantity</span>
+                      <input type="number" id="quantity" class="inventories-page-textinput1 input" />
+                    </div>
+                    
+                    <div class="inventories-page-container13">
+                      <span class="inventories-page-text20">Minimum Quantity</span>
+                      <input type="number" id="minimumQuantity" class="inventories-page-textinput2 input" />
+                    </div>
+                    
+                    <div class="inventories-page-container14">
+                      <span class="inventories-page-text21">Repurchase Quantity</span>
+                      <input type="number" id="repurchaseQuantity" class="inventories-page-textinput3 input" />
+                    </div>
+                    
+                    <div id="buttonContainer">
+                      <button id="btnAdd" type="submit" class="inventories-page-button6 button"> Add </button>
+                    </div>
+                    
+                  </form>
+                </div>
+              </div>
+              <div class="inventories-page-container15">
+                <span class="inventories-page-text22">Lock Hood Pvt Ltd 2022</span>
+              </div>
             </div>
-            
-            <div class="inventories-page-container11">
-              <span class="inventories-page-text18">Inventory</span>
-              <select id="inventory" class="inventories-page-select" ></select>
-            </div>
-            
-            <div class="inventories-page-container12">
-              <span class="inventories-page-text19">Quantity</span>
-              <input type="number" id="quantity" class="inventories-page-textinput1 input" />
-            </div>
-            
-            <div class="inventories-page-container13">
-              <span class="inventories-page-text20">Minimum Quantity</span>
-              <input type="number" id="minimumQuantity" class="inventories-page-textinput2 input" />
-            </div>
-            
-            <div class="inventories-page-container14">
-              <span class="inventories-page-text21">Repurchase Quantity</span>
-              <input type="number" id="repurchaseQuantity" class="inventories-page-textinput3 input" />
-            </div>
-            
-            <div id="buttonContainer">
-              <button id="btnAdd" type="submit" class="inventories-page-button6 button"> Add </button>
-            </div>
-            
-          </form>
-        </div>
-      </div>
-      <div class="inventories-page-container15">
-        <span class="inventories-page-text22">Lock Hood Pvt Ltd 2022</span>
-      </div>
-    </div>
-  </div>
-</body>
-</html>
+          </div>
+        </body>
+        </html>

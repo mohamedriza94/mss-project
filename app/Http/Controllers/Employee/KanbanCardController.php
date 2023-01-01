@@ -448,7 +448,6 @@ class KanBanCardController extends Controller
                         $usedRM->save();
                     }
                     
-                    if()
                     //update quantity
                     $rawMaterials = rawMaterial::where('no','=',$request->input('rawMaterial'))->first();
                     $rawMaterials->quantity = $newQuantity;
@@ -595,7 +594,7 @@ class KanBanCardController extends Controller
             $task_update->status = 'completed';
             $task_update->endDate = $request->input('endDate');
             $task_update->duration = $request->input('days');
-            $task_update->save();
+            $task_update->update();
             
             //check if kan ban card has any incomplete tasks
             $check_card_task = Task::where('status','!=','completed')->where('cardNo','=',$request->input('card'))->first();

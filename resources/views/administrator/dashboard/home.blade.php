@@ -176,10 +176,10 @@
                     success:function(response){
                         
                         $('#factories').text(response.factoryCount);
-                        $('#workers').text(response.departmentCount);
-                        $('#departments').text(response.supervisorCount);
-                        $('#workshops').text(response.workerCount);
-                        $('#supervisors').text(response.workshopCount);
+                        $('#departments').text(response.departmentCount);
+                        $('#supervisors').text(response.supervisorCount);
+                        $('#workers').text(response.workerCount);
+                        $('#workshops').text(response.workshopCount);
                         $('#inventories').text(response.inventoryCount);
                         
                     }

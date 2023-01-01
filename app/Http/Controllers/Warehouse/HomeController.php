@@ -28,7 +28,7 @@ class HomeController extends Controller
     {
         $validator = Validator::make($request->all(), [
             
-            'inventoryNo' => ['required'],
+            'inventoryNo' => ['required','unique:inventories'],
             'name' => ['required'],
             'price' => ['required','numeric'],
             'quantity' => ['required','numeric'],
