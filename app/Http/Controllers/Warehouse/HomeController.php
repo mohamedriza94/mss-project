@@ -178,19 +178,23 @@ class HomeController extends Controller
     
     public function fillRequest(Request $request)
     {
-        //get inventory number
-        $rawMaterials = rawMaterial::where('no','=',$request->input('rawMaterial'))->first();
-        $inventoryNo = $rawMaterials['inventoryNo'];
-        
-        //get requested quantity
-        $inventoryRequests = InventoryRequest::where('rawMaterial','=',$request->input('rawMaterial'))->first();
-        $requestedQuantity = $inventoryRequests['quantity'];
-        
-        //get available quantity
+        //get inventory request
+        $inventoryRequests = InventoryRequest::where('requestNo','=',$request->input('no'))->first();
+        $inventoryNo = $inventoryRequests['inventoryNo'];
+        $rawMaterialNo = $inventoryRequests['rawMaterial'];
+
+        //get raw materials
+        $rawMaterials = rawMaterial::where('no','=',$rawMaterialNo)->first();
+
+        //get inventories
         $inventories = Inventory::where('inventoryNo','=',$inventoryNo)->first();
-        $availableQuantity = $inventories['availableQuantity'];
-        
-        if($availableQuantity >= $requestedQuantity)
+
+        //get quantities
+        $requestedQuantity = $inventoryRequests['quantity'];
+        $inventoryQuantity = $inventories['availableQuantity'];
+        $rawMaterialQuantity = $rawMaterials['quantity'];
+
+        if($inventoryQuantity >= $requestedQuantity)
         {
             //update request status as completed
             $inventoryRequests->status = 'completed';
@@ -198,8 +202,7 @@ class HomeController extends Controller
 
             //update raw material quantity============================
             //calculate percentage of available quantity and round up
-            $currentRawMaterialQuantity = $rawMaterials['quantity'];
-            $newQuantity = $currentRawMaterialQuantity + $requestedQuantity;
+            $newQuantity = $rawMaterialQuantity + $requestedQuantity;
 
             $rmMinimumQuantity = $rawMaterials['minimumQuantity'];
             $rmRepurchaseQuantity = $rawMaterials['repurchaseQuantity'];
@@ -213,7 +216,7 @@ class HomeController extends Controller
             $rawMaterials->save();
 
             //update inventory quantity
-            $newInventoryQuantity = $availableQuantity - $requestedQuantity;
+            $newInventoryQuantity = $inventoryQuantity - $requestedQuantity;
             if($newInventoryQuantity > 0)
             {
                 $inventories->status = 'available';
@@ -236,7 +239,7 @@ class HomeController extends Controller
             return response()->json([
                 'status'=>400,
                 'message'=>'Insufficient Stock Available'
-            ]);
+            ]); 
         }
     }
 }

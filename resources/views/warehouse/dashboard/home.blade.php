@@ -158,7 +158,7 @@
             if(item.status=='pending')
             {
               status = "<div style='text-align:center; width:100%; padding:2px; border-radius:6px; background:#a67a02; color:white'>Pending</div>";
-              button = '<button value="'+item.rawMaterial+'" id="btnFill" style="width:100px; padding:8px; border-radius:3px; background:#dbfc03; color:#615f5f;">Fill</button>';
+              button = '<button value="'+item.no+'" id="btnFill" style="width:100px; padding:8px; border-radius:3px; background:#dbfc03; color:#615f5f;">Fill</button>';
             }
             else
             {
@@ -182,10 +182,10 @@
     //fill requests
     $(document).on('click', '#btnFill', function(e) {
       
-      var rawMaterial = $(this).val();
+      var no = $(this).val();
       
       var data = {
-        'rawMaterial' : rawMaterial,
+        'no' : no,
       }
       
       var url = '{{ url("warehouse/dashboard/fillRequest") }}';
